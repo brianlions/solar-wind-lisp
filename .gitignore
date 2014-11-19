@@ -1,0 +1,5 @@
+.cproject
+.project
+bin/
+release.h
+*.swp
