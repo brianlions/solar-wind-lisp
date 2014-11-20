@@ -2,7 +2,7 @@
 # rainbow.mk
 #
 #  Created on: Aug 21, 2011
-#  Author:     Brian Y. ZHANG
+#  Author:     Brian Yi ZHANG
 #  Email:      brianlions@gmail.com
 #
 

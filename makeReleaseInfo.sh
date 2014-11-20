@@ -14,7 +14,7 @@ build_host=`hostname`
 build_user=$USER
 
 include_guard=`date +'_Brian_Yi_ZHANG_RELEASE_H_%Y%m%d_%H%M%S_'`
-copyright_info='Copyright (C) 2012 Brian Y. ZHANG (brianlions at gmail dot com)'
+copyright_info='Copyright (C) 2012 Brian Yi ZHANG (brianlions@gmail.com)'
 
 if [ x"$1" == x ]; then
     release_info_header="release.h"
@@ -73,53 +73,53 @@ test -f $release_info_header || touch $release_info_header
     (grep BUILD_USER    $release_info_header | grep "\"$build_user\""    >/dev/null) && \
     exit 0
 
-echo "/* AUTO GENERATED, DO NOT EDIT */"                 > $release_info_header
-echo "#ifndef $include_guard"                           >> $release_info_header
-echo "#define $include_guard"                           >> $release_info_header
-echo ""                                                 >> $release_info_header
-echo "#include <stdio.h>"                               >> $release_info_header
-echo "#include <stdlib.h>"                              >> $release_info_header
-echo ""                                                 >> $release_info_header
-echo "#define SVN_COMMIT_ID    \"$svn_commit_id\""      >> $release_info_header
-echo "#define SVN_DIRTY        \"$svn_dirty\""          >> $release_info_header
-echo "#define GIT_COMMIT_ID    \"$git_commit_id\""      >> $release_info_header
-echo "#define GIT_DIRTY        \"$git_dirty\""          >> $release_info_header
-echo "#define GIT_TAG          \"$git_tag\""            >> $release_info_header
-echo "#define BUILD_TIME       \"$build_time\""         >> $release_info_header
-echo "#define BUILD_HOST       \"$build_host\""         >> $release_info_header
-echo "#define BUILD_USER       \"$build_user\""         >> $release_info_header
-echo "#define BUILD_COPYRIGHT  \"$copyright_info\""     >> $release_info_header
-echo ""                                                 >> $release_info_header
-echo -e "__inline__ void printReleaseInfo("             >> $release_info_header
-echo -e "        int ec = EXIT_SUCCESS,"                >> $release_info_header
-echo -e "        const char * message = BUILD_COPYRIGHT)"	>> $release_info_header
+echo "/* AUTO GENERATED, DO NOT EDIT */"                         > $release_info_header
+echo "#ifndef $include_guard"                                   >> $release_info_header
+echo "#define $include_guard"                                   >> $release_info_header
+echo ""                                                         >> $release_info_header
+echo "#include <stdio.h>"                                       >> $release_info_header
+echo "#include <stdlib.h>"                                      >> $release_info_header
+echo ""                                                         >> $release_info_header
+echo "#define SVN_COMMIT_ID    \"$svn_commit_id\""              >> $release_info_header
+echo "#define SVN_DIRTY        \"$svn_dirty\""                  >> $release_info_header
+echo "#define GIT_COMMIT_ID    \"$git_commit_id\""              >> $release_info_header
+echo "#define GIT_DIRTY        \"$git_dirty\""                  >> $release_info_header
+echo "#define GIT_TAG          \"$git_tag\""                    >> $release_info_header
+echo "#define BUILD_TIME       \"$build_time\""                 >> $release_info_header
+echo "#define BUILD_HOST       \"$build_host\""                 >> $release_info_header
+echo "#define BUILD_USER       \"$build_user\""                 >> $release_info_header
+echo "#define BUILD_COPYRIGHT  \"$copyright_info\""             >> $release_info_header
+echo ""                                                         >> $release_info_header
+echo -e "__inline__ void print_release_info("                   >> $release_info_header
+echo -e "        int ec = EXIT_SUCCESS,"                        >> $release_info_header
+echo -e "        const char * message = BUILD_COPYRIGHT)"       >> $release_info_header
 echo -e "{"                                         	        >> $release_info_header
 echo -e "  (void) fprintf(ec == 0 ? stdout : stderr,"		>> $release_info_header
-echo -e "         \"Release Info:"'\\n'\"           	>> $release_info_header
-echo -e "         \"  svn commit id: %s"'\\n'\"         >> $release_info_header
-echo -e "         \"  svn dirty:     %s"'\\n'\"         >> $release_info_header
-echo -e "         \"  git tag:       %s"'\\n'\"         >> $release_info_header
-echo -e "         \"  git commit id: %s"'\\n'\"         >> $release_info_header
-echo -e "         \"  git dirty:     %s"'\\n'\"         >> $release_info_header
-echo -e "         \"  build time:    %s"'\\n'\"         >> $release_info_header
-echo -e "         \"  build on host: %s"'\\n'\"         >> $release_info_header
-echo -e "         \"  build by user: %s"'\\n'\"         >> $release_info_header
-echo -e "         \""'\\n'\"                            >> $release_info_header
-echo -e "         \"%s"'\\n'\"                          >> $release_info_header
-echo -e "         , SVN_COMMIT_ID"                      >> $release_info_header
-echo -e "         , SVN_DIRTY"                          >> $release_info_header
-echo -e "         , GIT_TAG"                            >> $release_info_header
-echo -e "         , GIT_COMMIT_ID"                      >> $release_info_header
-echo -e "         , GIT_DIRTY"                          >> $release_info_header
-echo -e "         , BUILD_TIME"                         >> $release_info_header
-echo -e "         , BUILD_HOST"                         >> $release_info_header
-echo -e "         , BUILD_USER"                         >> $release_info_header
-echo -e "         , message ? message : \"\""           >> $release_info_header
-echo -e "         );"                                   >> $release_info_header
-echo -e "  exit(ec);"                                   >> $release_info_header
-echo -e "}"                                             >> $release_info_header
-echo "#endif /* $include_guard */"                      >> $release_info_header
-echo ""                                                 >> $release_info_header
+echo -e "         \"Release Info:"'\\n'\"           	        >> $release_info_header
+echo -e "         \"  svn commit id: %s"'\\n'\"                 >> $release_info_header
+echo -e "         \"  svn dirty:     %s"'\\n'\"                 >> $release_info_header
+echo -e "         \"  git tag:       %s"'\\n'\"                 >> $release_info_header
+echo -e "         \"  git commit id: %s"'\\n'\"                 >> $release_info_header
+echo -e "         \"  git dirty:     %s"'\\n'\"                 >> $release_info_header
+echo -e "         \"  build time:    %s"'\\n'\"                 >> $release_info_header
+echo -e "         \"  build on host: %s"'\\n'\"                 >> $release_info_header
+echo -e "         \"  build by user: %s"'\\n'\"                 >> $release_info_header
+echo -e "         \""'\\n'\"                                    >> $release_info_header
+echo -e "         \"%s"'\\n'\"                                  >> $release_info_header
+echo -e "         , SVN_COMMIT_ID"                              >> $release_info_header
+echo -e "         , SVN_DIRTY"                                  >> $release_info_header
+echo -e "         , GIT_TAG"                                    >> $release_info_header
+echo -e "         , GIT_COMMIT_ID"                              >> $release_info_header
+echo -e "         , GIT_DIRTY"                                  >> $release_info_header
+echo -e "         , BUILD_TIME"                                 >> $release_info_header
+echo -e "         , BUILD_HOST"                                 >> $release_info_header
+echo -e "         , BUILD_USER"                                 >> $release_info_header
+echo -e "         , message ? message : \"\""                   >> $release_info_header
+echo -e "         );"                                           >> $release_info_header
+echo -e "  exit(ec);"                                           >> $release_info_header
+echo -e "}"                                                     >> $release_info_header
+echo "#endif /* $include_guard */"                              >> $release_info_header
+echo ""                                                         >> $release_info_header
 
 touch $release_info_header # force recompile
 

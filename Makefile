@@ -10,30 +10,33 @@
 
 -include rainbow.mk
 
-CC                 := gcc
-CXX                := g++
-CFLAGS             := -O2 -Wall
-CXXFLAGS           := -O2 -Wall
-CFLAGS_DBG         := -O0 -g -Wall
-CXXFLAGS_DBG       := -O0 -g -Wall
-AR                 := ar
+CC              := gcc
+CXX             := g++
+CFLAGS          := -O2 -Wall
+CXXFLAGS        := -O2 -Wall
+CFLAGS_DBG      := -O0 -g -Wall
+CXXFLAGS_DBG    := -O0 -g -Wall
+AR              := ar
 
-root_dir           := .
-inc_dir            := $(root_dir)/include
-src_dir            := $(root_dir)/src
-bin_dir            := $(root_dir)/bin
-test_dir           := $(root_dir)/test
-poc_dir            := $(root_dir)/poc
+root_dir        := .
+inc_dir         := $(root_dir)/include
+src_dir         := $(root_dir)/src
+bin_dir         := $(root_dir)/bin
+test_dir        := $(root_dir)/test
+poc_dir         := $(root_dir)/poc
 
-include_paths      := $(inc_dir) $(src_dir) ~/local/include ~/lab/include /usr/local/include /opt/include
-library_paths      := $(bin_dir) ~/local/lib ~/lab/lib /usr/local/lib /opt/lib
-libraries          := rt pthread gtest
+include_paths   := $(inc_dir) $(src_dir) ~/local/include ~/local/include/google ~/lab/include /usr/local/include /opt/include
+library_paths   := $(bin_dir) ~/local/lib ~/lab/lib /usr/local/lib /opt/lib
+libraries       := gtest rt pthread
 
-static_lib         :=# libnebula.a
-static_lib_dbg     :=# libnebula_debug.a
+static_lib      :=# libnebula.a
+static_lib_dbg  :=# libnebula_debug.a
 
-make_release_h     := $(shell ./makeReleaseInfo.sh $(src_dir))
-release_h          := $(src_dir)/release.h
+make_release_h  := $(shell ./makeReleaseInfo.sh $(src_dir))
+release_h       := $(src_dir)/release.h
+proj_name       := solarwind
+name_sep	:= -
+name_prefix     :=
 
 ifndef NO_COLOR
 MY_DEP  =@printf '%b\t%b\n' $(DEP_COLOR_A)CPP$(END_COLOR) $(DEP_COLOR_B)$(1)$(END_COLOR) &&
@@ -81,8 +84,8 @@ core_objs          := $(patsubst $(src_dir)/%.cc,$(bin_dir)/%.o,$(core_srcs))
 core_deps_dbg      := $(patsubst $(src_dir)/%.cc,$(bin_dir)/%_dbg.d,$(core_srcs))
 core_objs_dbg      := $(patsubst $(src_dir)/%.cc,$(bin_dir)/%_dbg.o,$(core_srcs))
 
-core_exes          := $(patsubst $(src_dir)/%_main.cc,$(bin_dir)/%,$(core_main_srcs))
-core_exes_dbg      := $(patsubst $(src_dir)/%_main.cc,$(bin_dir)/%-dbg,$(core_main_srcs))
+core_exes          := $(patsubst $(src_dir)/%_main.cc,$(bin_dir)/$(name_prefix)%,$(core_main_srcs))
+core_exes_dbg      := $(patsubst $(src_dir)/%_main.cc,$(bin_dir)/$(name_prefix)%$(name_sep)dbg,$(core_main_srcs))
 
 poc_srcs           := $(wildcard $(poc_dir)/*.cc)
 poc_deps           := $(patsubst $(poc_dir)/%.cc,$(bin_dir)/%.d,$(poc_srcs))
@@ -91,7 +94,7 @@ poc_deps_dbg       := $(patsubst $(poc_dir)/%.cc,$(bin_dir)/%_dbg.d,$(poc_srcs))
 poc_objs_dbg       := $(patsubst $(poc_dir)/%.cc,$(bin_dir)/%_dbg.o,$(poc_srcs))
 
 poc_exes           := $(patsubst $(poc_dir)/%.cc,$(bin_dir)/%,$(poc_srcs))
-poc_exes_dbg       := $(patsubst $(poc_dir)/%.cc,$(bin_dir)/%-dbg,$(poc_srcs))
+poc_exes_dbg       := $(patsubst $(poc_dir)/%.cc,$(bin_dir)/%$(name_sep)dbg,$(poc_srcs))
 
 test_main_srcs     := $(wildcard $(test_dir)/*_main.cc)
 test_main_deps     := $(patsubst $(test_dir)/%.cc,$(bin_dir)/%.d,$(test_main_srcs))
@@ -151,15 +154,15 @@ $(bin_dir)/%_dbg.d: $(poc_dir)/%.cc
 $(bin_dir)/%_dbg.o: $(poc_dir)/%.cc
 	$(call comp_dbg.cxx,$@,$<)
 # executables
-$(bin_dir)/%: $(bin_dir)/%_main.o $(core_objs)
+$(bin_dir)/$(name_prefix)%: $(bin_dir)/%_main.o $(core_objs)
 	$(call link.cxx,$@,$^)
-$(bin_dir)/%-dbg: $(bin_dir)/%_main_dbg.o $(core_objs_dbg)
+$(bin_dir)/$(name_prefix)%$(name_sep)dbg: $(bin_dir)/%_main_dbg.o $(core_objs_dbg)
 	$(call link_dbg.cxx,$@,$^)
 $(bin_dir)/%_t: $(bin_dir)/%_t.o $(test_main_objs) $(core_objs_dbg)
 	$(call link_dbg.cxx,$@,$^)
 $(bin_dir)/%: $(bin_dir)/%.o $(core_objs)
 	$(call link.cxx,$@,$^)
-$(bin_dir)/%-dbg: $(bin_dir)/%_dbg.o $(core_objs_dbg)
+$(bin_dir)/%$(name_sep)dbg: $(bin_dir)/%_dbg.o $(core_objs_dbg)
 	$(call link_dbg.cxx,$@,$^)
 # static lib files
 $(static_lib): $(core_objs)
