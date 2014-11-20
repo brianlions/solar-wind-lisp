@@ -1,6 +1,7 @@
 #ifndef _SOLAR_WIND_LISP_EXPR_H_
 #define _SOLAR_WIND_LISP_EXPR_H_
 
+#include <sstream>
 #include "swl_component.h"
 
 namespace SolarWindLisp
@@ -36,145 +37,36 @@ bool is_##name() const {                \
         _data.destroy();
     }
 
-    bool parse(const char * buf, size_t length)
-    {
-        if (parse_none(buf, length) || parse_bool(buf, length)
-                || parse_integer(buf, length) || parse_real(buf, length))
-        {
-            return true;
-        }
+    static Expr * create(const char * buf, size_t length);
 
-        return false;
+    bool parse(const char * buf, size_t length);
+    bool parse_none(const char * buf, size_t length);
+    bool parse_bool(const char * buf, size_t length);
+    bool parse_integer(const char * buf, size_t length);
+    bool parse_real(const char * buf, size_t length);
+    bool parse_string(const char * buf, size_t length);
+
+    bool to_i32(int32_t &v) const;
+    bool to_i64(int64_t &v) const;
+    bool to_u32(uint32_t &v) const;
+    bool to_u64(uint64_t &v) const;
+    bool to_double(double &v) const;
+    bool to_long_double(long double &v) const;
+    const char * to_string() const
+    {
+        return is_string() ? _data.str.buffer : NULL;
     }
 
-    bool parse_none(const char * buf, size_t length)
-    {
-        if (!strcmp(buf, "none"))
-        {
-            _type = type_none;
-            return true;
-        }
+#if 0
+    bool to_i32_unsafe(int32_t &v) const;
+    bool to_i64_unsafe(int64_t &v) const;
+    bool to_u32_unsafe(uint32_t &v) const;
+    bool to_u64_unsafe(uint64_t &v) const;
+    bool to_double_unsafe(double &v) const;
+    bool to_long_double_unsafe(long double &v) const;
+#endif
 
-        return false;
-    }
-
-    bool parse_bool(const char * buf, size_t length)
-    {
-        if (!strcmp(buf, "true"))
-        {
-            _type = type_bool;
-            _data.num.b = true;
-            return true;
-        }
-
-        if (!strcmp(buf, "false"))
-        {
-            _type = type_bool;
-            _data.num.b = false;
-            return true;
-        }
-
-        return false;
-    }
-
-    bool parse_integer(const char * buf, size_t length)
-    {
-        int base = 10;
-        char * endptr = NULL;
-        int saved_errno = errno;
-        errno = 0;
-
-        if (length > 2 && (!strncmp(buf, "0x", 2) || !strncmp(buf, "0X", 2)))
-        {
-            base = 16;
-        }
-        else if (length > 1 && buf[0] == '0')
-        {
-            base = 8;
-        }
-
-        // decimal
-        if (base == 10)
-        {
-            long int v = strtol(buf, &endptr, base);
-            if (!errno && endptr == buf + length)
-            {
-                if (v >= std::numeric_limits < int32_t > ::min()
-                        && v <= std::numeric_limits < int32_t > ::max())
-                {
-                    _type = type_i32;
-                    _data.num.i32 = static_cast<int32_t>(v);
-                    errno = saved_errno;
-                    return true;
-                }
-
-                if (v >= std::numeric_limits < int64_t > ::min()
-                        && v <= std::numeric_limits < int64_t > ::max())
-                {
-                    _type = type_i64;
-                    _data.num.i64 = static_cast<int64_t>(v);
-                    errno = saved_errno;
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        // possibly (but NOT probably) hexdecimal or octal
-        unsigned long v = strtoul(buf + ((base == 16) ? 2 : 1), &endptr, base);
-        if (!errno && endptr == buf + length)
-        {
-            if (v >= std::numeric_limits < uint32_t > ::min()
-                    && v <= std::numeric_limits < uint32_t > ::max())
-            {
-                _type = type_u32;
-                _data.num.u32 = static_cast<uint32_t>(v);
-                errno = saved_errno;
-                return true;
-            }
-
-            if (v >= std::numeric_limits < uint64_t > ::min()
-                    && v <= std::numeric_limits < uint64_t > ::max())
-            {
-                _type = type_u64;
-                _data.num.u64 = static_cast<uint64_t>(v);
-                errno = saved_errno;
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    bool parse_real(const char * buf, size_t length)
-    {
-        char * endptr = NULL;
-        int saved_errno = errno;
-        errno = 0;
-
-        double d = strtod(buf, &endptr);
-        if (!errno && endptr == buf + length)
-        {
-            _type = type_double;
-            _data.num.d = d;
-            errno = saved_errno;
-            return true;
-        }
-
-        long double ld = strtold(buf, &endptr);
-        if (!errno && endptr == buf + length)
-        {
-            _type = type_long_double;
-            _data.num.ld = ld;
-            errno = saved_errno;
-            return true;
-        }
-
-        return false;
-    }
-
-    struct AtomNode
+    struct AtomData
     {
         void destroy()
         {
@@ -195,6 +87,31 @@ bool is_##name() const {                \
         {
         }
 
+        bool set_string(const char * buf, size_t length)
+        {
+            if (str.buffer) {
+                // reuse existing buffer if long enough
+                if (str.size >= length + 1) {
+                    memcpy(str.buffer, buf, length + 1);
+                    str.length = length;
+                    return true;
+                }
+
+                free(str.buffer);
+                str.buffer = NULL;
+                str.length = 0;
+                str.size = 0;
+            }
+
+            if (!(str.buffer = strdup(buf))) {
+                return false;
+            }
+
+            str.size = length + 1;
+            str.length = length;
+            return true;
+        }
+
         union
         {
             bool b;
@@ -210,13 +127,41 @@ bool is_##name() const {                \
         struct
         {
             char * buffer;
-            size_t used;
+            size_t length;
             size_t size;
         } str;
     };
 
+    std::string to_std_string() const
+    {
+        std::stringstream ss;
+        ss << "Expr{prev:" << ((void *) _prev)
+            << ",this:" << ((void *) this)
+            << ",next:" << ((void *) _next)
+            << ",type:" << _type
+            << ",data:";
+        if (is_none()) {
+            ss << "none";
+        }
+        else if (is_integer()) {
+            int64_t v;
+            to_i64(v);
+            ss << v;
+        }
+        else if (is_real()) {
+            double d;
+            to_double(d);
+            ss << d;
+        }
+        else if (is_string()) {
+            ss << "`" << to_string() << "'";
+        }
+        ss << "}";
+        return ss.str();
+    }
+
 private:
-    AtomNode _data;
+    AtomData _data;
 };
 
 class CompositeExpr: public IExpr
@@ -226,17 +171,17 @@ public:
 bool is_##name() const {                \
     return value;                       \
 }
-    type_test_macro2(none, false)
-    type_test_macro2(bool, false)
-    type_test_macro2(i32, false)
-    type_test_macro2(u32, false)
-    type_test_macro2(i64, false)
-    type_test_macro2(u64, false)
-    type_test_macro2(float, false)
-    type_test_macro2(double, false)
+    type_test_macro2(none,        false)
+    type_test_macro2(bool,        false)
+    type_test_macro2(i32,         false)
+    type_test_macro2(u32,         false)
+    type_test_macro2(i64,         false)
+    type_test_macro2(u64,         false)
+    type_test_macro2(float,       false)
+    type_test_macro2(double,      false)
     type_test_macro2(long_double, false)
-    type_test_macro2(string, false)
-    type_test_macro2(composite, true)
+    type_test_macro2(string,      false)
+    type_test_macro2(composite,   true)
 #undef type_test_macro2
 
     CompositeExpr() :
@@ -246,40 +191,17 @@ bool is_##name() const {                \
 
     ~CompositeExpr()
     {
-        // FIXME: relinquish _head to _tail
+        _destroy();
     }
 
-    bool append_expr(IExpr * expr)
-    {
-        if (!_head)
-        {
-            _head = _tail = expr;
-        }
-        else
-        {
-            expr->set_prev_and_next(_tail, NULL);
-            _tail->set_next(expr);
-            _tail = expr;
-        }
-        _size++;
-        return true;
-    }
+    bool append_expr(IExpr * expr);
 
     size_t length() const
     {
         return _size;
     }
 
-    bool rewind() const
-    {
-        if (_head)
-        {
-            _cursor = _head;
-            return true;
-        }
-
-        return false;
-    }
+    bool rewind() const;
 
     bool has_next() const
     {
@@ -293,7 +215,36 @@ bool is_##name() const {                \
         return r;
     }
 
+    std::string to_std_string() const
+    {
+        std::stringstream ss;
+        ss << "CompositeExpr{head:" << ((void *) _head)
+            << ",tail:" << ((void *) _tail)
+            << ",size:" << _size
+            << ",elem:[" << std::endl;
+        const IExpr * e = _head;
+        while (e) {
+            ss << "    " << e->to_std_string() << std::endl;
+            e = e->next();
+        }
+        ss << "]}";
+        return ss.str();
+    }
+
 private:
+
+    void _destroy()
+    {
+        while (_head) {
+            IExpr * p = _head;
+            _head = _head->next();
+            delete p;
+        }
+
+        _head = _tail = _cursor = NULL;
+        _size = 0;
+    }
+
     IExpr * _head;
     IExpr * _tail;
     mutable IExpr * _cursor;

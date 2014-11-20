@@ -29,7 +29,7 @@ TEST_F(ExprTS, types)
     EXPECT_EQ(e.is_none(), true);
 }
 
-TEST_F(ExprTS, parse)
+TEST_F(ExprTS, parseA)
 {
     Expr e;
 
@@ -49,28 +49,138 @@ TEST_F(ExprTS, parse)
         { "0xabcdef", IExpr::type_u32 },
         { "3.141592653", IExpr::type_double },
         { "2.718281828", IExpr::type_double },
+        { "this is a string", IExpr::type_string },
+        { "", IExpr::type_string },
     };
 
     for (size_t i = 0; i < array_size(good_cases); ++i)
     {
         EXPECT_TRUE(e.parse(good_cases[i].input, strlen(good_cases[i].input)));
         EXPECT_EQ(e.type(), good_cases[i].type);
+        std::cout << "Expr # " << i << ":\t" << e.to_std_string() << std::endl;
     }
+}
 
-    const char * bad_cases[] =
-    {
-        "oh my god!",
-        "go to hell!",
-        "01237890abc",
-        "123   ",
-        "0456  ",
-        "0x789 ",
-        "3.14  ",
-        "2.718\t",
+TEST_F(ExprTS, parseA1)
+{
+    Expr e;
+
+    EXPECT_FALSE(e.parse_none("", 0));
+    EXPECT_FALSE(e.parse_none("none ", 5));
+    EXPECT_FALSE(e.parse_none("none!!", 6));
+    EXPECT_FALSE(e.parse_none("true.", 4));
+    EXPECT_FALSE(e.parse_none("true!!", 6));
+    EXPECT_FALSE(e.parse_none("true", 4));
+    EXPECT_TRUE(e.parse_none("none", 4));
+
+    EXPECT_FALSE(e.parse_bool("", 0));
+    EXPECT_TRUE(e.parse_bool("true", 4));
+    EXPECT_TRUE(e.parse_bool("false", 5));
+    EXPECT_FALSE(e.parse_bool("true!", 5));
+    EXPECT_FALSE(e.parse_bool("TrUe", 4));
+
+    EXPECT_FALSE(e.parse_integer("", 0));
+    EXPECT_FALSE(e.parse_real("", 0));
+    EXPECT_TRUE(e.parse_string("", 0));
+}
+
+TEST_F(ExprTS, parseB)
+{
+    int32_t i32 = 0;
+    uint32_t u32 = 0;
+    int64_t i64 = 0;
+    uint64_t u64 = 0;
+
+    Expr e;
+
+    struct tuple {
+        const char * input;
+        int32_t i32;
+        uint32_t u32;
+        int64_t i64;
+        uint64_t u64;
+    } good_cases[] = {
+            { "none", 0, 0U, 0, 0UL },
+            { "false", 0, 0U, 0, 0UL },
+            { "true", 1, 1U, 1, 1UL },
+            { "123",  123, 123U, 123, 123UL },
     };
 
-    for (size_t i = 0; i < array_size(bad_cases); ++i)
+    for (size_t i = 0; i < array_size(good_cases); ++i) {
+        EXPECT_TRUE(e.parse(good_cases[i].input, strlen(good_cases[i].input)));
+        EXPECT_TRUE(e.to_i32(i32) && i32 == good_cases[i].i32);
+        EXPECT_TRUE(e.to_u32(u32) && u32 == good_cases[i].u32);
+        EXPECT_TRUE(e.to_i64(i64) && i64 == good_cases[i].i64);
+        EXPECT_TRUE(e.to_u64(u64) && u64 == good_cases[i].u64);
+    }
+}
+
+TEST_F(ExprTS, parseC)
+{
+    CompositeExpr ce;
+    const char * expr_list[] = {
+            "none",
+            "true",
+            "false",
+            "12345",
+            "0xabcd",
+            "a string",
+            "another string",
+    };
+
+    for (size_t i = 0; i < array_size(expr_list); ++i) {
+        Expr * e = Expr::create(expr_list[i], strlen(expr_list[i]));
+        EXPECT_TRUE(e != NULL);
+        EXPECT_TRUE(ce.append_expr(e));
+    }
+
+    std::cout << "CompositeExpr:\n" << ce.to_std_string() << std::endl;
+
+    EXPECT_EQ(ce.length(), 7);
+    EXPECT_TRUE(ce.rewind());
+    size_t counter = 0;
+    int32_t i32 = 0;
+    uint32_t u32 = 0;
+    while (ce.has_next())
     {
-        EXPECT_FALSE(e.parse(bad_cases[i], strlen(bad_cases[i])));
+        const IExpr * temp = ce.get_next();
+        EXPECT_TRUE(temp != NULL);
+        EXPECT_FALSE(temp->is_composite());
+
+        const Expr * e = static_cast<const Expr *>(temp);
+        EXPECT_TRUE(e != NULL);
+        switch (counter++)
+        {
+            case 0:
+                EXPECT_TRUE(e->is_none());
+                EXPECT_TRUE(e->to_i32(i32) && i32 == 0);
+                break;
+            case 1:
+                EXPECT_TRUE(e->is_bool());
+                EXPECT_TRUE(e->to_i32(i32) && i32 == 1);
+                break;
+            case 2:
+                EXPECT_TRUE(e->is_bool());
+                EXPECT_TRUE(e->to_i32(i32) && i32 == 0);
+                break;
+            case 3:
+                EXPECT_TRUE(e->is_i32());
+                EXPECT_TRUE(e->to_i32(i32) && i32 == 12345);
+                break;
+            case 4:
+                EXPECT_TRUE(e->is_u32());
+                EXPECT_TRUE(e->to_u32(u32) && u32 == 0xabcd);
+                break;
+            case 5:
+                EXPECT_TRUE(e->is_string());
+                EXPECT_STREQ(e->to_string(), "a string");
+                break;
+            case 6:
+                EXPECT_TRUE(e->is_string());
+                EXPECT_STREQ(e->to_string(), "another string");
+                break;
+            default:
+                break;
+        }
     }
 }

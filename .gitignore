@@ -1,5 +1,11 @@
 .cproject
 .project
 bin/
+gtest/
+gmock/
 release.h
 *.swp
+*.tgz
+*.tbz
+*.tar.gz
+*.tar.bz2

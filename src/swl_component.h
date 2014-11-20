@@ -9,6 +9,7 @@
 #include <errno.h>
 
 #include <limits>
+#include <string>
 
 namespace SolarWindLisp
 {
@@ -107,12 +108,12 @@ public:
     {
         return NULL;
     }
-#endif
 
     virtual const IExpr * get(size_t idx) const
     {
         return NULL;
     }
+#endif
 
 #if 0
     virtual bool rewind()
@@ -146,11 +147,23 @@ public:
         return NULL;
     }
 
+    virtual std::string to_std_string() const = 0;
+
 protected:
 
     IExpr * prev()
     {
         return _prev;
+    }
+
+    const IExpr * prev() const
+    {
+        return _prev;
+    }
+
+    const IExpr * next() const
+    {
+        return _next;
     }
 
     IExpr * next()

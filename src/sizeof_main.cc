@@ -32,7 +32,7 @@ int main(int argc, char ** argv)
     print_sizeof(SolarWindLisp::IExpr);
     print_sizeof(SolarWindLisp::IExpr::expr_type);
     print_sizeof(SolarWindLisp::Expr);
-    print_sizeof(SolarWindLisp::Expr::AtomNode);
+    print_sizeof(SolarWindLisp::Expr::AtomData);
     print_sizeof(SolarWindLisp::CompositeExpr);
     printf("\n");
     print_release_info();
