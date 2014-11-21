@@ -2,7 +2,9 @@
 #define _SOLAR_WIND_LISP_EXPR_H_
 
 #include <sstream>
+
 #include "swl_component.h"
+#include "swl_utils.h"
 
 namespace SolarWindLisp
 {
@@ -26,6 +28,9 @@ bool is_##name() const {                \
     type_test_macro(string)
     type_test_macro(composite)
 #undef type_test_macro
+
+    bool is_atomic() const { return true; }
+    bool is_compound() const { return false; }
 
     Expr()
     {
@@ -58,6 +63,7 @@ bool is_##name() const {                \
     }
 
 #if 0
+    // TODO: unsafe (overflow or underflow) but faster
     bool to_i32_unsafe(int32_t &v) const;
     bool to_i64_unsafe(int64_t &v) const;
     bool to_u32_unsafe(uint32_t &v) const;
@@ -132,33 +138,9 @@ bool is_##name() const {                \
         } str;
     };
 
-    std::string to_std_string() const
-    {
-        std::stringstream ss;
-        ss << "Expr{prev:" << ((void *) _prev)
-            << ",this:" << ((void *) this)
-            << ",next:" << ((void *) _next)
-            << ",type:" << _type
-            << ",data:";
-        if (is_none()) {
-            ss << "none";
-        }
-        else if (is_integer()) {
-            int64_t v;
-            to_i64(v);
-            ss << v;
-        }
-        else if (is_real()) {
-            double d;
-            to_double(d);
-            ss << d;
-        }
-        else if (is_string()) {
-            ss << "`" << to_string() << "'";
-        }
-        ss << "}";
-        return ss.str();
-    }
+    std::string debug_string(bool compact = true,
+            int level = 0,
+            const char * indent_seq = DEFAULT_INDENT_SEQ) const;
 
 private:
     AtomData _data;
@@ -184,6 +166,9 @@ bool is_##name() const {                \
     type_test_macro2(composite,   true)
 #undef type_test_macro2
 
+    bool is_atomic() const { return false; }
+    bool is_compound() const { return true; }
+
     CompositeExpr() :
             _head(NULL), _tail(NULL), _cursor(NULL), _size(0)
     {
@@ -196,7 +181,7 @@ bool is_##name() const {                \
 
     bool append_expr(IExpr * expr);
 
-    size_t length() const
+    size_t size() const
     {
         return _size;
     }
@@ -215,21 +200,9 @@ bool is_##name() const {                \
         return r;
     }
 
-    std::string to_std_string() const
-    {
-        std::stringstream ss;
-        ss << "CompositeExpr{head:" << ((void *) _head)
-            << ",tail:" << ((void *) _tail)
-            << ",size:" << _size
-            << ",elem:[" << std::endl;
-        const IExpr * e = _head;
-        while (e) {
-            ss << "    " << e->to_std_string() << std::endl;
-            e = e->next();
-        }
-        ss << "]}";
-        return ss.str();
-    }
+    std::string debug_string(bool compact = true,
+            int level = 0,
+            const char * indent_seq = DEFAULT_INDENT_SEQ) const;
 
 private:
 

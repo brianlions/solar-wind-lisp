@@ -35,10 +35,17 @@ public:
         type_double,
         type_long_double,
         type_string,
+        // FIXME: remove this type
         type_composite,
         // add type names before this one!
-        num_of_supporte_types,
+        NUM_OF_SUPPORTE_TYPES,
     };
+
+    static const char * type_name(expr_type t);
+    virtual bool is_atomic() const { return false; }
+    virtual bool is_compound() const { return false; }
+
+    static const char * DEFAULT_INDENT_SEQ;
 
     IExpr() :
             _type(type_none), _prev(NULL), _next(NULL)
@@ -98,12 +105,13 @@ public:
         return false;
     }
 
-    virtual size_t length() const
+    virtual size_t size() const
     {
         return 0;
     }
 
 #if 0
+    // TODO: implement
     virtual IExpr * get(size_t idx)
     {
         return NULL;
@@ -116,6 +124,7 @@ public:
 #endif
 
 #if 0
+    // XXX: probably not needed
     virtual bool rewind()
     {
         return false;
@@ -147,7 +156,13 @@ public:
         return NULL;
     }
 
-    virtual std::string to_std_string() const = 0;
+    virtual std::string debug_string(bool compact = true,
+            int level = 0,
+            const char * indent_seq = DEFAULT_INDENT_SEQ) const = 0;
+#if 0
+    // TODO: implement!
+    virtual std::string repr(bool compact = true, int level = 0) const = 0;
+#endif
 
 protected:
 

@@ -307,12 +307,118 @@ macro_to_unsigned(u64, uint64_t)
 
 bool Expr::to_double(double &v) const
 {
-    return false;
+    // FIXME:
+    switch (_type)
+    {
+        case type_none:
+            v = 0;
+            return true;
+        case type_bool:
+            v = static_cast<double>(_data.num.b);
+            return true;
+        case type_i32:
+            v = static_cast<double>(_data.num.i32);
+            return true;
+        case type_u32:
+            v = static_cast<double>(_data.num.u32);
+            return true;
+        case type_i64:
+            v = static_cast<double>(_data.num.i64);
+            return true;
+        case type_u64:
+            v = static_cast<double>(_data.num.u64);
+            return true;
+        case type_double:
+            v = static_cast<double>(_data.num.d);
+            return true;
+        case type_long_double:
+            v = static_cast<double>(_data.num.ld);
+            return true;
+        case type_string:
+            return false;
+        default:
+            return false;
+    }
 }
 
 bool Expr::to_long_double(long double &v) const
 {
-    return false;
+    // FIXME:
+    switch (_type)
+    {
+        case type_none:
+            v = 0;
+            return true;
+        case type_bool:
+            v = static_cast<long double>(_data.num.b);
+            return true;
+        case type_i32:
+            v = static_cast<long double>(_data.num.i32);
+            return true;
+        case type_u32:
+            v = static_cast<long double>(_data.num.u32);
+            return true;
+        case type_i64:
+            v = static_cast<long double>(_data.num.i64);
+            return true;
+        case type_u64:
+            v = static_cast<long double>(_data.num.u64);
+            return true;
+        case type_double:
+            v = static_cast<long double>(_data.num.d);
+            return true;
+        case type_long_double:
+            v = static_cast<long double>(_data.num.ld);
+            return true;
+        case type_string:
+            return false;
+        default:
+            return false;
+    }
+}
+
+std::string Expr::debug_string(bool compact, int level,
+        const char * indent_seq) const
+{
+    std::string indent = compact ? ""
+        : Utils::repeat(indent_seq, level);
+    std::string first_sep = compact ? ""
+        : (std::string("\n") + indent + indent_seq);
+    std::string sep = compact ? ","
+        : (std::string(",\n") + indent + indent_seq);
+
+    std::stringstream ss;
+    ss << indent << "Expr{" << first_sep //
+        << "prev:" << (compact ? "" : " ") << ((void *) _prev) << sep //
+        << "this:" << (compact ? "" : " ") << ((void *) this) << sep //
+        << "type:" << (compact ? "" : " ") << IExpr::type_name(_type) << sep //
+        << "data:" << (compact ? "" : " ");
+    if (is_none()) {
+        ss << "none";
+    }
+    else if (is_bool()) {
+        ss << ((_data.num.b) ? "true" : "false");
+    }
+    else if (is_i32() || is_i64()) {
+        int64_t v;
+        to_i64(v);
+        ss << v;
+    }
+    else if (is_u32() || is_u64()) {
+        uint64_t v;
+        to_u64(v);
+        ss << v;
+    }
+    else if (is_real()) {
+        long double ld;
+        to_long_double(ld);
+        ss << ld;
+    }
+    else if (is_string()) {
+        ss << "`" << to_string() << "'";
+    }
+    ss << "}";
+    return ss.str();
 }
 
 bool CompositeExpr::append_expr(IExpr * expr)
@@ -340,6 +446,37 @@ bool CompositeExpr::rewind() const
     }
 
     return false;
+}
+
+std::string CompositeExpr::debug_string(bool compact, int level, const char * indent_seq) const
+{
+    std::string indent = compact ? "" : Utils::repeat(indent_seq, level);
+    std::string first_sep = compact ? "" : (std::string("\n") + indent + indent_seq);
+    std::string sep = compact ? "," : (std::string(",\n") + indent + indent_seq);
+
+    std::stringstream ss;
+    ss << indent << "CompositeExpr{" << first_sep //
+        << "head:" << (compact ? "" : " ") << ((void *) _head) << sep //
+        << "tail:" << (compact ? "" : " ") << ((void *) _tail) << sep //
+        << "size:" << (compact ? "" : " ") << _size << sep //
+        << "elem:" << (compact ? "[" : " [");
+    if (_size > 0) {
+        ss << (compact ? "" : "\n");
+        const IExpr * e = _head;
+        while (e)
+        {
+            ss << e->debug_string(compact, level + 2, indent_seq);
+            e = e->next();
+            if (e) {
+                ss << (compact ? "," : ",\n");
+            }
+        }
+    }
+    else {
+        ss << (compact ? "" : " ");
+    }
+    ss << "]}";
+    return ss.str();
 }
 
 } // namespace SolarWindLisp

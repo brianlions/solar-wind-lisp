@@ -1,10 +1,7 @@
 #include <gtest/gtest.h>
 #include "swl_component.h"
 #include "swl_expr.h"
-
-#ifndef array_size
-#define array_size(a) (sizeof(a) / sizeof(a[0]))
-#endif
+#include "swl_utils.h"
 
 using SolarWindLisp::IExpr;
 using SolarWindLisp::Expr;
@@ -12,13 +9,23 @@ using SolarWindLisp::CompositeExpr;
 
 class ExprTS: public testing::Test
 {
-public:
+protected:
     virtual void SetUp()
     {
     }
 
     virtual void TearDown()
     {
+    }
+
+    bool is_verbose() const
+    {
+        return false;
+    }
+
+    bool is_compact() const
+    {
+        return true;
     }
 };
 
@@ -57,7 +64,9 @@ TEST_F(ExprTS, parseA)
     {
         EXPECT_TRUE(e.parse(good_cases[i].input, strlen(good_cases[i].input)));
         EXPECT_EQ(e.type(), good_cases[i].type);
-        std::cout << "Expr # " << i << ":\t" << e.to_std_string() << std::endl;
+        if (is_verbose()) {
+            std::cout << "expr # " << i << ": " << e.debug_string(is_compact(), 0) << std::endl;
+        }
     }
 }
 
@@ -134,9 +143,11 @@ TEST_F(ExprTS, parseC)
         EXPECT_TRUE(ce.append_expr(e));
     }
 
-    std::cout << "CompositeExpr:\n" << ce.to_std_string() << std::endl;
+    if (is_verbose()) {
+        std::cout << ce.debug_string(is_compact()) << std::endl;
+    }
 
-    EXPECT_EQ(ce.length(), 7);
+    EXPECT_EQ(ce.size(), 7);
     EXPECT_TRUE(ce.rewind());
     size_t counter = 0;
     int32_t i32 = 0;

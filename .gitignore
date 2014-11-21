@@ -4,6 +4,7 @@ bin/
 gtest/
 gmock/
 release.h
+tags
 *.swp
 *.tgz
 *.tbz

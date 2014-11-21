@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include "swl_component.h"
 #include "swl_expr.h"
+#include "swl_parser.h"
 #include "release.h"
 
 #define print_header()                          \
@@ -34,6 +35,8 @@ int main(int argc, char ** argv)
     print_sizeof(SolarWindLisp::Expr);
     print_sizeof(SolarWindLisp::Expr::AtomData);
     print_sizeof(SolarWindLisp::CompositeExpr);
+    print_sizeof(SolarWindLisp::IParser);
+    print_sizeof(SolarWindLisp::SimpleParser);
     printf("\n");
     print_release_info();
     return 0;
