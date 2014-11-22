@@ -1,15 +1,20 @@
 #include <stdio.h>
 #include <stdint.h>
-#include "swl_component.h"
+#include "release.h"
+#include "swl_expr_if.h"
 #include "swl_expr.h"
 #include "swl_parser.h"
-#include "release.h"
+#include "swl_future.h"
+#include "swl_scoped_env.h"
+#include "swl_proc.h"
+#include "swl_prim_proc.h"
+#include "swl_interpreter.h"
 
-#define print_header()                          \
-do {                                            \
-    printf("  size  type name\n");              \
-    printf("------  -----------\n");            \
-} while (0)
+void print_header()
+{
+    printf("  size  type name\n");
+    printf("------  -----------\n");
+}
 
 #define print_sizeof(v)                         \
 do {                                            \
@@ -30,13 +35,20 @@ int main(int argc, char ** argv)
     print_sizeof(long double);
     print_sizeof(void *);
     printf("\n");
+    print_sizeof(SolarWindLisp::IMatter::matter_type_t);
+    print_sizeof(SolarWindLisp::IMatter);
     print_sizeof(SolarWindLisp::IExpr);
-    print_sizeof(SolarWindLisp::IExpr::expr_type);
-    print_sizeof(SolarWindLisp::Expr);
+    print_sizeof(SolarWindLisp::Expr::atom_type_t);
     print_sizeof(SolarWindLisp::Expr::AtomData);
     print_sizeof(SolarWindLisp::CompositeExpr);
+    print_sizeof(SolarWindLisp::PrimProc);
+    print_sizeof(SolarWindLisp::Proc);
+    print_sizeof(SolarWindLisp::Future);
+    print_sizeof(SolarWindLisp::ScopedEnv);
     print_sizeof(SolarWindLisp::IParser);
     print_sizeof(SolarWindLisp::SimpleParser);
+    print_sizeof(SolarWindLisp::InterpreterIF);
+    print_sizeof(SolarWindLisp::SimpleInterpreter);
     printf("\n");
     print_release_info();
     return 0;

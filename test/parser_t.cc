@@ -1,6 +1,6 @@
 #include <iostream>
 #include <gtest/gtest.h>
-#include "swl_component.h"
+#include "swl_expr_if.h"
 #include "swl_expr.h"
 #include "swl_parser.h"
 #include "swl_utils.h"
@@ -124,8 +124,8 @@ TEST_F(ParserTokenizeTS, parseExpr)
     {
         IExpr * e = _parser.parse(cases[i].forms, strlen(cases[i].forms));
         EXPECT_TRUE(e != NULL);
-        EXPECT_EQ(e->is_atomic(), false);
-        EXPECT_EQ(e->is_compound(), true);
+        EXPECT_EQ(e->is_atom(), false);
+        EXPECT_EQ(e->is_molecule(), true);
         EXPECT_EQ((static_cast<CompositeExpr *>(e))->size(), cases[i].n_expr);
         if (is_verbose()) {
             std::cout

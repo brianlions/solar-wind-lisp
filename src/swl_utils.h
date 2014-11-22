@@ -1,6 +1,8 @@
 #ifndef _SOLAR_WIND_LIST_UTILS_H_
 #define _SOLAR_WIND_LIST_UTILS_H_
 
+#include <stdio.h>
+
 #include <sstream>
 #include <string>
 
@@ -21,8 +23,7 @@ public:
     static std::string repeat(const char * pat, int times)
     {
         std::stringstream ss;
-        for (int i = 0; i < times; ++i)
-        {
+        for (int i = 0; i < times; ++i) {
             ss << pat;
         }
         return ss.str();

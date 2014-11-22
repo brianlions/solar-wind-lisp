@@ -28,71 +28,55 @@ bool IParser::tokenize(lexical_tokens * p_result, const char * input,
 
     for (ssize_t idx = 0;
             (input_length >= 0 && idx < input_length)
-                    || (input_length < 0 && input[idx] != '\0'); ++idx)
-    {
+                    || (input_length < 0 && input[idx] != '\0'); ++idx) {
         char c = input[idx];
-        if (escape_mode)
-        {
+        if (escape_mode) {
             current += c;
             escape_mode = false;
         }
-        else if (c == C_BS)
-        {
-            if (quote_char)
-            {
+        else if (c == C_BS) {
+            if (quote_char) {
                 escape_mode = true;
             }
-            else
-            {
+            else {
                 current += c;
             }
         }
-        else if (c == C_SQ || c == C_DQ)
-        {
-            if (!quote_char)
-            {
+        else if (c == C_SQ || c == C_DQ) {
+            if (!quote_char) {
                 quote_char = c;
                 current = quote_char;
             }
-            else if (quote_char == c)
-            {
+            else if (quote_char == c) {
                 current += c;
                 quote_char = C_TERM;
             }
-            else
-            {
+            else {
                 current += c;
             }
         }
-        else if (isspace(c))
-        {
-            if (quote_char)
-            {
+        else if (isspace(c)) {
+            if (quote_char) {
                 current += c;
             }
-            else if (current.length() > 0)
-            {
+            else if (current.length() > 0) {
                 p_result->push_back(current);
                 current = "";
             }
         }
-        else if (c == C_LP || c == C_RP)
-        {
-            if (current.length() > 0)
-            {
+        else if (c == C_LP || c == C_RP) {
+            if (current.length() > 0) {
                 p_result->push_back(current);
                 current = "";
             }
             p_result->push_back(c == C_LP ? S_LP : S_RP);
         }
-        else
-        {
+        else {
             current += c;
         }
     }
 
-    if (current.length() > 0)
-    {
+    if (current.length() > 0) {
         p_result->push_back(current);
     }
 
@@ -105,8 +89,7 @@ IExpr * IParser::parse(const char * input, ssize_t input_length)
     _form_str = input;
     _form_len = input_length;
 
-    if (!IParser::tokenize(&_tokens, _form_str, _form_len))
-    {
+    if (!IParser::tokenize(&_tokens, _form_str, _form_len)) {
         return NULL;
     }
 
@@ -123,61 +106,49 @@ IExpr * IParser::_parse_tokens(bool inner)
 {
     std::string current;
 
-    CompositeExpr * result = new CompositeExpr();
-    while (_tokens.size() > 0)
-    {
+    CompositeExpr * result = CompositeExpr::create();
+    while (_tokens.size() > 0) {
         current = _tokens.front();
         _tokens.pop_front();
 
-        if (current == S_LP)
-        {
+        if (current == S_LP) {
             IExpr * expr = _parse_tokens(true);
-            if (!expr)
-            {
+            if (!expr) {
                 delete result;
                 return NULL;
             }
-            else
-            {
+            else {
                 result->append_expr(expr);
             }
         }
-        else if (current == S_RP)
-        {
-            if (inner)
-            {
+        else if (current == S_RP) {
+            if (inner) {
                 return result;
             }
-            else
-            {
+            else {
                 delete result;
                 // unmatched close parenthesis in input
                 return NULL;
             }
         }
-        else
-        {
+        else {
             Expr * expr = Expr::create(current.c_str(), current.length());
-            if (!expr)
-            {
+            if (!expr) {
                 delete result;
                 return NULL;
             }
-            else
-            {
+            else {
                 result->append_expr(expr);
             }
         }
     } // end while
 
-    if (inner)
-    {
+    if (inner) {
         // parser is in an inner context when the input is finished.
         delete result;
         return NULL;
     }
-    else
-    {
+    else {
         return result;
     }
 }
