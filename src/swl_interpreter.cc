@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "swl_interpreter.h"
 
 namespace SolarWindLisp
@@ -174,6 +176,46 @@ bool InterpreterIF::execute_expr(IMatter ** result, IMatter * expr)
 
 void InterpreterIF::_repl(InterpreterIF * interpreter, bool continue_on_error)
 {
+    static const size_t default_buf_length = 4096;
+    char * buffer = (char *) malloc(default_buf_length);
+    if (!buffer) {
+        PRETTY_MESSAGE(stderr, "memory allocation failed!");
+        return;
+    }
+
+    IExpr * ie = NULL;
+    CompositeExpr * ce = NULL;
+    //Expr * e = NULL;
+
+    size_t buffer_size = default_buf_length;
+    ssize_t input_len = 0;
+    while (true) {
+        printf("%s", prompt());
+        if ((input_len = getline(&buffer, &buffer_size, stdin)) == -1) {
+            break;
+        }
+
+        ie = interpreter->parser()->parse(buffer, input_len);
+        if (!ie) {
+            continue;
+        }
+
+        if (!ie->is_molecule()) {
+            PRETTY_MESSAGE(stderr, "this shoud not happen");
+            break;
+        }
+
+        ce = static_cast<CompositeExpr *>(ie);
+        ce->rewind();
+        while (ce->has_next()) {
+            IExpr * next = ce->get_next();
+            if (!interpreter->execute_expr(NULL, next)) {
+                PRETTY_MESSAGE(stderr, "oops, failed!");
+            }
+        }
+    }
+
+    free(buffer);
 }
 
 void InterpreterIF::interactive(bool continue_on_error)
@@ -184,6 +226,11 @@ void InterpreterIF::interactive(bool continue_on_error)
 void InterpreterIF::repl(bool continue_on_error)
 {
     InterpreterIF * interpreter = new SimpleInterpreter();
+    if (!interpreter->initialize()) {
+        PRETTY_MESSAGE(stderr, "initialization failed");
+        delete interpreter;
+    }
+
     InterpreterIF::_repl(interpreter, continue_on_error);
     delete interpreter;
 }

@@ -29,6 +29,21 @@ public:
         return primary ? "SolarWindLisp> " : "    ";
     }
 
+    IParser * parser()
+    {
+        return _parser;
+    }
+
+    ScopedEnv * env()
+    {
+        return _env;
+    }
+
+    IMatterFactory * matter_factory()
+    {
+        return _factory;
+    }
+
 protected:
     static ScopedEnv * _create_minimum_env()
     {
