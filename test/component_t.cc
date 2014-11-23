@@ -194,10 +194,12 @@ TEST_F(ExprTS, parseC)
                 break;
             case 7:
                 EXPECT_TRUE(e->is_cstr());
+                EXPECT_TRUE(e->is_quoted_cstr());
                 EXPECT_STREQ(e->to_cstr(), "single quote str");
                 break;
             case 8:
                 EXPECT_TRUE(e->is_cstr());
+                EXPECT_TRUE(e->is_quoted_cstr());
                 EXPECT_STREQ(e->to_cstr(), "double quote str");
                 break;
             default:
