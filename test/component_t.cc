@@ -137,6 +137,8 @@ TEST_F(ExprTS, parseC)
             "0xabcd", //
             "a string", //
             "another string", //
+            "\'single quote str\'", //
+            "\"double quote str\"",
             };
     for (size_t i = 0; i < array_size(expr_list); ++i) {
         Expr * e = Expr::create(expr_list[i], strlen(expr_list[i]));
@@ -148,7 +150,7 @@ TEST_F(ExprTS, parseC)
         std::cout << _composite_expr->debug_string(is_compact()) << std::endl;
     }
 
-    EXPECT_EQ(_composite_expr->size(), 7);
+    EXPECT_EQ(_composite_expr->size(), array_size(expr_list));
     EXPECT_TRUE(_composite_expr->rewind());
     size_t counter = 0;
     int32_t i32 = 0;
@@ -189,6 +191,14 @@ TEST_F(ExprTS, parseC)
             case 6:
                 EXPECT_TRUE(e->is_cstr());
                 EXPECT_STREQ(e->to_cstr(), "another string");
+                break;
+            case 7:
+                EXPECT_TRUE(e->is_cstr());
+                EXPECT_STREQ(e->to_cstr(), "single quote str");
+                break;
+            case 8:
+                EXPECT_TRUE(e->is_cstr());
+                EXPECT_STREQ(e->to_cstr(), "double quote str");
                 break;
             default:
                 break;

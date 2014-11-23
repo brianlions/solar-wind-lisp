@@ -27,31 +27,7 @@ public:
         NUM_OF_ATOM_TYPES
     };
 
-    static const char * atom_type_name(atom_type_t t)
-    {
-        switch (t) {
-            case atom_bool:
-                return "bool";
-            case atom_i32:
-                return "i32";
-            case atom_u32:
-                return "u32";
-            case atom_i64:
-                return "i64";
-            case atom_u64:
-                return "u64";
-            case atom_float:
-                return "float";
-            case atom_double:
-                return "d";
-            case atom_long_double:
-                return "ld";
-            case atom_cstr:
-                return "cstr";
-            default:
-                return "ANTIMATTER";
-        }
-    }
+    static const char * atom_type_name(atom_type_t t);
 
     const char * atom_type_name() const
     {
@@ -72,6 +48,11 @@ bool is_##name() const {                \
     atom_type_test_macro(long_double) //
     atom_type_test_macro(cstr) //
 #undef atom_type_test_macro
+
+    bool is_quoted_cstr() const
+    {
+        return _atom_type == atom_cstr && _atom_data.str.quoted;
+    }
 
     bool is_integer() const
     {
@@ -136,6 +117,9 @@ bool is_##name() const {                \
 
     struct AtomData
     {
+        static const char C_SQ = '\'';
+        static const char C_DQ = '\"';
+
         AtomData()
         {
             memset(&num, 0, sizeof(num));
@@ -153,32 +137,10 @@ bool is_##name() const {                \
         {
             memset(&num, 0, sizeof(num));
             str.length = 0;
+            str.quoted = false;
         }
 
-        bool set_string(const char * buf, size_t length)
-        {
-            if (str.buffer) {
-                // reuse existing buffer if long enough
-                if (str.size >= length + 1) {
-                    memcpy(str.buffer, buf, length + 1);
-                    str.length = length;
-                    return true;
-                }
-
-                free(str.buffer);
-                str.buffer = NULL;
-                str.length = 0;
-                str.size = 0;
-            }
-
-            if (!(str.buffer = strdup(buf))) {
-                return false;
-            }
-
-            str.size = length + 1;
-            str.length = length;
-            return true;
-        }
+        bool set_string(const char * buf, size_t length);
 
         union
         {
@@ -197,6 +159,7 @@ bool is_##name() const {                \
             char * buffer;
             size_t length;
             size_t size;
+            bool quoted;
         } str;
     };
 
@@ -236,35 +199,8 @@ public:
         return _size;
     }
 
-    IExpr * get(size_t idx)
-    {
-        if (idx > _size) {
-            return NULL;
-        }
-
-        IExpr * res = _head;
-        size_t i = 0;
-        while (i++ < idx) {
-            res = res->next();
-        }
-
-        return res;
-    }
-
-    const IExpr * get(size_t idx) const
-    {
-        if (idx > _size) {
-            return NULL;
-        }
-
-        const IExpr * res = _head;
-        size_t i = 0;
-        while (i++ < idx) {
-            res = res->next();
-        }
-
-        return res;
-    }
+    IExpr * get(size_t idx);
+    const IExpr * get(size_t idx) const;
 
     bool rewind();
 
@@ -304,17 +240,7 @@ private:
     {
     }
 
-    void _destroy()
-    {
-        while (_head) {
-            IExpr * p = _head;
-            _head = _head->next();
-            delete p;
-        }
-
-        _head = _tail = _cursor = NULL;
-        _size = 0;
-    }
+    void _destroy();
 
     IExpr * _head;
     IExpr * _tail;

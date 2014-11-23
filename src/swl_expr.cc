@@ -3,6 +3,76 @@
 
 namespace SolarWindLisp
 {
+const char * Expr::atom_type_name(Expr::atom_type_t t)
+{
+    switch (t) {
+        case atom_bool:
+            return "bool";
+        case atom_i32:
+            return "i32";
+        case atom_u32:
+            return "u32";
+        case atom_i64:
+            return "i64";
+        case atom_u64:
+            return "u64";
+        case atom_float:
+            return "float";
+        case atom_double:
+            return "d";
+        case atom_long_double:
+            return "ld";
+        case atom_cstr:
+            return "cstr";
+        default:
+            return "ANTIMATTER";
+    }
+}
+
+const char Expr::AtomData::C_SQ;
+const char Expr::AtomData::C_DQ;
+bool Expr::AtomData::set_string(const char * buf, size_t length)
+{
+    size_t actual_length = length;
+    const char * actual_pos = buf;
+    bool is_quoted = false;
+    if (length >= 2) {
+        char first = buf[0];
+        char last = buf[length - 1];
+        if ((first == C_SQ || first == C_DQ) && (first == last)) {
+            actual_pos += 1;
+            actual_length -= 2;
+            is_quoted = true;
+        }
+    }
+
+    if (str.size >= actual_length + 1) {
+        // reuse existing buffer
+        str.length = 0;
+        str.quoted = false;
+    }
+    else if (str.size < actual_length + 1) {
+        // cannot reuse :-(
+        free(str.buffer);
+        str.buffer = NULL;
+        str.size = 0;
+        str.length = 0;
+        str.quoted = false;
+    }
+
+    if (!str.buffer) {
+        if (!(str.buffer = (char *) malloc(actual_length + 1))) {
+            return false;
+        }
+        str.size = actual_length + 1;
+    }
+
+    memcpy(str.buffer, actual_pos, actual_length);
+    str.buffer[actual_length] = '\0';
+    str.length = actual_length;
+    str.quoted = is_quoted;
+    return true;
+}
 
 Expr * Expr::create(const char * buf, size_t length)
 {
@@ -453,6 +523,48 @@ std::string CompositeExpr::debug_string(bool compact, int level,
     }
     ss << "]}";
     return ss.str();
+}
+
+IExpr * CompositeExpr::get(size_t idx)
+{
+    if (idx > _size) {
+        return NULL;
+    }
+
+    IExpr * res = _head;
+    size_t i = 0;
+    while (i++ < idx) {
+        res = res->next();
+    }
+
+    return res;
+}
+
+const IExpr * CompositeExpr::get(size_t idx) const
+{
+    if (idx > _size) {
+        return NULL;
+    }
+
+    const IExpr * res = _head;
+    size_t i = 0;
+    while (i++ < idx) {
+        res = res->next();
+    }
+
+    return res;
+}
+
+void CompositeExpr::_destroy()
+{
+    while (_head) {
+        IExpr * p = _head;
+        _head = _head->next();
+        delete p;
+    }
+
+    _head = _tail = _cursor = NULL;
+    _size = 0;
 }
 
 } // namespace SolarWindLisp
