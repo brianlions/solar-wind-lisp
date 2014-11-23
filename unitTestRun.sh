@@ -9,7 +9,7 @@
 
 cmd=''
 if [ $# -gt 0 ]; then
-    if [ x"$1" == x"--valgrind" ]; then
+    if [ x"$1" == x"--valgrind" -o x"$1" == x"--vg" ]; then
         cmd='valgrind -q --tool=memcheck --leak-check=full '
         shift
     fi

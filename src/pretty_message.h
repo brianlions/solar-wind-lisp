@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #ifndef USE_PRETTY_MESSAGE
 #define USE_PRETTY_MESSAGE
@@ -10,18 +11,28 @@
 
 #if defined(USE_PRETTY_MESSAGE)
 
-#define PRETTY_MESSAGE(stream, fmt, ...)                                  \
-do {                                                                      \
-    /*char time_str[64];*/                                                    \
-    (void) fprintf((stream), "[%s %s:%04d:%s] " fmt "\n", "unknown-time", \
-        __FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__);                \
+#define PRETTY_MESSAGE(stream, fmt, ...)                                        \
+do {                                                                            \
+    time_t now;                                                                 \
+    struct tm now_broken;                                                       \
+    char time_str[64];                                                          \
+    time(&now);                                                                 \
+    localtime_r(&now, &now_broken);                                             \
+    strftime(time_str, sizeof(time_str), "%Y.%m.%d-%H:%M:%S", &now_broken);     \
+    (void) fprintf((stream), "[%s %s:%04d:%s] " fmt "\n", time_str,             \
+        __FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__);                      \
 } while (0)
 
-#define DEV_MESSAGE(fmt, ...)                                             \
-do {                                                                      \
-    /*char time_str[64];*/                                                    \
-    (void) fprintf(stderr, "[%s %s:%04d:%s] " fmt "\n", "unknown-time",   \
-        __FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__);                \
+#define DEV_MESSAGE(fmt, ...)                                                   \
+do {                                                                            \
+    time_t now;                                                                 \
+    struct tm now_broken;                                                       \
+    char time_str[64];                                                          \
+    time(&now);                                                                 \
+    localtime_r(&now, &now_broken);                                             \
+    strftime(time_str, sizeof(time_str), "%Y.%m.%d-%H:%M:%S", &now_broken);     \
+    (void) fprintf(stderr, "[%s %s:%04d:%s] " fmt "\n", time_str,               \
+        __FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__);                      \
 } while (0)
 
 #if 0

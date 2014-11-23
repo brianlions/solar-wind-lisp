@@ -236,18 +236,35 @@ public:
         return _size;
     }
 
-#if 0
-    // TODO: implement
-    virtual IExpr * get(size_t idx)
+    IExpr * get(size_t idx)
     {
-        return NULL;
+        if (idx > _size) {
+            return NULL;
+        }
+
+        IExpr * res = _head;
+        size_t i = 0;
+        while (i++ < idx) {
+            res = res->next();
+        }
+
+        return res;
     }
 
-    virtual const IExpr * get(size_t idx) const
+    const IExpr * get(size_t idx) const
     {
-        return NULL;
+        if (idx > _size) {
+            return NULL;
+        }
+
+        const IExpr * res = _head;
+        size_t i = 0;
+        while (i++ < idx) {
+            res = res->next();
+        }
+
+        return res;
     }
-#endif
 
     bool rewind();
 

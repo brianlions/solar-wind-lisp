@@ -28,17 +28,30 @@ protected:
 
 TEST_F(InterpreterTS, caseExecuteA)
 {
-    const char * forms[] = { "12345" };
+    const char * forms[] = { //
+        "12345",
+        "(+ 12 34)",
+        "(- 12 34)",
+        "(* 12 34)",
+        "(/ 12 34)",
+        "(mod 34 12)",
+    };
     SimpleInterpreter interpreter;
     EXPECT_TRUE(interpreter.initialize());
-    IMatter * result = NULL;
     for (size_t i = 0; i < array_size(forms); ++i) {
-        EXPECT_TRUE(interpreter.execute(forms[i], strlen(forms[i]), &result));
-    }
-    EXPECT_TRUE(result != NULL);
-    EXPECT_TRUE(result->is_atom());
+        IMatter * result = NULL;
+        EXPECT_TRUE(interpreter.execute(&result, forms[i], strlen(forms[i])));
+        EXPECT_TRUE(result != NULL);
+        if (!result) {
+            continue;
+        }
 
-    if (is_verbose()) {
-        std::cout << "result: " << result->debug_string(is_compact(), 0) << std::endl;
+        EXPECT_TRUE(result->is_atom());
+        if (is_verbose()) {
+            std::cout
+                << "result: "
+                << result->debug_string(is_compact())
+                << std::endl;
+        }
     }
 }

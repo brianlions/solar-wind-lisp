@@ -1,8 +1,10 @@
 .cproject
 .project
+.pydevproject
 bin/
 gtest/
 gmock/
+py*/
 release.h
 tags
 *.swp

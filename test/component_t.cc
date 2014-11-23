@@ -38,7 +38,7 @@ protected:
 
     bool is_verbose() const
     {
-        return true;
+        return false;
     }
 
     bool is_compact() const
