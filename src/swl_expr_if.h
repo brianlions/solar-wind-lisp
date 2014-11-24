@@ -16,9 +16,6 @@
 namespace SolarWindLisp
 {
 
-class Expr;
-class CompositeExpr;
-
 class IExpr: public IMatter
 {
     friend class Expr;

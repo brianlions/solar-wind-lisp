@@ -2,6 +2,7 @@
 #define _SOLAR_WIND_LISP_MATTER_IF_H_
 
 #include <string>
+#include "swl_types.h"
 
 namespace SolarWindLisp
 {

@@ -2,6 +2,7 @@
 #define _SOLAR_WIND_LISP_INTERPRETER_H_
 
 #include "gnu_attributes.h"
+#include "swl_types.h"
 #include "swl_expr.h"
 #include "swl_parser.h"
 #include "swl_scoped_env.h"
@@ -14,10 +15,9 @@
 namespace SolarWindLisp
 {
 
-class InterpreterIF;
-
 class InterpreterIF
 {
+    friend class Future;
 public:
     InterpreterIF(IParser * parser = NULL, ScopedEnv * env = NULL,
             IMatterFactory * factory = NULL);
@@ -69,22 +69,6 @@ protected:
     static bool _eval(IMatter * expr, ScopedEnv * scope,
             InterpreterIF * interpreter, IMatter ** result = NULL)
     {
-#if 0
-        // XXX this is the incorrect implementation :-(
-        if (expr->is_atom()) {
-            if (_is_quoted(expr)) {
-                PRETTY_MESSAGE("not implemented");
-            }
-            *result = expr;
-            return true;
-        }
-
-        prim_proc_t proc_func = 0;
-        if ((proc_func = _is_prim_proc(expr))) {
-            const CompositeExpr * ce = static_cast<const CompositeExpr *>(expr);
-            return (*proc_func)(ce, result);
-        }
-#endif
         struct _pairs
         {
             pred_func_t pred;
@@ -165,7 +149,7 @@ protected:
 #endif
             }
 
-            if (_is_quoted(e)) {
+            if (e->is_quoted_cstr()) {
 #if 0 // TODO
                 IMatter * res = _strip_quote_chars(e);
                 *result = res;
@@ -184,18 +168,6 @@ protected:
         PRETTY_MESSAGE(stderr, "not implemented");
         return false;
 #endif
-    }
-
-    static bool _is_quoted(const Expr * expr)
-    {
-        PRETTY_MESSAGE(stderr, "not implemented");
-        return false;
-    }
-
-    static Expr * _strip_quote_chars(const Expr * expr)
-    {
-        PRETTY_MESSAGE(stderr, "not implemented");
-        return NULL;
     }
 
     struct prim_proc_table_elem_t
@@ -330,7 +302,15 @@ protected:
     /* name */
     static bool _is_name(const IMatter * expr)
     {
-        PRETTY_MESSAGE(stderr, "not implemented");
+        if (!expr->is_atom()) {
+            return false;
+        }
+
+        const Expr * e = static_cast<const Expr *>(expr);
+        if (!e->is_cstr() || e->is_quoted_cstr()) {
+            return false;
+        }
+
         return false;
     }
 

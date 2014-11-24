@@ -50,7 +50,7 @@ bool InterpreterIF::initialize()
     }
 
     if (!_env) {
-        if (!(_env = new (std::nothrow) ScopedEnv())) {
+        if (!(_env = ScopedEnv::create())) {
             return false;
         }
     }
@@ -95,7 +95,7 @@ bool InterpreterIF::_is_prim(const IMatter * expr)
             return true;
         }
 
-        if (_is_quoted(e)) {
+        if (e->is_quoted_cstr()) {
             return true;
         }
     }
