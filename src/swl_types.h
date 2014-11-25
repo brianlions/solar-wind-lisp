@@ -5,12 +5,10 @@ namespace SolarWindLisp
 {
 
 class IMatter;
-class IMatterFactory;
-class InterpreterIF;
 class IExpr;
 class Expr;
 class CompositeExpr;
-class PrimProc;
+class IPrimProc;
 class Proc;
 class Future;
 class ScopedEnv;

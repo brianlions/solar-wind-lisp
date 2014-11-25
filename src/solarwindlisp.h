@@ -1,6 +1,7 @@
 #ifndef _SOLAR_WIND_LISP_SOLARWINDLISP_H_
 #define _SOLAR_WIND_LISP_SOLARWINDLISP_H_
 
+#include "swl_types.h"
 #include "swl_matter_if.h"
 #include "swl_expr_if.h"
 #include "swl_expr.h"

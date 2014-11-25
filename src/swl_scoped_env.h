@@ -41,12 +41,13 @@ public:
         return _external->lookup(name, result);
     }
 
-private:
+    // TODO: make ctor private
     ScopedEnv(ScopedEnv * ext = NULL) :
             _external(ext)
     {
     }
 
+private:
     ScopedEnv * _external;
     std::map<std::string, IMatter *> _current;
 };

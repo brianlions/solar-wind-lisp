@@ -4,14 +4,6 @@
 
 namespace SolarWindLisp
 {
-const struct InterpreterIF::prim_proc_table_elem_t InterpreterIF::_prim_proc_table[] =
-        { //
-        { "+", _prim_add }, //
-        { "-", _prim_sub }, //
-        { "*", _prim_mul }, //
-        { "/", _prim_div }, //
-        { "mod", _prim_mod }, //
-        };
 
 InterpreterIF::InterpreterIF(IParser * parser, ScopedEnv * env,
         IMatterFactory * factory)
@@ -50,7 +42,7 @@ bool InterpreterIF::initialize()
     }
 
     if (!_env) {
-        if (!(_env = ScopedEnv::create())) {
+        if (!(_env = create_minimum_env())) {
             return false;
         }
     }
@@ -87,7 +79,7 @@ void InterpreterIF::_expand()
     }
 }
 
-bool InterpreterIF::_is_prim(const IMatter * expr)
+bool InterpreterIF::_is_prim(IMatter * expr)
 {
     if (expr->is_atom()) {
         const Expr * e = static_cast<const Expr *>(expr);
@@ -103,7 +95,7 @@ bool InterpreterIF::_is_prim(const IMatter * expr)
     return _is_prim_proc(expr);
 }
 
-bool InterpreterIF::_is_special_form(const IMatter * expr, const char * keyword)
+bool InterpreterIF::_is_special_form(IMatter * expr, const char * keyword)
 {
     if (!expr->is_molecule()) {
         return false;
@@ -166,6 +158,7 @@ bool InterpreterIF::execute_multi_expr(IMatter ** result, IMatter * expr)
 
 bool InterpreterIF::execute_expr(IMatter ** result, IMatter * expr)
 {
+    PRETTY_MESSAGE(stderr, "executing expr `%s' ...", expr->debug_string(false).c_str());
     if (!_force_eval(expr, this->_env, this, result)) {
         PRETTY_MESSAGE(stderr, "failed");
         return false;
@@ -209,6 +202,7 @@ void InterpreterIF::_repl(InterpreterIF * interpreter, bool continue_on_error)
         ce->rewind();
         while (ce->has_next()) {
             IExpr * next = ce->get_next();
+            PRETTY_MESSAGE(stderr, "executing expr `%s' ...", next->debug_string(false).c_str());
             if (!interpreter->execute_expr(NULL, next)) {
                 PRETTY_MESSAGE(stderr, "oops, failed!");
             }

@@ -1,4 +1,5 @@
 #include "swl_future.h"
+#include "swl_interpreter.h"
 
 namespace SolarWindLisp
 {

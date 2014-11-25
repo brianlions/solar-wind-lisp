@@ -2,14 +2,15 @@
 #define _SOLAR_WIND_LISP_FUTURE_H_
 
 #include <new>
-#include "swl_matter_if.h"
-#include "swl_interpreter.h"
+#include "swl_expr_if.h"
 #include "pretty_message.h"
 
 namespace SolarWindLisp
 {
 
-class Future: public IMatter
+class InterpreterIF;
+
+class Future: public IExpr
 {
 public:
     matter_type_t matter_type() const

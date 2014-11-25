@@ -20,6 +20,7 @@ class IExpr: public IMatter
 {
     friend class Expr;
     friend class CompositeExpr;
+    friend class Future;
 
 public:
 
