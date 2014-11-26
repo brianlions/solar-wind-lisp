@@ -20,7 +20,6 @@ public:
         atom_u32,
         atom_i64,
         atom_u64,
-        atom_float,
         atom_double,
         atom_long_double,
         atom_cstr,
@@ -43,7 +42,6 @@ bool is_##name() const {                \
     atom_type_test_macro(u32) //
     atom_type_test_macro(i64) //
     atom_type_test_macro(u64) //
-    atom_type_test_macro(float) //
     atom_type_test_macro(double) //
     atom_type_test_macro(long_double) //
     atom_type_test_macro(cstr) //
@@ -63,8 +61,7 @@ bool is_##name() const {                \
 
     bool is_real() const
     {
-        return _atom_type == atom_float || _atom_type == atom_double
-                || _atom_type == atom_long_double;
+        return _atom_type == atom_double || _atom_type == atom_long_double;
     }
 
     bool is_numeric() const
@@ -94,12 +91,22 @@ bool is_##name() const {                \
     bool parse_real(const char * buf, size_t length);
     bool parse_cstr(const char * buf, size_t length);
 
+    void set_bool(bool v);
+    void set_i32(int32_t v);
+    void set_u32(uint32_t v);
+    void set_i64(int64_t v);
+    void set_u64(uint64_t v);
+    void set_double(double v);
+    void set_long_double(long double v);
+
+    bool to_bool(bool &v) const;
     bool to_i32(int32_t &v) const;
     bool to_i64(int64_t &v) const;
     bool to_u32(uint32_t &v) const;
     bool to_u64(uint64_t &v) const;
     bool to_double(double &v) const;
     bool to_long_double(long double &v) const;
+
     const char * to_cstr() const
     {
         return is_cstr() ? _atom_data.str.buffer : NULL;
@@ -149,7 +156,6 @@ bool is_##name() const {                \
             uint32_t u32;
             int64_t i64;
             uint64_t u64;
-            float f;
             double d;
             long double ld;
         } num;

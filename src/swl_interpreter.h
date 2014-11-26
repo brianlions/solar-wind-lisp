@@ -119,7 +119,7 @@ protected:
     }
 
     static bool _force_eval(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result = NULL)
+            InterpreterIF * interpreter, IMatter ** result)
     {
         PRETTY_MESSAGE(stderr, "executing `%s' ...",
                 expr->debug_string(false).c_str());
@@ -360,9 +360,10 @@ protected:
             args->append_expr(f);
         }
 
-        IMatter * temp = NULL;
-        _force_eval(first, scope, interpreter, &temp);
-        return _apply(temp, args, interpreter, result);
+        IMatter * p = NULL;
+        return _force_eval(first, scope, interpreter, &p)
+            ?  _apply(p, args, interpreter, result)
+            : false;
     }
 
     // FIXME: method signature TBD, first arg must not a const?
@@ -406,7 +407,7 @@ protected:
                 }
                 ce->append_expr(static_cast<IExpr *>(res));
             }
-            return p->run(ce, result);
+            return p->run(ce, result, interpreter->matter_factory());
         }
         else if (proc_name->is_proc()) {
             PRETTY_MESSAGE(stderr, "branch not implemented");

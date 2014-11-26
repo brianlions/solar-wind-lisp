@@ -7,6 +7,8 @@
 namespace SolarWindLisp
 {
 
+class IMatterFactory;
+
 class IPrimProc: public IMatter
 {
 public:
@@ -15,7 +17,7 @@ public:
         return matter_prim_proc;
     }
 
-    virtual bool run(const IMatter * ops, IMatter ** result) = 0;
+    virtual bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory) = 0;
     virtual bool check_operands(const IMatter *ops) const = 0;
     virtual const char * name() const = 0;
 };
@@ -23,38 +25,7 @@ public:
 class PrimProcAdd: public IPrimProc
 {
 public:
-    bool run(const IMatter * ops, IMatter ** result)
-    {
-        PRETTY_MESSAGE(stderr, "execute: `%s' ...", ops->debug_string(true).c_str());
-        if (!ops->is_molecule()) {
-            return false;
-        }
-
-        if (!result) {
-            PRETTY_MESSAGE(stderr, "result discarded");
-            return true;
-        }
-
-        const CompositeExpr * ce = static_cast<const CompositeExpr *>(ops);
-        if (!ce->rewind() || !ce->has_next()) {
-            return false;
-        }
-
-        int32_t sum = 0;
-        int32_t temp = 0;
-        while (ce->has_next()) {
-            const Expr * e = static_cast<const Expr *>(ce->get_next());
-            e->to_i32(temp);
-            sum += temp;
-        }
-
-        PRETTY_MESSAGE(stderr, "PrimProcAdd result: %d", sum);
-        if (result) {
-            PRETTY_MESSAGE(stderr, "impl ASAP!");
-        }
-        return false;
-    }
-
+    bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
     bool check_operands(const IMatter * ops) const
     {
         // TODO
@@ -105,7 +76,6 @@ static bool _prim_println(const IMatter * operands, IMatter &result);
 static bool _prim_printf(const IMatter * operands, IMatter &result);
 #endif
 
-}
- // namespace SolarWindLisp
+} // namespace SolarWindLisp
 
 #endif // _SOLAR_WIND_LISTP_PRIM_PROC_H_

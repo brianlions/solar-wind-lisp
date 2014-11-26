@@ -38,6 +38,10 @@ public:
             return true;
         }
 
+        if (!_external) {
+            return false;
+        }
+
         return _external->lookup(name, result);
     }
 

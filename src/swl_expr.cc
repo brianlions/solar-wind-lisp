@@ -16,8 +16,6 @@ const char * Expr::atom_type_name(Expr::atom_type_t t)
             return "i64";
         case atom_u64:
             return "u64";
-        case atom_float:
-            return "float";
         case atom_double:
             return "d";
         case atom_long_double:
@@ -223,6 +221,87 @@ bool Expr::parse_cstr(const char * buf, size_t length)
     return false;
 }
 
+void Expr::set_bool(bool v)
+{
+    _atom_type = atom_bool;
+    _atom_data.reset();
+    _atom_data.num.b = v;
+}
+
+void Expr::set_i32(int32_t v)
+{
+    _atom_type = atom_i32;
+    _atom_data.reset();
+    _atom_data.num.i32 = v;
+}
+
+void Expr::set_u32(uint32_t v)
+{
+    _atom_type = atom_u32;
+    _atom_data.reset();
+    _atom_data.num.u32 = v;
+}
+
+void Expr::set_i64(int64_t v)
+{
+    _atom_type = atom_i64;
+    _atom_data.reset();
+    _atom_data.num.i64 = v;
+}
+
+void Expr::set_u64(uint64_t v)
+{
+    _atom_type = atom_u64;
+    _atom_data.reset();
+    _atom_data.num.u64 = v;
+}
+
+void Expr::set_double(double v)
+{
+    _atom_type = atom_double;
+    _atom_data.reset();
+    _atom_data.num.d = v;
+}
+
+void Expr::set_long_double(long double v)
+{
+    _atom_type = atom_long_double;
+    _atom_data.reset();
+    _atom_data.num.ld = v;
+}
+
+bool Expr::to_bool(bool & v) const
+{
+    switch (_atom_type) {
+        case atom_bool:
+            v = _atom_data.num.b;
+            return true;
+        case atom_i32:
+            v = _atom_data.num.i32 != 0;
+            return true;
+        case atom_u32:
+            v = _atom_data.num.u32 != 0;
+            return true;
+        case atom_i64:
+            v = _atom_data.num.i64 != 0;
+            return true;
+        case atom_u64:
+            v = _atom_data.num.u64 != 0;
+            return true;
+        case atom_double:
+            v = _atom_data.num.d != 0;
+            return true;
+        case atom_long_double:
+            v = _atom_data.num.ld != 0;
+            return true;
+        case atom_cstr:
+            v = _atom_data.str.length != 0;
+            return true;
+        default:
+            return false;
+    }
+}
+
 #define macro_to_signed(name, T)                                        \
 bool Expr::to_##name(T &v) const                                        \
 {                                                                       \
@@ -254,13 +333,6 @@ bool Expr::to_##name(T &v) const                                        \
                 return false;                                           \
             } else {                                                    \
                 v = static_cast<T>(_atom_data.num.u64);                 \
-                return true;                                            \
-            }                                                           \
-        case atom_float:                                                \
-            if (_atom_data.num.f > std::numeric_limits<T>::max()) {     \
-                return false;                                           \
-            } else {                                                    \
-                v = static_cast<T>(_atom_data.num.f);                   \
                 return true;                                            \
             }                                                           \
         case atom_double:                                               \
@@ -316,13 +388,6 @@ bool Expr::to_##name(T &v) const                                        \
                 return false;                                           \
             } else {                                                    \
                 v = static_cast<T>(_atom_data.num.u64);                 \
-                return true;                                            \
-            }                                                           \
-        case atom_float:                                                \
-            if (_atom_data.num.f > std::numeric_limits<T>::max()) {     \
-                return false;                                           \
-            } else {                                                    \
-                v = static_cast<T>(_atom_data.num.f);                   \
                 return true;                                            \
             }                                                           \
         case atom_double:                                               \

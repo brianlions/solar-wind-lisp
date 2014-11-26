@@ -203,8 +203,12 @@ void InterpreterIF::_repl(InterpreterIF * interpreter, bool continue_on_error)
         while (ce->has_next()) {
             IExpr * next = ce->get_next();
             PRETTY_MESSAGE(stderr, "executing expr `%s' ...", next->debug_string(false).c_str());
-            if (!interpreter->execute_expr(NULL, next)) {
+            IMatter * a_result = NULL;
+            if (!interpreter->execute_expr(&a_result, next)) {
                 PRETTY_MESSAGE(stderr, "oops, failed!");
+            }
+            else {
+                PRETTY_MESSAGE(stderr, "result: `%s'", a_result->debug_string().c_str());
             }
         }
     }
