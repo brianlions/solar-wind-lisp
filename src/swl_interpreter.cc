@@ -57,6 +57,26 @@ bool InterpreterIF::initialize()
     return true;
 }
 
+ScopedEnv * InterpreterIF::create_minimum_env()
+{
+    ScopedEnv * ret = ScopedEnv::create();
+
+    IPrimProc * pp = new (std::nothrow) PrimProcAdd();
+    if (!pp) {
+        PRETTY_MESSAGE(stderr, "failed create instance of %s", "PrimProcAdd");
+        delete ret;
+        return NULL;
+    }
+
+    if (!ret->add(pp->name(), pp)) {
+        delete pp;
+        delete ret;
+        return NULL;
+    }
+
+    return ret;
+}
+
 void InterpreterIF::_expand()
 {
     const char * forms[] = { //
@@ -79,15 +99,48 @@ void InterpreterIF::_expand()
     }
 }
 
+bool InterpreterIF::_eval(IMatter * expr, ScopedEnv * scope,
+        InterpreterIF * interpreter, IMatter ** result)
+{
+    PRETTY_MESSAGE(stderr, "executing `%s' ...",
+            expr->debug_string(false).c_str());
+    struct _pairs
+    {
+        pred_func_t pred;
+        eval_func_t eval;
+        const char * name;
+    } pairs[] = { //
+            { _is_prim, _eval_prim, "prim" }, //
+            { _is_if, _eval_if, "if" }, //
+            { _is_define, _eval_define, "define" }, //
+            { _is_defn, _eval_defn, "defn" }, //
+            { _is_cond, _eval_cond, "cond" }, //
+            { _is_do, _eval_do, "do" }, //
+            { _is_when, _eval_when, "when" }, //
+            { _is_time, _eval_time, "time" }, //
+            { _is_name, _eval_name, "name" }, //
+            { _is_lambda, _eval_lambda, "lambda" }, //
+            { _is_app, _eval_app, "app" }, //
+            { _is_future, _eval_future, "future" }, //
+            };
+
+    for (size_t i = 0; i < array_size(pairs); ++i) {
+        PRETTY_MESSAGE(stderr, "test pred `%s' ...", pairs[i].name);
+        if (pairs[i].pred(expr)) {
+            PRETTY_MESSAGE(stderr, "eval pred `%s' ...", pairs[i].name);
+            return pairs[i].eval(expr, scope, interpreter, result);
+        }
+    }
+
+    PRETTY_MESSAGE(stderr, "unknown expr type ...");
+    return false;
+}
+
 bool InterpreterIF::_is_prim(IMatter * expr)
 {
     if (expr->is_atom()) {
         const Expr * e = static_cast<const Expr *>(expr);
-        if (e->is_numeric()) {
-            return true;
-        }
-
-        if (e->is_quoted_cstr()) {
+        if (e->is_numeric() || e->is_quoted_cstr()) {
             return true;
         }
     }
@@ -138,9 +191,7 @@ bool InterpreterIF::execute_multi_expr(IMatter ** result, IMatter * expr)
         return false;
     }
 
-    // TODO: remove cast
     CompositeExpr * forms = static_cast<CompositeExpr *>(expr);
-    //size_t n_forms = forms->size();
     if (!forms->rewind()) {
         PRETTY_MESSAGE(stderr, "rewind() failed!");
         return false;
@@ -158,7 +209,8 @@ bool InterpreterIF::execute_multi_expr(IMatter ** result, IMatter * expr)
 
 bool InterpreterIF::execute_expr(IMatter ** result, IMatter * expr)
 {
-    PRETTY_MESSAGE(stderr, "executing expr `%s' ...", expr->debug_string(false).c_str());
+    PRETTY_MESSAGE(stderr, "executing expr `%s' ...",
+            expr->debug_string(false).c_str());
     if (!_force_eval(expr, this->_env, this, result)) {
         PRETTY_MESSAGE(stderr, "failed");
         return false;
@@ -202,13 +254,15 @@ void InterpreterIF::_repl(InterpreterIF * interpreter, bool continue_on_error)
         ce->rewind();
         while (ce->has_next()) {
             IExpr * next = ce->get_next();
-            PRETTY_MESSAGE(stderr, "executing expr `%s' ...", next->debug_string(false).c_str());
+            PRETTY_MESSAGE(stderr, "executing expr `%s' ...",
+                    next->debug_string(false).c_str());
             IMatter * a_result = NULL;
             if (!interpreter->execute_expr(&a_result, next)) {
                 PRETTY_MESSAGE(stderr, "oops, failed!");
             }
             else {
-                PRETTY_MESSAGE(stderr, "result: `%s'", a_result->debug_string().c_str());
+                PRETTY_MESSAGE(stderr, "result: `%s'",
+                        a_result->debug_string().c_str());
             }
         }
     }
