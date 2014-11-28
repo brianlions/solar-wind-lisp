@@ -6,11 +6,19 @@
 #  Email:      brianlions@gmail.com
 #
 
+# 30 black
+# 31 red
+# 32 green
+# 33 yellow
+# 34 blue
+# 35 magenta
+# 36 cyan
+# 37 white
 ifndef NO_COLOR
-DEP_COLOR_A="\033[36m"
-DEP_COLOR_B="\033[36m"
-OBJ_COLOR_A="\033[32m"
-OBJ_COLOR_B="\033[32m"
+DEP_COLOR_A="\033[34m"
+DEP_COLOR_B="\033[34m"
+OBJ_COLOR_A="\033[36m"
+OBJ_COLOR_B="\033[36m"
 EXE_COLOR_A="\033[1;32m"
 EXE_COLOR_B="\033[1;32m"
 AR_COLOR_A ="\033[35m"
