@@ -480,7 +480,7 @@ bool Expr::to_long_double(long double &v) const
 std::string Expr::debug_string(bool compact, int level,
         const char * indent_seq) const
 {
-    std::string indent = compact ? "" : Utils::repeat(indent_seq, level);
+    std::string indent = compact ? "" : Utils::Misc::repeat(indent_seq, level);
     std::string first_sep =
             compact ? "" : (std::string("\n") + indent + indent_seq);
     std::string sep =
@@ -560,7 +560,7 @@ bool CompositeExpr::rewind()
 std::string CompositeExpr::debug_string(bool compact, int level,
         const char * indent_seq) const
 {
-    std::string indent = compact ? "" : Utils::repeat(indent_seq, level);
+    std::string indent = compact ? "" : Utils::Misc::repeat(indent_seq, level);
     std::string first_sep =
             compact ? "" : (std::string("\n") + indent + indent_seq);
     std::string sep =

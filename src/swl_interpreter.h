@@ -75,14 +75,16 @@ protected:
         }
 
         if (!result) {
-            PRETTY_MESSAGE(stderr, "result discarded");
+            // caller does not care about the result
             return true;
         }
 
-        if (_is_future(res)) {
+        if (res && _is_future(res)) {
+            // beware of those forms returns nothing (e.g. define and defn)
             return static_cast<Future *>(res)->value(result);
         }
         else {
+            // 1. res is NULL, or 2. res is not a future
             *result = res;
             return true;
         }
@@ -91,35 +93,11 @@ protected:
     /* primitive */
     static bool _is_prim(IMatter * expr);
 
-    // TODO move into _is_prim()
-    static bool _is_prim_proc(IMatter * expr)
-    {
-        return expr->is_prim_proc();
-    }
-
     static bool _eval_prim(IMatter * expr, ScopedEnv * scope,
             InterpreterIF * interpreter, IMatter ** result)
     {
-#if 1
         *result = expr;
         return true;
-#else
-        if (expr->is_atom()) {
-            const Expr * e = static_cast<const Expr *>(expr);
-            if (e->is_numeric() || e->is_quoted_cstr()) {
-                *result = expr;
-                return true;
-            }
-        }
-
-#if 0
-        *result = expr;
-        return true;
-#else
-        PRETTY_MESSAGE(stderr, "not implemented");
-        return false;
-#endif
-#endif
     }
 
     /* helper */
@@ -134,8 +112,30 @@ protected:
     static bool _eval_if(IMatter * expr, ScopedEnv * scope,
             InterpreterIF * interpreter, IMatter ** result)
     {
-        PRETTY_MESSAGE(stderr, "not implemented");
-        return false;
+        CompositeExpr * ce = static_cast<CompositeExpr *>(expr);
+        IExpr * pred = ce->get(1);
+        IExpr * cons = ce->get(2);
+        IExpr * alt = ce->get(3);
+        IMatter * res = NULL;
+        if (!pred || !_force_eval(pred, scope, interpreter, &res)) {
+            return false;
+        }
+
+        IExpr * final = alt;
+        if (res) {
+            if (res->is_atom() && static_cast<Expr *>(res)->not_empty()) {
+                final = cons;
+            }
+            else if (res->is_molecule()
+                    && static_cast<CompositeExpr *>(res)->size()) {
+                final = cons;
+            }
+            else if (res->is_prim_proc()) {
+                final = cons;
+            }
+        }
+
+        return final ? _eval(final, scope, interpreter, result) : false;
     }
 
     /* definition */
@@ -147,8 +147,27 @@ protected:
     static bool _eval_define(IMatter * expr, ScopedEnv * scope,
             InterpreterIF * interpreter, IMatter ** result)
     {
-        PRETTY_MESSAGE(stderr, "not implemented");
-        return false;
+        CompositeExpr * ce = static_cast<CompositeExpr *>(expr);
+        if (ce->size() != 3) {
+            return false;
+        }
+
+        IExpr * pos1 = ce->get(1);
+        IExpr * pos2 = ce->get(2);
+        if (!pos1->is_atom()) {
+            return false;
+        }
+
+        Expr * name = static_cast<Expr *>(pos1);
+        if (!name->is_cstr() || name->is_quoted_cstr()) {
+            return false;
+        }
+
+        IMatter * value = NULL;
+        // there is no return value from a define
+        *result = NULL;
+        return _eval(pos2, scope, interpreter, &value)
+                && scope->add(name->to_cstr(), value);
     }
 
     /* name */

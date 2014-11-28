@@ -44,13 +44,95 @@ public:
     }
 };
 
+class PrimProcSub: public IPrimProc
+{
+public:
+    bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
+    bool check_operands(const IMatter * ops) const
+    {
+        // TODO
+        return true;
+    }
+
+    const char * name() const
+    {
+        return "-";
+    }
+
+    std::string debug_string(bool compact = true, int level = 0,
+            const char * indent_seq = DEFAULT_INDENT_SEQ) const
+    {
+        return "PrimProcSub{}";
+    }
+};
+
+class PrimProcMul: public IPrimProc
+{
+public:
+    bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
+    bool check_operands(const IMatter * ops) const
+    {
+        // TODO
+        return true;
+    }
+
+    const char * name() const
+    {
+        return "*";
+    }
+
+    std::string debug_string(bool compact = true, int level = 0,
+            const char * indent_seq = DEFAULT_INDENT_SEQ) const
+    {
+        return "PrimProcMul{}";
+    }
+};
+
+class PrimProcDiv: public IPrimProc
+{
+public:
+    bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
+    bool check_operands(const IMatter * ops) const
+    {
+        // TODO
+        return true;
+    }
+
+    const char * name() const
+    {
+        return "/";
+    }
+
+    std::string debug_string(bool compact = true, int level = 0,
+            const char * indent_seq = DEFAULT_INDENT_SEQ) const
+    {
+        return "PrimProcDiv{}";
+    }
+};
+
+class PrimProcMod: public IPrimProc
+{
+public:
+    bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
+    bool check_operands(const IMatter * ops) const
+    {
+        // TODO
+        return true;
+    }
+
+    const char * name() const
+    {
+        return "mod";
+    }
+
+    std::string debug_string(bool compact = true, int level = 0,
+            const char * indent_seq = DEFAULT_INDENT_SEQ) const
+    {
+        return "PrimProcMod{}";
+    }
+};
+
 #if 0
-// arithmetic
-static bool _prim_add(const CompositeExpr * operands, IMatter ** result);
-static bool _prim_sub(const CompositeExpr * operands, IMatter ** result);
-static bool _prim_mul(const CompositeExpr * operands, IMatter ** result);
-static bool _prim_div(const CompositeExpr * operands, IMatter ** result);
-static bool _prim_mod(const CompositeExpr * operands, IMatter ** result);
 // relative
 static bool _prim_eq(const IMatter * operands, IMatter &result);
 static bool _prim_ne(const IMatter * operands, IMatter &result);

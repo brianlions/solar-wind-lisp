@@ -122,6 +122,30 @@ bool is_##name() const {                \
     bool to_long_double_unsafe(long double &v) const;
 #endif
 
+    bool not_empty() const
+    {
+        switch (_atom_type) {
+            case atom_bool:
+                return _atom_data.num.b;
+            case atom_i32:
+                return _atom_data.num.i32 != 0;
+            case atom_u32:
+                return _atom_data.num.u32 != 0;
+            case atom_i64:
+                return _atom_data.num.i64 != 0;
+            case atom_u64:
+                return _atom_data.num.u64 != 0;
+            case atom_double:
+                return _atom_data.num.d != 0;
+            case atom_long_double:
+                return _atom_data.num.ld != 0;
+            case atom_cstr:
+                return _atom_data.str.length != 0;
+            default:
+                return false;
+        }
+    }
+
     struct AtomData
     {
         static const char C_SQ = '\'';

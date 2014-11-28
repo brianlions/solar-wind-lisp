@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "swl_utils.h"
+
 #ifndef USE_PRETTY_MESSAGE
 #define USE_PRETTY_MESSAGE
 #endif
@@ -13,24 +15,16 @@
 
 #define PRETTY_MESSAGE(stream, fmt, ...)                                        \
 do {                                                                            \
-    time_t now;                                                                 \
-    struct tm now_broken;                                                       \
     char time_str[64];                                                          \
-    time(&now);                                                                 \
-    localtime_r(&now, &now_broken);                                             \
-    strftime(time_str, sizeof(time_str), "%Y.%m.%d-%H:%M:%S", &now_broken);     \
+    SolarWindLisp::Utils::Time::hires_ascii_time(time_str, sizeof(time_str));   \
     (void) fprintf((stream), "[%s %s:%04d:%s] " fmt "\n", time_str,             \
         __FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__);                      \
 } while (0)
 
 #define DEV_MESSAGE(fmt, ...)                                                   \
 do {                                                                            \
-    time_t now;                                                                 \
-    struct tm now_broken;                                                       \
     char time_str[64];                                                          \
-    time(&now);                                                                 \
-    localtime_r(&now, &now_broken);                                             \
-    strftime(time_str, sizeof(time_str), "%Y.%m.%d-%H:%M:%S", &now_broken);     \
+    SolarWindLisp::Utils::Time::hires_ascii_time(time_str, sizeof(time_str));   \
     (void) fprintf(stderr, "[%s %s:%04d:%s] " fmt "\n", time_str,               \
         __FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__);                      \
 } while (0)

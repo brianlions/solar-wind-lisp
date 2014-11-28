@@ -30,6 +30,7 @@ TEST_F(InterpreterTS, caseExecuteA)
 {
     const char * forms[] = { //
         "12345",
+        "(define my-pi 3.141592653)",
         "(+ 12 34)",
         "(- 12 34)",
         "(* 12 34)",

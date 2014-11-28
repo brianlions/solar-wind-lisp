@@ -145,7 +145,7 @@ bool InterpreterIF::_is_prim(IMatter * expr)
         }
     }
 
-    return _is_prim_proc(expr);
+    return expr->is_prim_proc();
 }
 
 bool InterpreterIF::_is_special_form(IMatter * expr, const char * keyword)
@@ -260,10 +260,11 @@ void InterpreterIF::_repl(InterpreterIF * interpreter, bool continue_on_error)
             if (!interpreter->execute_expr(&a_result, next)) {
                 PRETTY_MESSAGE(stderr, "oops, failed!");
             }
-            else {
+            else if (a_result) {
                 PRETTY_MESSAGE(stderr, "result: `%s'",
                         a_result->debug_string().c_str());
             }
+            // some expr (e.g. define, defn) returns nothing
         }
     }
 
