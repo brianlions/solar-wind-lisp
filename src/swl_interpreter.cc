@@ -560,6 +560,7 @@ void InterpreterIF::_repl(InterpreterIF * interpreter, bool continue_on_error)
             else if (a_result) {
                 PRETTY_MESSAGE(stderr, "result: `%s'",
                         a_result->debug_string().c_str());
+                printf("%s\n", a_result->debug_string().c_str());
             }
             // some expr (e.g. define, defn) returns nothing
         }

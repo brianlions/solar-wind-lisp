@@ -7,9 +7,9 @@
 
 #include "swl_utils.h"
 
-#ifndef USE_PRETTY_MESSAGE
-#define USE_PRETTY_MESSAGE
-#endif
+//#ifndef USE_PRETTY_MESSAGE
+//#define USE_PRETTY_MESSAGE
+//#endif
 
 #if defined(USE_PRETTY_MESSAGE)
 
