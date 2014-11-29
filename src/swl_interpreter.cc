@@ -399,14 +399,12 @@ bool InterpreterIF::_apply(IMatter * proc_name, IMatter * proc_operands,
             proc_operands->debug_string(false).c_str());
     if (proc_name->is_prim_proc()) {
         IPrimProc * p = static_cast<IPrimProc *>(proc_name);
-        CompositeExpr * ce =
-                interpreter->matter_factory()->create_molecule();
+        CompositeExpr * ce = interpreter->matter_factory()->create_molecule();
         if (!ce) {
             return false;
         }
 
-        CompositeExpr * operands =
-                static_cast<CompositeExpr *>(proc_operands);
+        CompositeExpr * operands = static_cast<CompositeExpr *>(proc_operands);
         operands->rewind();
         while (operands->has_next()) {
             IMatter * res = NULL;
@@ -415,7 +413,8 @@ bool InterpreterIF::_apply(IMatter * proc_name, IMatter * proc_operands,
             }
             ce->append_expr(static_cast<IExpr *>(res));
         }
-        return p->run(ce, result, interpreter->matter_factory());
+        return p->check_operands(ce)
+                && p->run(ce, result, interpreter->matter_factory());
     }
 
     if (proc_name->is_proc()) {

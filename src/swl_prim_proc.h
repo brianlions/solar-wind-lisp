@@ -29,7 +29,8 @@ public:
     bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
     bool check_operands(const IMatter * ops) const
     {
-        return ops->is_molecule();
+        return ops->is_molecule()
+                && static_cast<const CompositeExpr *>(ops)->size();
     }
 
     const char * name() const
@@ -55,7 +56,8 @@ public:
     bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
     bool check_operands(const IMatter * ops) const
     {
-        return ops->is_molecule();
+        return ops->is_molecule()
+                && static_cast<const CompositeExpr *>(ops)->size();
     }
 
     const char * name() const
@@ -81,7 +83,8 @@ public:
     bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
     bool check_operands(const IMatter * ops) const
     {
-        return ops->is_molecule();
+        return ops->is_molecule()
+                && static_cast<const CompositeExpr *>(ops)->size();
     }
 
     const char * name() const

@@ -18,12 +18,6 @@ bool PrimProcAdd::run(const IMatter * ops, IMatter ** result,
         return false;
     }
 
-    if (!ce->size()) {
-        res->set_i32(0);
-        *result = res;
-        return true;
-    }
-
     int64_t result_i64 = 0;
     long double result_ld = 0;
     int64_t temp_i64 = 0;
@@ -81,12 +75,71 @@ bool PrimProcSub::run(const IMatter * ops, IMatter ** result,
         return false;
     }
 
-    if (!ce->size()) {
-        res->set_i32(0);
-        *result = res;
-        return true;
+    int64_t result_i64 = 0;
+    long double result_ld = 0;
+    int64_t temp_i64 = 0;
+    long double temp_ld = 0;
+    bool integer = true;
+    const Expr * first = static_cast<const Expr *>(ce->get_next());
+    if (first->is_integer()) {
+        first->to_i64(result_i64);
+    }
+    else if (first->is_real()) {
+        integer = false;
+        first->to_long_double(result_ld);
+    }
+    else {
+        // FIXME delete res or else mem leak
+        return false;
     }
 
+    if (ce->size() == 1) {
+        if (integer) {
+            result_i64 = - result_i64;
+        }
+        else {
+            result_ld = - result_ld;
+        }
+    }
+    else {
+        while (ce->has_next()) {
+            const Expr * e = static_cast<const Expr *>(ce->get_next());
+            if (e->is_integer()) {
+                e->to_i64(temp_i64);
+                if (integer) {
+                    result_i64 -= temp_i64;
+                }
+                else {
+                    result_ld -= temp_i64;
+                }
+            }
+            else if (e->is_real()) {
+                e->to_long_double(temp_ld);
+                if (integer) {
+                    integer = false;
+                    result_ld = static_cast<long double>(result_i64);
+                }
+                result_ld -= temp_ld;
+            }
+            else {
+                // FIXME delete res or else mem leak
+                return false;
+            }
+        }
+    }
+
+    if (result) {
+        if (integer) {
+            res->set_i64(result_i64);
+        }
+        else {
+            res->set_long_double(result_ld);
+        }
+        *result = res;
+    }
+
+    return true;
+#if 0
     int64_t result_i64 = 0;
     long double result_ld = 0;
     int64_t temp_i64 = 0;
@@ -129,6 +182,7 @@ bool PrimProcSub::run(const IMatter * ops, IMatter ** result,
     }
 
     return true;
+#endif
 }
 
 bool PrimProcMul::run(const IMatter * ops, IMatter ** result,
@@ -142,12 +196,6 @@ bool PrimProcMul::run(const IMatter * ops, IMatter ** result,
     Expr * res = factory->create_atom();
     if (!res) {
         return false;
-    }
-
-    if (!ce->size()) {
-        res->set_i32(1);
-        *result = res;
-        return true;
     }
 
     int64_t result_i64 = 1;
@@ -231,7 +279,9 @@ bool PrimProcDiv::run(const IMatter * ops, IMatter ** result,
     }
 
     res->set_long_double(result_ld);
-    *result = res;
+    if (result) {
+        *result = res;
+    }
 
     return true;
 }
