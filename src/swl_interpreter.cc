@@ -61,17 +61,33 @@ ScopedEnv * InterpreterIF::create_minimum_env()
 {
     ScopedEnv * ret = ScopedEnv::create();
 
-    IPrimProc * pp = new (std::nothrow) PrimProcAdd();
-    if (!pp) {
-        PRETTY_MESSAGE(stderr, "failed create instance of %s", "PrimProcAdd");
-        delete ret;
-        return NULL;
-    }
+    struct PrimProcCreator {
+        const char * name;
+        IPrimProc * (*func_ptr)();
+    } items[] = {
+        { "+", PrimProcAdd::create },
+        { "-", PrimProcSub::create },
+        { "*", PrimProcMul::create },
+        { "/", PrimProcDiv::create },
+    };
 
-    if (!ret->add(pp->name(), pp)) {
-        delete pp;
-        delete ret;
-        return NULL;
+    for (size_t i = 0; i < array_size(items); ++i) {
+        IPrimProc * pp = items[i].func_ptr();
+        if (!pp) {
+            /*
+             * FIXME:
+             *   1. delete elements already added into `ret', or else mem leak!
+             *   2. or maybe do that in ScopedEnv's dtor?
+             */
+            PRETTY_MESSAGE(stderr, "failed create instance of %s", items[i].name);
+            delete ret;
+            return NULL;
+        }
+        if (!ret->add(pp->name(), pp)) {
+            delete pp;
+            delete ret;
+            return NULL;
+        }
     }
 
     return ret;

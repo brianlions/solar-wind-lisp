@@ -17,7 +17,8 @@ public:
         return matter_prim_proc;
     }
 
-    virtual bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory) = 0;
+    virtual bool run(const IMatter * ops, IMatter ** result,
+            IMatterFactory * factory) = 0;
     virtual bool check_operands(const IMatter *ops) const = 0;
     virtual const char * name() const = 0;
 };
@@ -28,8 +29,7 @@ public:
     bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
     bool check_operands(const IMatter * ops) const
     {
-        // TODO
-        return true;
+        return ops->is_molecule();
     }
 
     const char * name() const
@@ -42,6 +42,11 @@ public:
     {
         return "PrimProcAdd{}";
     }
+
+    static IPrimProc * create()
+    {
+        return new (std::nothrow) PrimProcAdd();
+    }
 };
 
 class PrimProcSub: public IPrimProc
@@ -50,8 +55,7 @@ public:
     bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
     bool check_operands(const IMatter * ops) const
     {
-        // TODO
-        return true;
+        return ops->is_molecule();
     }
 
     const char * name() const
@@ -64,6 +68,11 @@ public:
     {
         return "PrimProcSub{}";
     }
+
+    static IPrimProc * create()
+    {
+        return new (std::nothrow) PrimProcSub();
+    }
 };
 
 class PrimProcMul: public IPrimProc
@@ -72,8 +81,7 @@ public:
     bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
     bool check_operands(const IMatter * ops) const
     {
-        // TODO
-        return true;
+        return ops->is_molecule();
     }
 
     const char * name() const
@@ -86,6 +94,11 @@ public:
     {
         return "PrimProcMul{}";
     }
+
+    static IPrimProc * create()
+    {
+        return new (std::nothrow) PrimProcMul();
+    }
 };
 
 class PrimProcDiv: public IPrimProc
@@ -94,8 +107,8 @@ public:
     bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
     bool check_operands(const IMatter * ops) const
     {
-        // TODO
-        return true;
+        return ops->is_molecule()
+                && static_cast<const CompositeExpr *>(ops)->size();
     }
 
     const char * name() const
@@ -108,6 +121,11 @@ public:
     {
         return "PrimProcDiv{}";
     }
+
+    static IPrimProc * create()
+    {
+        return new (std::nothrow) PrimProcDiv();
+    }
 };
 
 class PrimProcMod: public IPrimProc
@@ -116,8 +134,8 @@ public:
     bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
     bool check_operands(const IMatter * ops) const
     {
-        // TODO
-        return true;
+        return ops->is_molecule()
+                && static_cast<const CompositeExpr *>(ops)->size() == 2;
     }
 
     const char * name() const
@@ -129,6 +147,11 @@ public:
             const char * indent_seq = DEFAULT_INDENT_SEQ) const
     {
         return "PrimProcMod{}";
+    }
+
+    static IPrimProc * create()
+    {
+        return new (std::nothrow) PrimProcMod();
     }
 };
 
