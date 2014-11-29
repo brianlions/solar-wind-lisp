@@ -45,12 +45,11 @@ public:
     }
 
 protected:
-    static ScopedEnv * create_minimum_env();
-
     typedef bool (*pred_func_t)(IMatter * expr);
     typedef bool (*eval_func_t)(IMatter * exrp, ScopedEnv * env,
             InterpreterIF * interpreter, IMatter ** result);
 
+    static ScopedEnv * create_minimum_env();
     void _expand();
 
     /*
@@ -62,43 +61,24 @@ protected:
      */
     static bool _eval(IMatter * expr, ScopedEnv * scope,
             InterpreterIF * interpreter, IMatter ** result = NULL);
-
     static bool _force_eval(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result)
-    {
-        PRETTY_MESSAGE(stderr, "executing `%s' ...",
-                expr->debug_string(false).c_str());
-        IMatter * res = NULL;
-        if (!_eval(expr, scope, interpreter, &res)) {
-            PRETTY_MESSAGE(stderr, "oops ...");
-            return false;
-        }
-
-        if (!result) {
-            // caller does not care about the result
-            return true;
-        }
-
-        if (res && _is_future(res)) {
-            // beware of those forms returns nothing (e.g. define and defn)
-            return static_cast<Future *>(res)->value(result);
-        }
-        else {
-            // 1. res is NULL, or 2. res is not a future
-            *result = res;
-            return true;
-        }
-    }
+            InterpreterIF * interpreter, IMatter ** result);
 
     /* primitive */
-    static bool _is_prim(IMatter * expr);
+    static bool _is_prim(IMatter * expr)
+    {
+        if (expr->is_atom()) {
+            const Expr * e = static_cast<const Expr *>(expr);
+            if (e->is_numeric() || e->is_quoted_cstr()) {
+                return true;
+            }
+        }
+
+        return expr->is_prim_proc();
+    }
 
     static bool _eval_prim(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result)
-    {
-        *result = expr;
-        return true;
-    }
+            InterpreterIF * interpreter, IMatter ** result);
 
     /* helper */
     static bool _is_special_form(IMatter * expr, const char * keyword);
@@ -110,33 +90,7 @@ protected:
     }
 
     static bool _eval_if(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result)
-    {
-        CompositeExpr * ce = static_cast<CompositeExpr *>(expr);
-        IExpr * pred = ce->get(1);
-        IExpr * cons = ce->get(2);
-        IExpr * alt = ce->get(3);
-        IMatter * res = NULL;
-        if (!pred || !_force_eval(pred, scope, interpreter, &res)) {
-            return false;
-        }
-
-        IExpr * final = alt;
-        if (res) {
-            if (res->is_atom() && static_cast<Expr *>(res)->not_empty()) {
-                final = cons;
-            }
-            else if (res->is_molecule()
-                    && static_cast<CompositeExpr *>(res)->size()) {
-                final = cons;
-            }
-            else if (res->is_prim_proc()) {
-                final = cons;
-            }
-        }
-
-        return final ? _eval(final, scope, interpreter, result) : false;
-    }
+            InterpreterIF * interpreter, IMatter ** result);
 
     /* definition */
     static bool _is_define(IMatter * expr)
@@ -145,30 +99,7 @@ protected:
     }
 
     static bool _eval_define(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result)
-    {
-        CompositeExpr * ce = static_cast<CompositeExpr *>(expr);
-        if (ce->size() != 3) {
-            return false;
-        }
-
-        IExpr * pos1 = ce->get(1);
-        IExpr * pos2 = ce->get(2);
-        if (!pos1->is_atom()) {
-            return false;
-        }
-
-        Expr * name = static_cast<Expr *>(pos1);
-        if (!name->is_cstr() || name->is_quoted_cstr()) {
-            return false;
-        }
-
-        IMatter * value = NULL;
-        // there is no return value from a define
-        *result = NULL;
-        return _eval(pos2, scope, interpreter, &value)
-                && scope->add(name->to_cstr(), value);
-    }
+            InterpreterIF * interpreter, IMatter ** result);
 
     /* name */
     static bool _is_name(IMatter * expr)
@@ -186,17 +117,7 @@ protected:
     }
 
     static bool _eval_name(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter UNUSED, IMatter ** result)
-    {
-        PRETTY_MESSAGE(stderr, "execute: `%s' ...", expr->debug_string(false).c_str());
-        if (expr->is_atom()) {
-            Expr * e = static_cast<Expr *>(expr);
-            if (e->is_cstr() && scope->lookup(e->to_cstr(), result)) {
-                return true;
-            }
-        }
-        return false;
-    }
+            InterpreterIF * interpreter UNUSED, IMatter ** result);
 
     /* time */
     static bool _is_time(IMatter * expr)
@@ -205,11 +126,7 @@ protected:
     }
 
     static bool _eval_time(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result)
-    {
-        PRETTY_MESSAGE(stderr, "not implemented");
-        return false;
-    }
+            InterpreterIF * interpreter, IMatter ** result);
 
     /* lambda & defn */
     static bool _is_lambda(IMatter * expr)
@@ -218,11 +135,7 @@ protected:
     }
 
     static bool _eval_lambda(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter UNUSED, IMatter ** result)
-    {
-        PRETTY_MESSAGE(stderr, "not implemented");
-        return false;
-    }
+            InterpreterIF * interpreter, IMatter ** result);
 
     static bool _is_defn(IMatter * expr)
     {
@@ -230,11 +143,7 @@ protected:
     }
 
     static bool _eval_defn(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter UNUSED, IMatter ** result)
-    {
-        PRETTY_MESSAGE(stderr, "not implemented");
-        return false;
-    }
+            InterpreterIF * interpreter UNUSED, IMatter ** result);
 
     /* cond, do, when */
     static bool _is_cond(IMatter * expr)
@@ -243,11 +152,7 @@ protected:
     }
 
     static bool _eval_cond(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result)
-    {
-        PRETTY_MESSAGE(stderr, "not implemented");
-        return false;
-    }
+            InterpreterIF * interpreter, IMatter ** result);
 
     static bool _is_do(IMatter * expr)
     {
@@ -255,11 +160,7 @@ protected:
     }
 
     static bool _eval_do(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result)
-    {
-        PRETTY_MESSAGE(stderr, "not implemented");
-        return false;
-    }
+            InterpreterIF * interpreter, IMatter ** result);
 
     static bool _is_when(IMatter * expr)
     {
@@ -267,11 +168,7 @@ protected:
     }
 
     static bool _eval_when(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result)
-    {
-        PRETTY_MESSAGE(stderr, "not implemented");
-        return false;
-    }
+            InterpreterIF * interpreter, IMatter ** result);
 
     /* application */
     static bool _is_future(IMatter * expr)
@@ -280,11 +177,7 @@ protected:
     }
 
     static bool _eval_future(IMatter * expr, ScopedEnv * scope UNUSED,
-            InterpreterIF * interpreter UNUSED, IMatter ** result)
-    {
-        *result = expr;
-        return true;
-    }
+            InterpreterIF * interpreter UNUSED, IMatter ** result);
 
     static bool _is_app(IMatter * expr)
     {
@@ -292,83 +185,12 @@ protected:
     }
 
     static bool _eval_app(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result)
-    {
-        PRETTY_MESSAGE(stderr, "executing `%s' ...",
-                expr->debug_string(false).c_str());
-        CompositeExpr * ce = static_cast<CompositeExpr *>(expr);
-        if (!ce->rewind() || !ce->has_next()) {
-            return false;
-        }
+            InterpreterIF * interpreter, IMatter ** result);
 
-        IExpr * first = ce->get_next();
-        CompositeExpr * args = interpreter->matter_factory()->create_molecule();
-        if (!args) {
-            return false;
-        }
-
-        IExpr * ie = NULL;
-        while (ce->has_next()) {
-            ie = ce->get_next();
-            Future * f = interpreter->matter_factory()->create_future(ie, scope,
-                    interpreter);
-            if (!f) {
-                PRETTY_MESSAGE(stderr, "failed creating Future object");
-                return false;
-            }
-            args->append_expr(f);
-        }
-
-        IMatter * p = NULL;
-        return _force_eval(first, scope, interpreter, &p)
-            ?  _apply(p, args, interpreter, result)
-            : false;
-    }
-
-    static bool _realize(IMatter * expr, IMatter ** result)
-    {
-        if (expr->is_future()) {
-            Future * future = static_cast<Future *>(expr);
-            return future->value(result);
-        }
-        else {
-            *result = expr;
-            return true;
-        }
-    }
+    static bool _realize(IMatter * expr, IMatter ** result);
 
     static bool _apply(IMatter * proc_name, IMatter * proc_operands,
-            InterpreterIF * interpreter, IMatter ** result)
-    {
-        PRETTY_MESSAGE(stderr, "proc: `%s', operands: `%s'",
-                proc_name->debug_string(false).c_str(),
-                proc_operands->debug_string(false).c_str());
-        if (proc_name->is_prim_proc()) {
-            IPrimProc * p = static_cast<IPrimProc *>(proc_name);
-            CompositeExpr * ce = interpreter->matter_factory()->create_molecule();
-            if (!ce) {
-                return false;
-            }
-
-            CompositeExpr * operands = static_cast<CompositeExpr *>(proc_operands);
-            operands->rewind();
-            while (operands->has_next()) {
-                IMatter * res = NULL;
-                if (!_realize(operands->get_next(), &res)) {
-                    return false;
-                }
-                ce->append_expr(static_cast<IExpr *>(res));
-            }
-            return p->run(ce, result, interpreter->matter_factory());
-        }
-        else if (proc_name->is_proc()) {
-            PRETTY_MESSAGE(stderr, "branch not implemented");
-            return false;
-        }
-        else {
-            return false;
-        }
-    }
+            InterpreterIF * interpreter, IMatter ** result);
 
 public:
     bool execute(IMatter ** result, const char * str, ssize_t len = -1);

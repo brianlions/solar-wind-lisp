@@ -23,7 +23,8 @@ public:
     virtual CompositeExpr * create_molecule() = 0;
     virtual Future * create_future(IMatter * expr, ScopedEnv * env,
             InterpreterIF * interpreter) = 0;
-    virtual Proc * create_proc() = 0;
+    virtual Proc * create_proc(IMatter * params, IMatter * body,
+            ScopedEnv * env) = 0;
 };
 
 class SimpleMatterFactory: public IMatterFactory
@@ -39,9 +40,9 @@ public:
         return CompositeExpr::create();
     }
 
-    Proc * create_proc()
+    Proc * create_proc(IMatter * params , IMatter * body, ScopedEnv * env)
     {
-        return NULL;
+        return Proc::create(params, body, env);
     }
 
     Future * create_future(IMatter * expr, ScopedEnv * env,

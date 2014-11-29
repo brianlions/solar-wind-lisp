@@ -29,8 +29,8 @@ include_paths   := $(inc_dir) $(src_dir) ~/local/include ~/local/include/google 
 library_paths   := $(bin_dir) ~/local/lib ~/lab/lib /usr/local/lib /opt/lib
 libraries       := gtest rt pthread
 
-static_lib      :=# libnebula.a
-static_lib_dbg  :=# libnebula_debug.a
+static_lib      := libswl.a
+static_lib_dbg  := libswl_debug.a
 
 make_release_h  := $(shell ./makeReleaseInfo.sh $(src_dir))
 release_h       := $(src_dir)/release.h
@@ -108,8 +108,8 @@ test_exes          := $(patsubst $(test_dir)/%.cc,$(bin_dir)/%,$(test_srcs))
 
 #----------------------------------------------------------------------------------------------------------------------
 
-all: $(core_exes) $(core_exes_dbg) $(poc_exes) $(poc_exes_dbg) $(test_exes)
-#     $(static_lib) $(static_lib_dbg)
+all: $(core_exes) $(core_exes_dbg) $(poc_exes) $(poc_exes_dbg) $(test_exes) \
+     $(static_lib) $(static_lib_dbg)
 
 $(core_main_deps) $(core_main_objs) $(core_main_deps_dbg) $(core_main_objs_dbg) \
 $(core_deps) $(core_objs) $(core_deps_dbg) $(core_objs_dbg) \

@@ -14,15 +14,16 @@
 # 35 magenta
 # 36 cyan
 # 37 white
+# 0; normal display, 1; to highlight
 ifndef NO_COLOR
-DEP_COLOR_A="\033[34m"
-DEP_COLOR_B="\033[34m"
-OBJ_COLOR_A="\033[36m"
-OBJ_COLOR_B="\033[36m"
+DEP_COLOR_A="\033[1;34m"
+DEP_COLOR_B="\033[1;34m"
+OBJ_COLOR_A="\033[1;36m"
+OBJ_COLOR_B="\033[1;36m"
 EXE_COLOR_A="\033[1;32m"
 EXE_COLOR_B="\033[1;32m"
-AR_COLOR_A ="\033[35m"
-AR_COLOR_B ="\033[35m"
+AR_COLOR_A ="\033[1;35m"
+AR_COLOR_B ="\033[1;35m"
 END_COLOR  ="\033[0m"
 COLOR_DEP  =@printf '%b\t%b\n' $(DEP_COLOR_A)CPP$(END_COLOR) $(DEP_COLOR_B)$@$(END_COLOR) &&
 COLOR_OBJ  =@printf '%b\t%b\n' $(OBJ_COLOR_A)CC$(END_COLOR) $(OBJ_COLOR_B)$@$(END_COLOR) &&

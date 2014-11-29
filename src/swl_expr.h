@@ -122,29 +122,7 @@ bool is_##name() const {                \
     bool to_long_double_unsafe(long double &v) const;
 #endif
 
-    bool not_empty() const
-    {
-        switch (_atom_type) {
-            case atom_bool:
-                return _atom_data.num.b;
-            case atom_i32:
-                return _atom_data.num.i32 != 0;
-            case atom_u32:
-                return _atom_data.num.u32 != 0;
-            case atom_i64:
-                return _atom_data.num.i64 != 0;
-            case atom_u64:
-                return _atom_data.num.u64 != 0;
-            case atom_double:
-                return _atom_data.num.d != 0;
-            case atom_long_double:
-                return _atom_data.num.ld != 0;
-            case atom_cstr:
-                return _atom_data.str.length != 0;
-            default:
-                return false;
-        }
-    }
+    bool not_empty() const;
 
     struct AtomData
     {
@@ -226,56 +204,77 @@ public:
 
     size_t size() const
     {
-        return _size;
+        return _used;
     }
 
-    IExpr * get(size_t idx);
-    const IExpr * get(size_t idx) const;
+    // non-const
 
-    bool rewind();
+    bool rewind()
+    {
+        _cursor = 0;
+        return true;
+    }
 
     bool has_next()
     {
-        return _cursor != NULL;
+        return _cursor < _used;
     }
 
     IExpr * get_next()
     {
-        IExpr * r = _cursor;
-        _cursor = _cursor->next();
-        return r;
+        return (_cursor < _used) ? _items[_cursor++] : NULL;
     }
 
-    bool rewind() const;
+    IExpr * get(size_t idx)
+    {
+        return (idx < _used) ? _items[idx] : NULL;
+    }
+
+    // const
+
+    bool rewind() const
+    {
+        _cursor = 0;
+        return true;
+    }
 
     bool has_next() const
     {
-        return _cursor != NULL;
+        return _cursor < _used;
     }
 
     const IExpr * get_next() const
     {
-        const IExpr * r = _cursor;
-        _cursor = _cursor->next();
-        return r;
+        return (_cursor < _used) ? _items[_cursor++] : NULL;
+    }
+
+    const IExpr * get(size_t idx) const
+    {
+        return (idx < _used) ? _items[idx] : NULL;
     }
 
     std::string debug_string(bool compact = true, int level = 0,
             const char * indent_seq = IMatter::DEFAULT_INDENT_SEQ) const;
 
 private:
+    static const size_t _INITIAL_CAPACITY = 10;
+    static const size_t _CAPACITY_DELTA = 10;
+
     /* Uses the create() to initialize new instance. */
     CompositeExpr() :
-            _head(NULL), _tail(NULL), _cursor(NULL), _size(0)
+        _items(NULL), _capacity(0), _used(0), _cursor(0)
     {
     }
 
-    void _destroy();
+    void _destroy()
+    {
+        // FIXME delete element in `_items'
+    }
 
-    IExpr * _head;
-    IExpr * _tail;
-    mutable IExpr * _cursor;
-    size_t _size;
+    IExpr ** _items;
+    size_t _capacity;
+    size_t _used;
+    mutable size_t _cursor;
 };
 
 } // namespace SolarWindLisp

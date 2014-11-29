@@ -1,8 +1,10 @@
+#include <stdlib.h>
 #include <new>
 #include "swl_expr.h"
 
 namespace SolarWindLisp
 {
+
 const char * Expr::atom_type_name(Expr::atom_type_t t)
 {
     switch (t) {
@@ -29,6 +31,7 @@ const char * Expr::atom_type_name(Expr::atom_type_t t)
 
 const char Expr::AtomData::C_SQ;
 const char Expr::AtomData::C_DQ;
+
 bool Expr::AtomData::set_string(const char * buf, size_t length)
 {
     size_t actual_length = length;
@@ -477,6 +480,30 @@ bool Expr::to_long_double(long double &v) const
     }
 }
 
+bool Expr::not_empty() const
+{
+    switch (_atom_type) {
+        case atom_bool:
+            return _atom_data.num.b;
+        case atom_i32:
+            return _atom_data.num.i32 != 0;
+        case atom_u32:
+            return _atom_data.num.u32 != 0;
+        case atom_i64:
+            return _atom_data.num.i64 != 0;
+        case atom_u64:
+            return _atom_data.num.u64 != 0;
+        case atom_double:
+            return _atom_data.num.d != 0;
+        case atom_long_double:
+            return _atom_data.num.ld != 0;
+        case atom_cstr:
+            return _atom_data.str.length != 0;
+        default:
+            return false;
+    }
+}
+
 std::string Expr::debug_string(bool compact, int level,
         const char * indent_seq) const
 {
@@ -523,38 +550,31 @@ CompositeExpr * CompositeExpr::create()
     return result;
 }
 
+const size_t CompositeExpr::_INITIAL_CAPACITY;
+const size_t CompositeExpr::_CAPACITY_DELTA;
+
 bool CompositeExpr::append_expr(IExpr * expr)
 {
-    if (!_head) {
-        _head = _tail = expr;
+    if (!_items) {
+        _items = (IExpr **) calloc(_INITIAL_CAPACITY, sizeof(*_items));
+        if (!_items) {
+            return false;
+        }
+        _capacity = _INITIAL_CAPACITY;
     }
-    else {
-        expr->set_prev_and_next(_tail, NULL);
-        _tail->set_next(expr);
-        _tail = expr;
+
+    if (_used == _capacity) {
+        IExpr ** addr = NULL;
+        if (!(addr = (IExpr **) realloc(
+                _items, (_capacity + _CAPACITY_DELTA) * sizeof(*_items)))) {
+            return false;
+        }
+        _items = addr;
+        _capacity += _CAPACITY_DELTA;
     }
-    _size++;
+
+    _items[_used++] = expr;
     return true;
-}
-
-bool CompositeExpr::rewind() const
-{
-    if (_head) {
-        _cursor = _head;
-        return true;
-    }
-
-    return false;
-}
-
-bool CompositeExpr::rewind()
-{
-    if (_head) {
-        _cursor = _head;
-        return true;
-    }
-
-    return false;
 }
 
 std::string CompositeExpr::debug_string(bool compact, int level,
@@ -568,17 +588,14 @@ std::string CompositeExpr::debug_string(bool compact, int level,
 
     std::stringstream ss;
     ss << indent << "CompositeExpr{" << first_sep //
-        << "head:" << (compact ? "" : " ") << ((void *) _head) << sep //
-        << "tail:" << (compact ? "" : " ") << ((void *) _tail) << sep //
-        << "size:" << (compact ? "" : " ") << _size << sep //
+        << "size:" << (compact ? "" : " ") << _used << sep //
+        << "capacity:" << (compact ? "" : " ") << _capacity << sep //
         << "elem:" << (compact ? "[" : " [");
-    if (_size > 0) {
+    if (_used > 0) {
         ss << (compact ? "" : "\n");
-        const IExpr * e = _head;
-        while (e) {
-            ss << e->debug_string(compact, level + 2, indent_seq);
-            e = e->next();
-            if (e) {
+        for (size_t i = 0; i < _used; ++i) {
+            ss << _items[i]->debug_string(compact, level + 2, indent_seq);
+            if (i < _used - 1) {
                 ss << (compact ? "," : ",\n");
             }
         }
@@ -588,48 +605,6 @@ std::string CompositeExpr::debug_string(bool compact, int level,
     }
     ss << "]}";
     return ss.str();
-}
-
-IExpr * CompositeExpr::get(size_t idx)
-{
-    if (idx > _size) {
-        return NULL;
-    }
-
-    IExpr * res = _head;
-    size_t i = 0;
-    while (i++ < idx) {
-        res = res->next();
-    }
-
-    return res;
-}
-
-const IExpr * CompositeExpr::get(size_t idx) const
-{
-    if (idx > _size) {
-        return NULL;
-    }
-
-    const IExpr * res = _head;
-    size_t i = 0;
-    while (i++ < idx) {
-        res = res->next();
-    }
-
-    return res;
-}
-
-void CompositeExpr::_destroy()
-{
-    while (_head) {
-        IExpr * p = _head;
-        _head = _head->next();
-        delete p;
-    }
-
-    _head = _tail = _cursor = NULL;
-    _size = 0;
 }
 
 } // namespace SolarWindLisp
