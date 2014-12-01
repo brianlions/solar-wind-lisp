@@ -52,8 +52,7 @@ public:
     std::string debug_string(bool compact = true, int level = 0,
             const char * indent_seq = DEFAULT_INDENT_SEQ) const
     {
-        PRETTY_MESSAGE(stderr, "not a useful implementation");
-        return "from Proc::debug_string()";
+        return "Proc::debug_string()";
     }
 
 private:

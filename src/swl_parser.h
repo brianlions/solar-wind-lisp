@@ -27,8 +27,7 @@ public:
 
     static bool tokenize(lexical_tokens *result, const char * input,
             ssize_t input_length = -1);
-    IExpr * parse(const char * input, ssize_t input_length = -1);
-
+    IMatter * parse(const char * input, ssize_t input_length = -1);
     virtual const char * name() const = 0;
 
 private:
@@ -47,7 +46,7 @@ private:
     static const char C_LP = '(';
     static const char C_RP = ')';
 
-    IExpr * _parse_tokens(bool inner);
+    IMatter * _parse_tokens(bool inner);
 
     const char * _form_str;
     ssize_t _form_len;

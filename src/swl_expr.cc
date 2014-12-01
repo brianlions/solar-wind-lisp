@@ -1,5 +1,7 @@
 #include <stdlib.h>
+#include <errno.h>
 #include <new>
+#include <limits>
 #include "swl_expr.h"
 
 namespace SolarWindLisp
@@ -515,8 +517,6 @@ std::string Expr::debug_string(bool compact, int level,
 
     std::stringstream ss;
     ss << indent << "Expr{" << first_sep //
-        << "prev:" << (compact ? "" : " ") << ((void *) _prev) << sep //
-        << "this:" << (compact ? "" : " ") << ((void *) this) << sep //
         << "type:" << (compact ? "" : " ") << atom_type_name(_atom_type) << sep //
         << "data:" << (compact ? "" : " ");
     if (is_bool()) {
@@ -553,10 +553,10 @@ CompositeExpr * CompositeExpr::create()
 const size_t CompositeExpr::_INITIAL_CAPACITY;
 const size_t CompositeExpr::_CAPACITY_DELTA;
 
-bool CompositeExpr::append_expr(IExpr * expr)
+bool CompositeExpr::append_expr(IMatter * expr)
 {
     if (!_items) {
-        _items = (IExpr **) calloc(_INITIAL_CAPACITY, sizeof(*_items));
+        _items = (IMatter **) calloc(_INITIAL_CAPACITY, sizeof(*_items));
         if (!_items) {
             return false;
         }
@@ -564,8 +564,8 @@ bool CompositeExpr::append_expr(IExpr * expr)
     }
 
     if (_used == _capacity) {
-        IExpr ** addr = NULL;
-        if (!(addr = (IExpr **) realloc(
+        IMatter ** addr = NULL;
+        if (!(addr = (IMatter **) realloc(
                 _items, (_capacity + _CAPACITY_DELTA) * sizeof(*_items)))) {
             return false;
         }

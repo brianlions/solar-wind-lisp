@@ -139,50 +139,6 @@ bool PrimProcSub::run(const IMatter * ops, IMatter ** result,
     }
 
     return true;
-#if 0
-    int64_t result_i64 = 0;
-    long double result_ld = 0;
-    int64_t temp_i64 = 0;
-    long double temp_ld = 0;
-    bool integer = true;
-    while (ce->has_next()) {
-        const Expr * e = static_cast<const Expr *>(ce->get_next());
-        if (e->is_integer()) {
-            e->to_i64(temp_i64);
-            if (integer) {
-                result_i64 -= temp_i64;
-            }
-            else {
-                result_ld -= temp_i64;
-            }
-        }
-        else if (e->is_real()) {
-            e->to_long_double(temp_ld);
-            if (integer) {
-                integer = false;
-                result_ld = static_cast<long double>(result_i64);
-            }
-            result_ld -= temp_ld;
-        }
-        else {
-            PRETTY_MESSAGE(stderr, "operand is not numberic: `%s'",
-                    e->debug_string().c_str());
-            return false;
-        }
-    }
-
-    if (result) {
-        if (integer) {
-            res->set_i64(result_i64);
-        }
-        else {
-            res->set_long_double(result_ld);
-        }
-        *result = res;
-    }
-
-    return true;
-#endif
 }
 
 bool PrimProcMul::run(const IMatter * ops, IMatter ** result,

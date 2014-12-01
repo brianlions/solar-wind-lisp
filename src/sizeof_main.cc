@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "release.h"
-#include "swl_expr_if.h"
 #include "swl_expr.h"
 #include "swl_parser.h"
 #include "swl_future.h"
@@ -37,7 +36,6 @@ int main(int argc, char ** argv)
     printf("\n");
     print_sizeof(SolarWindLisp::IMatter);
     print_sizeof(SolarWindLisp::IMatter::matter_type_t);
-    print_sizeof(SolarWindLisp::IExpr);
     print_sizeof(SolarWindLisp::Expr);
     print_sizeof(SolarWindLisp::Expr::atom_type_t);
     print_sizeof(SolarWindLisp::Expr::AtomData);

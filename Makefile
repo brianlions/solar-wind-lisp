@@ -13,9 +13,9 @@
 CC              := gcc
 CXX             := g++
 CFLAGS          := -O2 -Wall
-CXXFLAGS        := -O2 -Wall
+CXXFLAGS        := -O2 -Wall -std=c++11
 CFLAGS_DBG      := -O0 -g -Wall
-CXXFLAGS_DBG    := -O0 -g -Wall
+CXXFLAGS_DBG    := -O0 -g -Wall -std=c++11
 AR              := ar
 
 root_dir        := .

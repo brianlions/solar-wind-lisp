@@ -2,7 +2,7 @@
 #define _SOLAR_WIND_LISP_FUTURE_H_
 
 #include <new>
-#include "swl_expr_if.h"
+#include "swl_matter_if.h"
 #include "pretty_message.h"
 
 namespace SolarWindLisp
@@ -10,7 +10,7 @@ namespace SolarWindLisp
 
 class InterpreterIF;
 
-class Future: public IExpr
+class Future: public IMatter
 {
 public:
     matter_type_t matter_type() const
@@ -29,8 +29,7 @@ public:
     std::string debug_string(bool compact = true, int level = 0,
             const char * indent_seq = DEFAULT_INDENT_SEQ) const
     {
-        PRETTY_MESSAGE(stderr, "not a useful implementation");
-        return "from Future::debug_string()";
+        return "Future::debug_string()";
     }
 
 private:

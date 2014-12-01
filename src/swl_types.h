@@ -5,7 +5,6 @@ namespace SolarWindLisp
 {
 
 class IMatter;
-class IExpr;
 class Expr;
 class CompositeExpr;
 class IPrimProc;

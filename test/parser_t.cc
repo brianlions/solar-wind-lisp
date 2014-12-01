@@ -1,11 +1,10 @@
 #include <iostream>
 #include <gtest/gtest.h>
-#include "swl_expr_if.h"
 #include "swl_expr.h"
 #include "swl_parser.h"
 #include "swl_utils.h"
 
-using SolarWindLisp::IExpr;
+using SolarWindLisp::IMatter;
 using SolarWindLisp::Expr;
 using SolarWindLisp::CompositeExpr;
 using SolarWindLisp::IParser;
@@ -122,7 +121,7 @@ TEST_F(ParserTokenizeTS, parseExpr)
 
     for (size_t i = 0; i < array_size(cases); ++i)
     {
-        IExpr * e = _parser.parse(cases[i].forms, strlen(cases[i].forms));
+        IMatter * e = _parser.parse(cases[i].forms, strlen(cases[i].forms));
         EXPECT_TRUE(e != NULL);
         EXPECT_EQ(e->is_atom(), false);
         EXPECT_EQ(e->is_molecule(), true);
@@ -130,7 +129,7 @@ TEST_F(ParserTokenizeTS, parseExpr)
         if (is_verbose()) {
             std::cout
                 << "form: `" << cases[i].forms << "'" << std::endl
-                << "IExpr: " << e->debug_string(is_compact()) << std::endl;
+                << "IMatter: " << e->debug_string(is_compact()) << std::endl;
         }
         delete e;
     }

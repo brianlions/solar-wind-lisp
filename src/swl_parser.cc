@@ -83,7 +83,7 @@ bool IParser::tokenize(lexical_tokens * p_result, const char * input,
     return p_result->size() != 0;
 }
 
-IExpr * IParser::parse(const char * input, ssize_t input_length)
+IMatter * IParser::parse(const char * input, ssize_t input_length)
 {
     // setup
     _form_str = input;
@@ -93,7 +93,7 @@ IExpr * IParser::parse(const char * input, ssize_t input_length)
         return NULL;
     }
 
-    IExpr * result = _parse_tokens(false);
+    IMatter * result = _parse_tokens(false);
 
     // tear down
     _form_str = NULL;
@@ -102,7 +102,7 @@ IExpr * IParser::parse(const char * input, ssize_t input_length)
     return result;
 }
 
-IExpr * IParser::_parse_tokens(bool inner)
+IMatter * IParser::_parse_tokens(bool inner)
 {
     std::string current;
 
@@ -112,7 +112,7 @@ IExpr * IParser::_parse_tokens(bool inner)
         _tokens.pop_front();
 
         if (current == S_LP) {
-            IExpr * expr = _parse_tokens(true);
+            IMatter * expr = _parse_tokens(true);
             if (!expr) {
                 delete result;
                 return NULL;

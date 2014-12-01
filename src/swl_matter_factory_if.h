@@ -6,6 +6,7 @@
 #include "swl_prim_proc.h"
 #include "swl_proc.h"
 #include "swl_future.h"
+#include "swl_scoped_env.h"
 
 namespace SolarWindLisp
 {
@@ -25,6 +26,7 @@ public:
             InterpreterIF * interpreter) = 0;
     virtual Proc * create_proc(IMatter * params, IMatter * body,
             ScopedEnv * env) = 0;
+    virtual ScopedEnv * create_env(ScopedEnv * ext = NULL) = 0;
 };
 
 class SimpleMatterFactory: public IMatterFactory
@@ -46,7 +48,15 @@ public:
     }
 
     Future * create_future(IMatter * expr, ScopedEnv * env,
-            InterpreterIF * interpreter);
+            InterpreterIF * interpreter)
+    {
+        return Future::create(expr, env, interpreter);
+    }
+
+    ScopedEnv * create_env(ScopedEnv * ext = NULL)
+    {
+        return ScopedEnv::create(ext);
+    }
 };
 
 } // namespace SolarWindLisp

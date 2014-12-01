@@ -39,7 +39,7 @@ public:
         return _env;
     }
 
-    IMatterFactory * matter_factory()
+    IMatterFactory * factory()
     {
         return _factory;
     }
@@ -49,7 +49,7 @@ protected:
     typedef bool (*eval_func_t)(IMatter * exrp, ScopedEnv * env,
             InterpreterIF * interpreter, IMatter ** result);
 
-    static ScopedEnv * create_minimum_env();
+    ScopedEnv * create_minimum_env();
     void _expand();
 
     /*
@@ -60,11 +60,11 @@ protected:
      *   true if success, false on error.
      */
     static bool _eval(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result = NULL);
+            InterpreterIF * interpreter, IMatter ** result);
     static bool _force_eval(IMatter * expr, ScopedEnv * scope,
             InterpreterIF * interpreter, IMatter ** result);
 
-    /* primitive */
+    // primitive
     static bool _is_prim(IMatter * expr)
     {
         if (expr->is_atom()) {
@@ -80,10 +80,10 @@ protected:
     static bool _eval_prim(IMatter * expr, ScopedEnv * scope,
             InterpreterIF * interpreter, IMatter ** result);
 
-    /* helper */
+    // helper
     static bool _is_special_form(IMatter * expr, const char * keyword);
 
-    /* if */
+    // if
     static bool _is_if(IMatter * expr)
     {
         return _is_special_form(expr, "if");
@@ -92,7 +92,7 @@ protected:
     static bool _eval_if(IMatter * expr, ScopedEnv * scope,
             InterpreterIF * interpreter, IMatter ** result);
 
-    /* definition */
+    // definition
     static bool _is_define(IMatter * expr)
     {
         return _is_special_form(expr, "define");
@@ -101,7 +101,7 @@ protected:
     static bool _eval_define(IMatter * expr, ScopedEnv * scope,
             InterpreterIF * interpreter, IMatter ** result);
 
-    /* name */
+    // name
     static bool _is_name(IMatter * expr)
     {
         if (!expr->is_atom()) {
@@ -109,17 +109,13 @@ protected:
         }
 
         const Expr * e = static_cast<const Expr *>(expr);
-        if (!e->is_cstr() || e->is_quoted_cstr()) {
-            return false;
-        }
-
-        return true;
+        return e->is_cstr() && !e->is_quoted_cstr();
     }
 
     static bool _eval_name(IMatter * expr, ScopedEnv * scope,
             InterpreterIF * interpreter UNUSED, IMatter ** result);
 
-    /* time */
+    // time
     static bool _is_time(IMatter * expr)
     {
         return _is_special_form(expr, "time");
@@ -128,7 +124,7 @@ protected:
     static bool _eval_time(IMatter * expr, ScopedEnv * scope,
             InterpreterIF * interpreter, IMatter ** result);
 
-    /* lambda & defn */
+    // lambda & defn
     static bool _is_lambda(IMatter * expr)
     {
         return _is_special_form(expr, "lambda");
@@ -145,7 +141,7 @@ protected:
     static bool _eval_defn(IMatter * expr, ScopedEnv * scope,
             InterpreterIF * interpreter UNUSED, IMatter ** result);
 
-    /* cond, do, when */
+    // cond, do, when
     static bool _is_cond(IMatter * expr)
     {
         return _is_special_form(expr, "cond");
@@ -170,7 +166,7 @@ protected:
     static bool _eval_when(IMatter * expr, ScopedEnv * scope,
             InterpreterIF * interpreter, IMatter ** result);
 
-    /* application */
+    // application
     static bool _is_future(IMatter * expr)
     {
         return expr->is_future();
@@ -196,7 +192,7 @@ public:
     bool execute(IMatter ** result, const char * str, ssize_t len = -1);
     bool execute_multi_expr(IMatter ** result, IMatter * expr);
     bool execute_expr(IMatter ** result, IMatter * expr);
-    /* REPL */
+    // REPL
     void cmd_help() const;
     static void banner();
     static void cmd_doc();

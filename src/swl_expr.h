@@ -1,16 +1,17 @@
 #ifndef _SOLAR_WIND_LISP_EXPR_H_
 #define _SOLAR_WIND_LISP_EXPR_H_
 
+#include <string.h>
+#include <stdlib.h>
 #include <sstream>
 
 #include "swl_matter_if.h"
-#include "swl_expr_if.h"
 #include "swl_utils.h"
 
 namespace SolarWindLisp
 {
 // TODO: rename to Atom
-class Expr: public IExpr
+class Expr: public IMatter
 {
 public:
     enum atom_type_t
@@ -101,8 +102,8 @@ bool is_##name() const {                \
 
     bool to_bool(bool &v) const;
     bool to_i32(int32_t &v) const;
-    bool to_i64(int64_t &v) const;
     bool to_u32(uint32_t &v) const;
+    bool to_i64(int64_t &v) const;
     bool to_u64(uint64_t &v) const;
     bool to_double(double &v) const;
     bool to_long_double(long double &v) const;
@@ -175,7 +176,6 @@ bool is_##name() const {                \
             const char * indent_seq = IMatter::DEFAULT_INDENT_SEQ) const;
 
 private:
-    /* Uses the create() to initialize new instance. */
     Expr() :
             _atom_type(atom_bool)
     {
@@ -185,7 +185,7 @@ private:
     AtomData _atom_data;
 };
 
-class CompositeExpr: public IExpr
+class CompositeExpr: public IMatter
 {
 public:
     ~CompositeExpr()
@@ -200,7 +200,7 @@ public:
 
     static CompositeExpr * create();
 
-    bool append_expr(IExpr * expr);
+    bool append_expr(IMatter * expr);
 
     size_t size() const
     {
@@ -220,12 +220,12 @@ public:
         return _cursor < _used;
     }
 
-    IExpr * get_next()
+    IMatter * get_next()
     {
         return (_cursor < _used) ? _items[_cursor++] : NULL;
     }
 
-    IExpr * get(size_t idx)
+    IMatter * get(size_t idx)
     {
         return (idx < _used) ? _items[idx] : NULL;
     }
@@ -243,12 +243,12 @@ public:
         return _cursor < _used;
     }
 
-    const IExpr * get_next() const
+    const IMatter * get_next() const
     {
         return (_cursor < _used) ? _items[_cursor++] : NULL;
     }
 
-    const IExpr * get(size_t idx) const
+    const IMatter * get(size_t idx) const
     {
         return (idx < _used) ? _items[idx] : NULL;
     }
@@ -260,7 +260,6 @@ private:
     static const size_t _INITIAL_CAPACITY = 10;
     static const size_t _CAPACITY_DELTA = 10;
 
-    /* Uses the create() to initialize new instance. */
     CompositeExpr() :
         _items(NULL), _capacity(0), _used(0), _cursor(0)
     {
@@ -271,7 +270,7 @@ private:
         // FIXME delete element in `_items'
     }
 
-    IExpr ** _items;
+    IMatter ** _items;
     size_t _capacity;
     size_t _used;
     mutable size_t _cursor;

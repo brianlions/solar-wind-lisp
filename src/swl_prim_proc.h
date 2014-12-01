@@ -27,10 +27,11 @@ class PrimProcAdd: public IPrimProc
 {
 public:
     bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
+
     bool check_operands(const IMatter * ops) const
     {
         return ops->is_molecule()
-                && static_cast<const CompositeExpr *>(ops)->size();
+            && static_cast<const CompositeExpr *>(ops)->size();
     }
 
     const char * name() const
@@ -54,10 +55,11 @@ class PrimProcSub: public IPrimProc
 {
 public:
     bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
+
     bool check_operands(const IMatter * ops) const
     {
         return ops->is_molecule()
-                && static_cast<const CompositeExpr *>(ops)->size();
+            && static_cast<const CompositeExpr *>(ops)->size();
     }
 
     const char * name() const
@@ -81,10 +83,11 @@ class PrimProcMul: public IPrimProc
 {
 public:
     bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
+
     bool check_operands(const IMatter * ops) const
     {
         return ops->is_molecule()
-                && static_cast<const CompositeExpr *>(ops)->size();
+            && static_cast<const CompositeExpr *>(ops)->size();
     }
 
     const char * name() const
@@ -108,10 +111,11 @@ class PrimProcDiv: public IPrimProc
 {
 public:
     bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
+
     bool check_operands(const IMatter * ops) const
     {
         return ops->is_molecule()
-                && static_cast<const CompositeExpr *>(ops)->size();
+            && static_cast<const CompositeExpr *>(ops)->size();
     }
 
     const char * name() const
@@ -135,6 +139,7 @@ class PrimProcMod: public IPrimProc
 {
 public:
     bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
+
     bool check_operands(const IMatter * ops) const
     {
         return ops->is_molecule()

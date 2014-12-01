@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "solarwindlisp.h"
 
-using SolarWindLisp::IExpr;
+using SolarWindLisp::IMatter;
 using SolarWindLisp::Expr;
 using SolarWindLisp::CompositeExpr;
 using SolarWindLisp::SimpleMatterFactory;
@@ -156,7 +156,7 @@ TEST_F(ExprTS, parseC)
     int32_t i32 = 0;
     uint32_t u32 = 0;
     while (_composite_expr->has_next()) {
-        const IExpr * temp = _composite_expr->get_next();
+        const IMatter * temp = _composite_expr->get_next();
         EXPECT_TRUE(temp != NULL);
         EXPECT_TRUE(temp->is_atom());
         EXPECT_FALSE(temp->is_molecule());

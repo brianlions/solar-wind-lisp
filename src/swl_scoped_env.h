@@ -10,10 +10,10 @@ namespace SolarWindLisp
 
 class ScopedEnv
 {
-public:
     typedef std::map<std::string, IMatter *>::iterator ITER;
     typedef std::map<std::string, IMatter *>::const_iterator CONST_ITER;
 
+public:
     static ScopedEnv * create(ScopedEnv * ext = NULL)
     {
         return new (std::nothrow) ScopedEnv(ext);
@@ -38,20 +38,20 @@ public:
             return true;
         }
 
-        if (!_external) {
-            return false;
-        }
-
-        return _external->lookup(name, result);
+        return _external ? _external->lookup(name, result) : false;
     }
 
-    // TODO: make ctor private
+    virtual ~ScopedEnv()
+    {
+        // FIXME: delete elem in _current
+    }
+
+private:
     ScopedEnv(ScopedEnv * ext = NULL) :
             _external(ext)
     {
     }
 
-private:
     ScopedEnv * _external;
     std::map<std::string, IMatter *> _current;
 };
