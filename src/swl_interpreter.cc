@@ -16,6 +16,11 @@ InterpreterIF::InterpreterIF(IParser * parser, ScopedEnvPtr env,
 
 InterpreterIF::~InterpreterIF()
 {
+    if (_env) {
+        // XXX remove circular reference
+        _env->clear();
+    }
+
     if (_parser) {
         delete _parser;
     }

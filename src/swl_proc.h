@@ -46,6 +46,11 @@ public:
         return "Proc::debug_string()";
     }
 
+    virtual ~Proc()
+    {
+        _env.reset();
+    }
+
 private:
     Proc(MatterPtr params, MatterPtr body, ScopedEnvPtr env) :
             _params(params), _body(body), _env(env)

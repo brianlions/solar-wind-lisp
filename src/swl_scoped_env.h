@@ -41,9 +41,18 @@ public:
         return _external.get() ? _external->lookup(name, result) : false;
     }
 
+    void clear()
+    {
+        // XXX remove circular reference
+        for (ITER it = _current.begin(); it != _current.end(); ++it) {
+            it->second.reset();
+        }
+        _external.reset();
+    }
+
     virtual ~ScopedEnv()
     {
-        // FIXME: delete elem in _current
+        clear();
     }
 
 private:

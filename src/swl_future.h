@@ -32,6 +32,11 @@ public:
         return "Future::debug_string()";
     }
 
+    virtual ~Future()
+    {
+        _env.reset();
+    }
+
 private:
     Future(MatterPtr expr, ScopedEnvPtr env, InterpreterIF * interpreter) :
             _expr(expr), _env(env), _interpreter(interpreter), _value(NULL)
