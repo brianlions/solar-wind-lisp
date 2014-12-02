@@ -17,21 +17,21 @@ public:
         return matter_prim_proc;
     }
 
-    virtual bool run(const IMatter * ops, IMatter ** result,
+    virtual bool run(const MatterPtr &ops, MatterPtr &result,
             IMatterFactory * factory) = 0;
-    virtual bool check_operands(const IMatter *ops) const = 0;
+    virtual bool check_operands(const MatterPtr &ops) const = 0;
     virtual const char * name() const = 0;
 };
 
 class PrimProcAdd: public IPrimProc
 {
 public:
-    bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
+    bool run(const MatterPtr &ops, MatterPtr &result, IMatterFactory * factory);
 
-    bool check_operands(const IMatter * ops) const
+    bool check_operands(const MatterPtr &ops) const
     {
         return ops->is_molecule()
-            && static_cast<const CompositeExpr *>(ops)->size();
+            && static_cast<const CompositeExpr *>(ops.get())->size();
     }
 
     const char * name() const
@@ -45,21 +45,21 @@ public:
         return "PrimProcAdd{}";
     }
 
-    static IPrimProc * create()
+    static PrimProcPtr create()
     {
-        return new (std::nothrow) PrimProcAdd();
+        return PrimProcPtr(new (std::nothrow) PrimProcAdd());
     }
 };
 
 class PrimProcSub: public IPrimProc
 {
 public:
-    bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
+    bool run(const MatterPtr &ops, MatterPtr &result, IMatterFactory * factory);
 
-    bool check_operands(const IMatter * ops) const
+    bool check_operands(const MatterPtr &ops) const
     {
         return ops->is_molecule()
-            && static_cast<const CompositeExpr *>(ops)->size();
+            && static_cast<const CompositeExpr *>(ops.get())->size();
     }
 
     const char * name() const
@@ -73,21 +73,21 @@ public:
         return "PrimProcSub{}";
     }
 
-    static IPrimProc * create()
+    static PrimProcPtr create()
     {
-        return new (std::nothrow) PrimProcSub();
+        return PrimProcPtr(new (std::nothrow) PrimProcSub());
     }
 };
 
 class PrimProcMul: public IPrimProc
 {
 public:
-    bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
+    bool run(const MatterPtr &ops, MatterPtr &result, IMatterFactory * factory);
 
-    bool check_operands(const IMatter * ops) const
+    bool check_operands(const MatterPtr &ops) const
     {
         return ops->is_molecule()
-            && static_cast<const CompositeExpr *>(ops)->size();
+            && static_cast<const CompositeExpr *>(ops.get())->size();
     }
 
     const char * name() const
@@ -101,21 +101,21 @@ public:
         return "PrimProcMul{}";
     }
 
-    static IPrimProc * create()
+    static PrimProcPtr create()
     {
-        return new (std::nothrow) PrimProcMul();
+        return PrimProcPtr(new (std::nothrow) PrimProcMul());
     }
 };
 
 class PrimProcDiv: public IPrimProc
 {
 public:
-    bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
+    bool run(const MatterPtr &ops, MatterPtr &result, IMatterFactory * factory);
 
-    bool check_operands(const IMatter * ops) const
+    bool check_operands(const MatterPtr &ops) const
     {
         return ops->is_molecule()
-            && static_cast<const CompositeExpr *>(ops)->size();
+            && static_cast<const CompositeExpr *>(ops.get())->size();
     }
 
     const char * name() const
@@ -129,21 +129,21 @@ public:
         return "PrimProcDiv{}";
     }
 
-    static IPrimProc * create()
+    static PrimProcPtr create()
     {
-        return new (std::nothrow) PrimProcDiv();
+        return PrimProcPtr(new (std::nothrow) PrimProcDiv());
     }
 };
 
 class PrimProcMod: public IPrimProc
 {
 public:
-    bool run(const IMatter * ops, IMatter ** result, IMatterFactory * factory);
+    bool run(const MatterPtr &ops, MatterPtr &result, IMatterFactory * factory);
 
-    bool check_operands(const IMatter * ops) const
+    bool check_operands(const MatterPtr &ops) const
     {
         return ops->is_molecule()
-                && static_cast<const CompositeExpr *>(ops)->size() == 2;
+                && static_cast<const CompositeExpr *>(ops.get())->size() == 2;
     }
 
     const char * name() const
@@ -157,9 +157,9 @@ public:
         return "PrimProcMod{}";
     }
 
-    static IPrimProc * create()
+    static PrimProcPtr create()
     {
-        return new (std::nothrow) PrimProcMod();
+        return PrimProcPtr(new (std::nothrow) PrimProcMod());
     }
 };
 

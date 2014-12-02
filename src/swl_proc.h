@@ -17,35 +17,26 @@ public:
         return matter_proc;
     }
 
-    static Proc * create(IMatter * params, IMatter * body, ScopedEnv * env)
+    static ProcPtr create(MatterPtr params, MatterPtr body, ScopedEnvPtr env)
     {
-        return new (std::nothrow) Proc(params, body, env);
+        return ProcPtr(new (std::nothrow) Proc(params, body, env));
     }
 
-    bool get_params(IMatter ** result)
+    bool get_params(MatterPtr &result)
     {
-        if (result) {
-            *result = _params;
-        }
-
+        result = _params;
         return true;
     }
 
-    bool get_body(IMatter ** result)
+    bool get_body(MatterPtr &result)
     {
-        if (result) {
-            *result = _body;
-        }
-
+        result = _body;
         return true;
     }
 
-    bool get_env(ScopedEnv ** result)
+    bool get_env(ScopedEnvPtr &result)
     {
-        if (result) {
-            *result = _env;
-        }
-
+        result = _env;
         return true;
     }
 
@@ -56,14 +47,14 @@ public:
     }
 
 private:
-    Proc(IMatter * params, IMatter * body, ScopedEnv * env) :
+    Proc(MatterPtr params, MatterPtr body, ScopedEnvPtr env) :
             _params(params), _body(body), _env(env)
     {
     }
 
-    IMatter * _params;
-    IMatter * _body;
-    ScopedEnv * _env;
+    MatterPtr _params;
+    MatterPtr _body;
+    ScopedEnvPtr _env;
 };
 
 } // namespace SolarWindLisp

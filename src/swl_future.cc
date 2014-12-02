@@ -3,15 +3,16 @@
 
 namespace SolarWindLisp
 {
-bool Future::value(IMatter ** result)
+
+bool Future::value(MatterPtr &result)
 {
-    if (!_value) {
-        if (!InterpreterIF::_force_eval(_expr, _env, _interpreter, &_value)) {
+    if (!_value.get()) {
+        if (!InterpreterIF::_force_eval(_expr, _env, _interpreter, _value)) {
             return false;
         }
     }
 
-    *result = _value;
+    result = _value;
     return true;
 }
 

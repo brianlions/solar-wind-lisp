@@ -5,16 +5,16 @@
 namespace SolarWindLisp
 {
 
-bool PrimProcAdd::run(const IMatter * ops, IMatter ** result,
+bool PrimProcAdd::run(const MatterPtr &ops, MatterPtr &result,
         IMatterFactory * factory)
 {
-    const CompositeExpr * ce = static_cast<const CompositeExpr *>(ops);
+    const CompositeExpr * ce = static_cast<const CompositeExpr *>(ops.get());
     if (!ce->rewind()) {
         return false;
     }
 
-    Expr * res = factory->create_atom();
-    if (!res) {
+    ExprPtr res = factory->create_atom();
+    if (!res.get()) {
         return false;
     }
 
@@ -24,7 +24,7 @@ bool PrimProcAdd::run(const IMatter * ops, IMatter ** result,
     long double temp_ld = 0;
     bool integer = true;
     while (ce->has_next()) {
-        const Expr * e = static_cast<const Expr *>(ce->get_next());
+        const Expr * e = static_cast<const Expr *>(ce->get_next().get());
         if (e->is_integer()) {
             e->to_i64(temp_i64);
             if (integer) {
@@ -49,29 +49,27 @@ bool PrimProcAdd::run(const IMatter * ops, IMatter ** result,
         }
     }
 
-    if (result) {
-        if (integer) {
-            res->set_i64(result_i64);
-        }
-        else {
-            res->set_long_double(result_ld);
-        }
-        *result = res;
+    if (integer) {
+        res->set_i64(result_i64);
     }
+    else {
+        res->set_long_double(result_ld);
+    }
+    result = res;
 
     return true;
 }
 
-bool PrimProcSub::run(const IMatter * ops, IMatter ** result,
+bool PrimProcSub::run(const MatterPtr &ops, MatterPtr &result,
         IMatterFactory * factory)
 {
-    const CompositeExpr * ce = static_cast<const CompositeExpr *>(ops);
+    const CompositeExpr * ce = static_cast<const CompositeExpr *>(ops.get());
     if (!ce->rewind()) {
         return false;
     }
 
-    Expr * res = factory->create_atom();
-    if (!res) {
+    ExprPtr res = factory->create_atom();
+    if (!res.get()) {
         return false;
     }
 
@@ -80,7 +78,7 @@ bool PrimProcSub::run(const IMatter * ops, IMatter ** result,
     int64_t temp_i64 = 0;
     long double temp_ld = 0;
     bool integer = true;
-    const Expr * first = static_cast<const Expr *>(ce->get_next());
+    const Expr * first = static_cast<const Expr *>(ce->get_next().get());
     if (first->is_integer()) {
         first->to_i64(result_i64);
     }
@@ -103,7 +101,7 @@ bool PrimProcSub::run(const IMatter * ops, IMatter ** result,
     }
     else {
         while (ce->has_next()) {
-            const Expr * e = static_cast<const Expr *>(ce->get_next());
+            const Expr * e = static_cast<const Expr *>(ce->get_next().get());
             if (e->is_integer()) {
                 e->to_i64(temp_i64);
                 if (integer) {
@@ -128,29 +126,27 @@ bool PrimProcSub::run(const IMatter * ops, IMatter ** result,
         }
     }
 
-    if (result) {
-        if (integer) {
-            res->set_i64(result_i64);
-        }
-        else {
-            res->set_long_double(result_ld);
-        }
-        *result = res;
+    if (integer) {
+        res->set_i64(result_i64);
     }
+    else {
+        res->set_long_double(result_ld);
+    }
+    result = res;
 
     return true;
 }
 
-bool PrimProcMul::run(const IMatter * ops, IMatter ** result,
+bool PrimProcMul::run(const MatterPtr &ops, MatterPtr &result,
         IMatterFactory * factory)
 {
-    const CompositeExpr * ce = static_cast<const CompositeExpr *>(ops);
+    const CompositeExpr * ce = static_cast<const CompositeExpr *>(ops.get());
     if (!ce->rewind()) {
         return false;
     }
 
-    Expr * res = factory->create_atom();
-    if (!res) {
+    ExprPtr res = factory->create_atom();
+    if (!res.get()) {
         return false;
     }
 
@@ -160,7 +156,7 @@ bool PrimProcMul::run(const IMatter * ops, IMatter ** result,
     long double temp_ld = 0;
     bool integer = true;
     while (ce->has_next()) {
-        const Expr * e = static_cast<const Expr *>(ce->get_next());
+        const Expr * e = static_cast<const Expr *>(ce->get_next().get());
         if (e->is_integer()) {
             e->to_i64(temp_i64);
             if (integer) {
@@ -185,36 +181,34 @@ bool PrimProcMul::run(const IMatter * ops, IMatter ** result,
         }
     }
 
-    if (result) {
-        if (integer) {
-            res->set_i64(result_i64);
-        }
-        else {
-            res->set_long_double(result_ld);
-        }
-        *result = res;
+    if (integer) {
+        res->set_i64(result_i64);
     }
+    else {
+        res->set_long_double(result_ld);
+    }
+    result = res;
 
     return true;
 }
 
-bool PrimProcDiv::run(const IMatter * ops, IMatter ** result,
+bool PrimProcDiv::run(const MatterPtr &ops, MatterPtr &result,
         IMatterFactory * factory)
 {
-    const CompositeExpr * ce = static_cast<const CompositeExpr *>(ops);
+    const CompositeExpr * ce = static_cast<const CompositeExpr *>(ops.get());
     if (!ce->rewind()) {
         return false;
     }
 
-    Expr * res = factory->create_atom();
-    if (!res) {
+    ExprPtr res = factory->create_atom();
+    if (!res.get()) {
         return false;
     }
 
     long double result_ld = 0;
     long double temp_ld = 0;
 
-    const Expr * first = static_cast<const Expr *>(ce->get_next());
+    const Expr * first = static_cast<const Expr *>(ce->get_next().get());
     first->to_long_double(result_ld);
     if (ce->size() == 1) {
         if (result_ld == 0) {
@@ -225,7 +219,7 @@ bool PrimProcDiv::run(const IMatter * ops, IMatter ** result,
     }
     else {
         while (ce->has_next()) {
-            const Expr * e = static_cast<const Expr *>(ce->get_next());
+            const Expr * e = static_cast<const Expr *>(ce->get_next().get());
             if (!e->to_long_double(temp_ld) || temp_ld == 0) {
                 // FIXME delete res or else mem leak
                 return false;
@@ -235,9 +229,7 @@ bool PrimProcDiv::run(const IMatter * ops, IMatter ** result,
     }
 
     res->set_long_double(result_ld);
-    if (result) {
-        *result = res;
-    }
+    result = res;
 
     return true;
 }

@@ -19,7 +19,7 @@ class InterpreterIF
 {
     friend class Future;
 public:
-    InterpreterIF(IParser * parser = NULL, ScopedEnv * env = NULL,
+    InterpreterIF(IParser * parser = NULL, ScopedEnvPtr env = NULL,
             IMatterFactory * factory = NULL);
     virtual ~InterpreterIF();
     bool initialize();
@@ -34,7 +34,7 @@ public:
         return _parser;
     }
 
-    ScopedEnv * env()
+    ScopedEnvPtr env()
     {
         return _env;
     }
@@ -45,11 +45,11 @@ public:
     }
 
 protected:
-    typedef bool (*pred_func_t)(IMatter * expr);
-    typedef bool (*eval_func_t)(IMatter * exrp, ScopedEnv * env,
-            InterpreterIF * interpreter, IMatter ** result);
+    typedef bool (*pred_func_t)(const MatterPtr &expr);
+    typedef bool (*eval_func_t)(const MatterPtr &exrp, ScopedEnvPtr &env,
+            InterpreterIF * interpreter, MatterPtr &result);
 
-    ScopedEnv * create_minimum_env();
+    ScopedEnvPtr create_minimum_env();
     void _expand();
 
     /*
@@ -59,16 +59,16 @@ protected:
      * Return value:
      *   true if success, false on error.
      */
-    static bool _eval(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result);
-    static bool _force_eval(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result);
+    static bool _eval(const MatterPtr &expr, ScopedEnvPtr &scope,
+            InterpreterIF * interpreter, MatterPtr &result);
+    static bool _force_eval(const MatterPtr &expr, ScopedEnvPtr &scope,
+            InterpreterIF * interpreter, MatterPtr &result);
 
     // primitive
-    static bool _is_prim(IMatter * expr)
+    static bool _is_prim(const MatterPtr &expr)
     {
         if (expr->is_atom()) {
-            const Expr * e = static_cast<const Expr *>(expr);
+            const Expr * e = static_cast<const Expr *>(expr.get());
             if (e->is_numeric() || e->is_quoted_cstr()) {
                 return true;
             }
@@ -77,121 +77,122 @@ protected:
         return expr->is_prim_proc();
     }
 
-    static bool _eval_prim(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result);
+    static bool _eval_prim(const MatterPtr &expr, ScopedEnvPtr &scope,
+            InterpreterIF * interpreter, MatterPtr &result);
 
     // helper
-    static bool _is_special_form(IMatter * expr, const char * keyword);
+    static bool _is_special_form(const MatterPtr &expr, const char * keyword);
 
     // if
-    static bool _is_if(IMatter * expr)
+    static bool _is_if(const MatterPtr &expr)
     {
         return _is_special_form(expr, "if");
     }
 
-    static bool _eval_if(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result);
+    static bool _eval_if(const MatterPtr &expr, ScopedEnvPtr &scope,
+            InterpreterIF * interpreter, MatterPtr &result);
 
     // definition
-    static bool _is_define(IMatter * expr)
+    static bool _is_define(const MatterPtr &expr)
     {
         return _is_special_form(expr, "define");
     }
 
-    static bool _eval_define(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result);
+    static bool _eval_define(const MatterPtr &expr, ScopedEnvPtr &scope,
+            InterpreterIF * interpreter, MatterPtr &result);
 
     // name
-    static bool _is_name(IMatter * expr)
+    static bool _is_name(const MatterPtr &expr)
     {
         if (!expr->is_atom()) {
             return false;
         }
 
-        const Expr * e = static_cast<const Expr *>(expr);
+        const Expr * e = static_cast<const Expr *>(expr.get());
         return e->is_cstr() && !e->is_quoted_cstr();
     }
 
-    static bool _eval_name(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter UNUSED, IMatter ** result);
+    static bool _eval_name(const MatterPtr &expr, ScopedEnvPtr &scope,
+            InterpreterIF * interpreter UNUSED, MatterPtr &result);
 
     // time
-    static bool _is_time(IMatter * expr)
+    static bool _is_time(const MatterPtr &expr)
     {
         return _is_special_form(expr, "time");
     }
 
-    static bool _eval_time(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result);
+    static bool _eval_time(const MatterPtr &expr, ScopedEnvPtr &scope,
+            InterpreterIF * interpreter, MatterPtr &result);
 
     // lambda & defn
-    static bool _is_lambda(IMatter * expr)
+    static bool _is_lambda(const MatterPtr &expr)
     {
         return _is_special_form(expr, "lambda");
     }
 
-    static bool _eval_lambda(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result);
+    static bool _eval_lambda(const MatterPtr &expr, ScopedEnvPtr &scope,
+            InterpreterIF * interpreter, MatterPtr &result);
 
-    static bool _is_defn(IMatter * expr)
+    static bool _is_defn(const MatterPtr &expr)
     {
         return _is_special_form(expr, "defn");
     }
 
-    static bool _eval_defn(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter UNUSED, IMatter ** result);
+    static bool _eval_defn(const MatterPtr &expr, ScopedEnvPtr &scope,
+            InterpreterIF * interpreter UNUSED, MatterPtr &result);
 
     // cond, do, when
-    static bool _is_cond(IMatter * expr)
+    static bool _is_cond(const MatterPtr &expr)
     {
         return _is_special_form(expr, "cond");
     }
 
-    static bool _eval_cond(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result);
+    static bool _eval_cond(const MatterPtr &expr, ScopedEnvPtr &scope,
+            InterpreterIF * interpreter, MatterPtr &result);
 
-    static bool _is_do(IMatter * expr)
+    static bool _is_do(const MatterPtr &expr)
     {
         return _is_special_form(expr, "do");
     }
 
-    static bool _eval_do(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result);
+    static bool _eval_do(const MatterPtr &expr, ScopedEnvPtr &scope,
+            InterpreterIF * interpreter, MatterPtr &result);
 
-    static bool _is_when(IMatter * expr)
+    static bool _is_when(const MatterPtr &expr)
     {
         return _is_special_form(expr, "when");
     }
 
-    static bool _eval_when(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result);
+    static bool _eval_when(const MatterPtr &expr, ScopedEnvPtr &scope,
+            InterpreterIF * interpreter, MatterPtr &result);
 
     // application
-    static bool _is_future(IMatter * expr)
+    static bool _is_future(const MatterPtr &expr)
     {
         return expr->is_future();
     }
 
-    static bool _eval_future(IMatter * expr, ScopedEnv * scope UNUSED,
-            InterpreterIF * interpreter UNUSED, IMatter ** result);
+    static bool _eval_future(const MatterPtr &expr, ScopedEnvPtr &scope UNUSED,
+            InterpreterIF * interpreter UNUSED, MatterPtr &result);
 
-    static bool _is_app(IMatter * expr)
+    static bool _is_app(const MatterPtr &expr)
     {
         return expr->is_molecule();
     }
 
-    static bool _eval_app(IMatter * expr, ScopedEnv * scope,
-            InterpreterIF * interpreter, IMatter ** result);
+    static bool _eval_app(const MatterPtr &expr, ScopedEnvPtr &scope,
+            InterpreterIF * interpreter, MatterPtr &result);
 
-    static bool _realize(IMatter * expr, IMatter ** result);
+    static bool _realize(const MatterPtr &expr, MatterPtr &result);
 
-    static bool _apply(IMatter * proc_name, IMatter * proc_operands,
-            InterpreterIF * interpreter, IMatter ** result);
+    static bool _apply(const MatterPtr &proc_name,
+            const MatterPtr &proc_operands,
+            InterpreterIF * interpreter, MatterPtr &result);
 
 public:
-    bool execute(IMatter ** result, const char * str, ssize_t len = -1);
-    bool execute_multi_expr(IMatter ** result, IMatter * expr);
-    bool execute_expr(IMatter ** result, IMatter * expr);
+    bool execute(MatterPtr &result, const char * str, ssize_t len = -1);
+    bool execute_multi_expr(MatterPtr &result, const MatterPtr &expr);
+    bool execute_expr(MatterPtr &result, const MatterPtr &expr);
     // REPL
     void cmd_help() const;
     static void banner();
@@ -205,7 +206,7 @@ public:
 private:
     bool _initialized;
     IParser * _parser;
-    ScopedEnv * _env;
+    ScopedEnvPtr _env;
     IMatterFactory * _factory;
 };
 

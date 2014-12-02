@@ -3,6 +3,7 @@
 
 using SolarWindLisp::SimpleInterpreter;
 using SolarWindLisp::IMatter;
+using SolarWindLisp::MatterPtr;
 
 class InterpreterTS: public testing::Test
 {
@@ -48,8 +49,8 @@ TEST_F(InterpreterTS, caseExecuteA)
     SimpleInterpreter interpreter;
     EXPECT_TRUE(interpreter.initialize());
     for (size_t i = 0; i < array_size(forms); ++i) {
-        IMatter * result = NULL;
-        EXPECT_TRUE(interpreter.execute(&result, forms[i], strlen(forms[i])));
+        MatterPtr result = NULL;
+        EXPECT_TRUE(interpreter.execute(result, forms[i], strlen(forms[i])));
         EXPECT_TRUE(result != NULL);
         if (!result) {
             continue;

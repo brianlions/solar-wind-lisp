@@ -77,23 +77,19 @@ bool Expr::AtomData::set_string(const char * buf, size_t length)
     return true;
 }
 
-Expr * Expr::create(const char * buf, size_t length)
+ExprPtr Expr::create(const char * buf, size_t length)
 {
     Expr * result = new (std::nothrow) Expr();
-    if (!result) {
-        return NULL;
+    if (result) {
+        if (!buf || result->parse(buf, length)) {
+            return ExprPtr(result);
+        }
+
+        delete result;
+        result = NULL;
     }
 
-    if (!buf) {
-        return result;
-    }
-
-    if (result->parse(buf, length)) {
-        return result;
-    }
-
-    delete result;
-    return NULL;
+    return ExprPtr(result);
 }
 
 bool Expr::parse(const char * buf, size_t length)
@@ -544,36 +540,17 @@ std::string Expr::debug_string(bool compact, int level,
     return ss.str();
 }
 
-CompositeExpr * CompositeExpr::create()
+CompositeExprPtr CompositeExpr::create()
 {
-    CompositeExpr * result = new (std::nothrow) CompositeExpr();
-    return result;
+    return CompositeExprPtr(new (std::nothrow) CompositeExpr());
 }
 
 const size_t CompositeExpr::_INITIAL_CAPACITY;
 const size_t CompositeExpr::_CAPACITY_DELTA;
 
-bool CompositeExpr::append_expr(IMatter * expr)
+bool CompositeExpr::append_expr(MatterPtr expr)
 {
-    if (!_items) {
-        _items = (IMatter **) calloc(_INITIAL_CAPACITY, sizeof(*_items));
-        if (!_items) {
-            return false;
-        }
-        _capacity = _INITIAL_CAPACITY;
-    }
-
-    if (_used == _capacity) {
-        IMatter ** addr = NULL;
-        if (!(addr = (IMatter **) realloc(
-                _items, (_capacity + _CAPACITY_DELTA) * sizeof(*_items)))) {
-            return false;
-        }
-        _items = addr;
-        _capacity += _CAPACITY_DELTA;
-    }
-
-    _items[_used++] = expr;
+    _items.push_back(expr);
     return true;
 }
 
@@ -588,14 +565,13 @@ std::string CompositeExpr::debug_string(bool compact, int level,
 
     std::stringstream ss;
     ss << indent << "CompositeExpr{" << first_sep //
-        << "size:" << (compact ? "" : " ") << _used << sep //
-        << "capacity:" << (compact ? "" : " ") << _capacity << sep //
+        << "size:" << (compact ? "" : " ") << _items.size() << sep //
         << "elem:" << (compact ? "[" : " [");
-    if (_used > 0) {
+    if (_items.size()) {
         ss << (compact ? "" : "\n");
-        for (size_t i = 0; i < _used; ++i) {
+        for (size_t i = 0; i < _items.size(); ++i) {
             ss << _items[i]->debug_string(compact, level + 2, indent_seq);
-            if (i < _used - 1) {
+            if (i < _items.size() - 1) {
                 ss << (compact ? "," : ",\n");
             }
         }

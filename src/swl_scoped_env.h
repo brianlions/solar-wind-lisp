@@ -10,35 +10,35 @@ namespace SolarWindLisp
 
 class ScopedEnv
 {
-    typedef std::map<std::string, IMatter *>::iterator ITER;
-    typedef std::map<std::string, IMatter *>::const_iterator CONST_ITER;
+    typedef std::map<std::string, MatterPtr>::iterator ITER;
+    typedef std::map<std::string, MatterPtr>::const_iterator CONST_ITER;
 
 public:
-    static ScopedEnv * create(ScopedEnv * ext = NULL)
+    static ScopedEnvPtr create(ScopedEnvPtr ext = NULL)
     {
-        return new (std::nothrow) ScopedEnv(ext);
+        return ScopedEnvPtr(new (std::nothrow) ScopedEnv(ext));
     }
 
-    bool add(const std::string& name, IMatter * value)
+    bool add(const std::string& name, const MatterPtr &value)
     {
         ITER it = _current.find(name);
         if (it != _current.end()) {
             return false;
         }
 
-        _current.insert(std::pair<std::string, IMatter*>(name, value));
+        _current.insert(std::pair<std::string, MatterPtr>(name, value));
         return true;
     }
 
-    bool lookup(const std::string& name, IMatter ** result)
+    bool lookup(const std::string& name, MatterPtr &result)
     {
         ITER it = _current.find(name);
         if (it != _current.end()) {
-            *result = it->second;
+            result = it->second;
             return true;
         }
 
-        return _external ? _external->lookup(name, result) : false;
+        return _external.get() ? _external->lookup(name, result) : false;
     }
 
     virtual ~ScopedEnv()
@@ -47,13 +47,13 @@ public:
     }
 
 private:
-    ScopedEnv(ScopedEnv * ext = NULL) :
+    ScopedEnv(ScopedEnvPtr ext = NULL) :
             _external(ext)
     {
     }
 
-    ScopedEnv * _external;
-    std::map<std::string, IMatter *> _current;
+    ScopedEnvPtr _external;
+    std::map<std::string, MatterPtr> _current;
 };
 
 } // namespace SolarWindLisp

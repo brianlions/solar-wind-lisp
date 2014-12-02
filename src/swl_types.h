@@ -1,6 +1,8 @@
 #ifndef _SOLAR_WIND_LISP_TYPES_H_
 #define _SOLAR_WIND_LISP_TYPES_H_
 
+#include <boost/shared_ptr.hpp>
+
 namespace SolarWindLisp
 {
 
@@ -11,6 +13,14 @@ class IPrimProc;
 class Proc;
 class Future;
 class ScopedEnv;
+
+typedef boost::shared_ptr<IMatter> MatterPtr;
+typedef boost::shared_ptr<Expr> ExprPtr;
+typedef boost::shared_ptr<CompositeExpr> CompositeExprPtr;
+typedef boost::shared_ptr<Proc> ProcPtr;
+typedef boost::shared_ptr<Future> FuturePtr;
+typedef boost::shared_ptr<IPrimProc> PrimProcPtr;
+typedef boost::shared_ptr<ScopedEnv> ScopedEnvPtr;
 
 } // namespace SolarWindLisp
 

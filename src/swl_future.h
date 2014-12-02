@@ -18,13 +18,13 @@ public:
         return matter_future;
     }
 
-    static Future * create(IMatter * expr, ScopedEnv * env,
+    static FuturePtr create(MatterPtr expr, ScopedEnvPtr env,
             InterpreterIF * interpreter)
     {
-        return new (std::nothrow) Future(expr, env, interpreter);
+        return FuturePtr(new (std::nothrow) Future(expr, env, interpreter));
     }
 
-    bool value(IMatter ** result);
+    bool value(MatterPtr &result);
 
     std::string debug_string(bool compact = true, int level = 0,
             const char * indent_seq = DEFAULT_INDENT_SEQ) const
@@ -33,15 +33,15 @@ public:
     }
 
 private:
-    Future(IMatter * expr, ScopedEnv * env, InterpreterIF * interpreter) :
+    Future(MatterPtr expr, ScopedEnvPtr env, InterpreterIF * interpreter) :
             _expr(expr), _env(env), _interpreter(interpreter), _value(NULL)
     {
     }
 
-    IMatter * _expr;
-    ScopedEnv * _env;
+    MatterPtr _expr;
+    ScopedEnvPtr _env;
     InterpreterIF * _interpreter;
-    IMatter * _value;
+    MatterPtr _value;
 };
 
 } // namespace SolarWindLisp

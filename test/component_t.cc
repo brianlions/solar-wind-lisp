@@ -3,15 +3,17 @@
 
 using SolarWindLisp::IMatter;
 using SolarWindLisp::Expr;
-using SolarWindLisp::CompositeExpr;
 using SolarWindLisp::SimpleMatterFactory;
+using SolarWindLisp::MatterPtr;
+using SolarWindLisp::ExprPtr;
+using SolarWindLisp::CompositeExprPtr;
 
 class ExprTS: public testing::Test
 {
 protected:
     SimpleMatterFactory _matter_factory;
-    Expr * _expr;
-    CompositeExpr * _composite_expr;
+    ExprPtr _expr;
+    CompositeExprPtr _composite_expr;
 
     virtual void SetUp()
     {
@@ -26,12 +28,10 @@ protected:
         EXPECT_TRUE(_expr != NULL);
         EXPECT_TRUE(_composite_expr != NULL);
         if (_expr) {
-            delete _expr;
             _expr = NULL;
         }
 
         if (_composite_expr) {
-            delete _composite_expr;
             _composite_expr = NULL;
         }
     }
@@ -141,7 +141,7 @@ TEST_F(ExprTS, parseC)
             "\"double quote str\"",
             };
     for (size_t i = 0; i < array_size(expr_list); ++i) {
-        Expr * e = Expr::create(expr_list[i], strlen(expr_list[i]));
+        ExprPtr e = Expr::create(expr_list[i], strlen(expr_list[i]));
         EXPECT_TRUE(e != NULL);
         EXPECT_TRUE(_composite_expr->append_expr(e));
     }
@@ -156,12 +156,12 @@ TEST_F(ExprTS, parseC)
     int32_t i32 = 0;
     uint32_t u32 = 0;
     while (_composite_expr->has_next()) {
-        const IMatter * temp = _composite_expr->get_next();
+        MatterPtr temp = _composite_expr->get_next();
         EXPECT_TRUE(temp != NULL);
         EXPECT_TRUE(temp->is_atom());
         EXPECT_FALSE(temp->is_molecule());
 
-        const Expr * e = static_cast<const Expr *>(temp);
+        const Expr * e = static_cast<const Expr *>(temp.get());
         EXPECT_TRUE(e != NULL);
         switch (counter++) {
             case 0:

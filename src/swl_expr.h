@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sstream>
+#include <deque>
 
 #include "swl_matter_if.h"
 #include "swl_utils.h"
@@ -84,7 +85,7 @@ bool is_##name() const {                \
     {
     }
 
-    static Expr * create(const char * buf = NULL, size_t length = 0);
+    static ExprPtr create(const char * buf = NULL, size_t length = 0);
 
     bool parse(const char * buf, size_t length);
     bool parse_bool(const char * buf, size_t length);
@@ -198,39 +199,14 @@ public:
         return matter_molecule;
     }
 
-    static CompositeExpr * create();
+    static CompositeExprPtr create();
 
-    bool append_expr(IMatter * expr);
+    bool append_expr(MatterPtr expr);
 
     size_t size() const
     {
-        return _used;
+        return _items.size();
     }
-
-    // non-const
-
-    bool rewind()
-    {
-        _cursor = 0;
-        return true;
-    }
-
-    bool has_next()
-    {
-        return _cursor < _used;
-    }
-
-    IMatter * get_next()
-    {
-        return (_cursor < _used) ? _items[_cursor++] : NULL;
-    }
-
-    IMatter * get(size_t idx)
-    {
-        return (idx < _used) ? _items[idx] : NULL;
-    }
-
-    // const
 
     bool rewind() const
     {
@@ -240,17 +216,17 @@ public:
 
     bool has_next() const
     {
-        return _cursor < _used;
+        return _cursor < _items.size();
     }
 
-    const IMatter * get_next() const
+    MatterPtr get_next() const
     {
-        return (_cursor < _used) ? _items[_cursor++] : NULL;
+        return (_cursor < _items.size()) ? _items[_cursor++] : MatterPtr();
     }
 
-    const IMatter * get(size_t idx) const
+    MatterPtr get(size_t idx) const
     {
-        return (idx < _used) ? _items[idx] : NULL;
+        return (idx < _items.size()) ? _items[idx] : MatterPtr();
     }
 
     std::string debug_string(bool compact = true, int level = 0,
@@ -261,7 +237,7 @@ private:
     static const size_t _CAPACITY_DELTA = 10;
 
     CompositeExpr() :
-        _items(NULL), _capacity(0), _used(0), _cursor(0)
+        _cursor(0)
     {
     }
 
@@ -270,9 +246,7 @@ private:
         // FIXME delete element in `_items'
     }
 
-    IMatter ** _items;
-    size_t _capacity;
-    size_t _used;
+    std::deque<MatterPtr> _items;
     mutable size_t _cursor;
 };
 

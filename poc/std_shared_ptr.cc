@@ -1,5 +1,6 @@
 #include <iostream>
 #include <memory>
+#include <boost/shared_ptr.hpp>
 class Foo {
 private:
     int _f;
@@ -35,9 +36,19 @@ public:
 };
 
 int main() {
+#if 0
     std::shared_ptr<Foo> f(new Foo(1));
     std::shared_ptr<Foo> b(new Bar(10,11));
+    std::shared_ptr<Bar> b2(new Bar(100,111));
+#else
+    boost::shared_ptr<Foo> f(new Foo(1));
+    boost::shared_ptr<Foo> b(new Bar(10,11));
+    boost::shared_ptr<Bar> b2(new Bar(100,111));
+#endif
     f->output();
     b->output();
+    b2->output();
+    f = b;
+    f = b2;
     return 0;
 }

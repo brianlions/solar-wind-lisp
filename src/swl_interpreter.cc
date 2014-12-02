@@ -5,7 +5,7 @@
 namespace SolarWindLisp
 {
 
-InterpreterIF::InterpreterIF(IParser * parser, ScopedEnv * env,
+InterpreterIF::InterpreterIF(IParser * parser, ScopedEnvPtr env,
         IMatterFactory * factory)
 {
     _parser = parser;
@@ -18,11 +18,6 @@ InterpreterIF::~InterpreterIF()
 {
     if (_parser) {
         delete _parser;
-    }
-
-    // FIXME auto relinquish instead of explicit delete
-    if (_env) {
-        delete _env;
     }
 
     if (_factory) {
@@ -58,13 +53,16 @@ bool InterpreterIF::initialize()
     return true;
 }
 
-ScopedEnv * InterpreterIF::create_minimum_env()
+ScopedEnvPtr InterpreterIF::create_minimum_env()
 {
-    ScopedEnv * ret = _factory->create_env();
+    ScopedEnvPtr ret = _factory->create_env();
+    if (!ret.get()) {
+        return NULL;
+    }
 
     struct PrimProcCreator {
         const char * name;
-        IPrimProc * (*func_ptr)();
+        PrimProcPtr (*func_ptr)();
     } items[] = {
         { "+", PrimProcAdd::create },
         { "-", PrimProcSub::create },
@@ -73,7 +71,7 @@ ScopedEnv * InterpreterIF::create_minimum_env()
     };
 
     for (size_t i = 0; i < array_size(items); ++i) {
-        IPrimProc * pp = items[i].func_ptr();
+        PrimProcPtr pp = items[i].func_ptr();
         if (!pp) {
             /*
              * FIXME:
@@ -82,12 +80,9 @@ ScopedEnv * InterpreterIF::create_minimum_env()
              */
             PRETTY_MESSAGE(stderr, "failed create instance of %s",
                     items[i].name);
-            delete ret;
             return NULL;
         }
         if (!ret->add(pp->name(), pp)) {
-            delete pp;
-            delete ret;
             return NULL;
         }
     }
@@ -110,15 +105,15 @@ void InterpreterIF::_expand()
             "(defn min4 (a b c d) (min2 a (min3 b c d)))", //
             };
 
+    MatterPtr result;
     for (size_t i = 0; i < array_size(forms); ++i) {
-        if (!execute(NULL, forms[i], strlen(forms[i]))) {
-            // XXX
+        if (!execute(result, forms[i], strlen(forms[i]))) {
         }
     }
 }
 
-bool InterpreterIF::_eval(IMatter * expr, ScopedEnv * scope,
-        InterpreterIF * interpreter, IMatter ** result)
+bool InterpreterIF::_eval(const MatterPtr &expr, ScopedEnvPtr &scope,
+        InterpreterIF * interpreter, MatterPtr &result)
 {
     PRETTY_MESSAGE(stderr, "executing `%s' ...",
             expr->debug_string(false).c_str());
@@ -154,13 +149,13 @@ bool InterpreterIF::_eval(IMatter * expr, ScopedEnv * scope,
     return false;
 }
 
-bool InterpreterIF::_force_eval(IMatter * expr, ScopedEnv * scope,
-        InterpreterIF * interpreter, IMatter ** result)
+bool InterpreterIF::_force_eval(const MatterPtr &expr, ScopedEnvPtr &scope,
+        InterpreterIF * interpreter, MatterPtr &result)
 {
     PRETTY_MESSAGE(stderr, "executing `%s' ...",
             expr->debug_string(false).c_str());
-    IMatter * res = NULL;
-    if (!_eval(expr, scope, interpreter, &res)) {
+    MatterPtr res = NULL;
+    if (!_eval(expr, scope, interpreter, res)) {
         PRETTY_MESSAGE(stderr, "oops ...");
         return false;
     }
@@ -175,34 +170,34 @@ bool InterpreterIF::_force_eval(IMatter * expr, ScopedEnv * scope,
 
     if (res && _is_future(res)) {
         // beware of those forms returns nothing (e.g. define and defn)
-        return static_cast<Future *>(res)->value(result);
+        return static_cast<Future *>(res.get())->value(result);
     }
     else {
         // 1. res is NULL, or 2. res is not a future
-        *result = res;
+        result = res;
         return true;
     }
 }
 
-bool InterpreterIF::_eval_prim(IMatter * expr, ScopedEnv * scope,
-        InterpreterIF * interpreter, IMatter ** result)
+bool InterpreterIF::_eval_prim(const MatterPtr &expr, ScopedEnvPtr &scope,
+        InterpreterIF * interpreter, MatterPtr &result)
 {
-    *result = expr;
+    result = expr;
     return true;
 }
 
-bool InterpreterIF::_is_special_form(IMatter * expr, const char * keyword)
+bool InterpreterIF::_is_special_form(const MatterPtr &expr, const char * keyword)
 {
     if (!expr->is_molecule()) {
         return false;
     }
 
-    const CompositeExpr * ce = static_cast<const CompositeExpr *>(expr);
+    const CompositeExpr * ce = static_cast<const CompositeExpr *>(expr.get());
     if (!ce->size()) {
         return false;
     }
 
-    const Expr * first = static_cast<const Expr *>(ce->get(0));
+    const Expr * first = static_cast<const Expr *>(ce->get(0).get());
     if (!first->is_cstr()) {
         return false;
     }
@@ -210,25 +205,25 @@ bool InterpreterIF::_is_special_form(IMatter * expr, const char * keyword)
     return strcmp(keyword, first->to_cstr()) == 0;
 }
 
-bool InterpreterIF::_eval_if(IMatter * expr, ScopedEnv * scope,
-        InterpreterIF * interpreter, IMatter ** result)
+bool InterpreterIF::_eval_if(const MatterPtr &expr, ScopedEnvPtr &scope,
+        InterpreterIF * interpreter, MatterPtr &result)
 {
-    CompositeExpr * ce = static_cast<CompositeExpr *>(expr);
-    IMatter * pred = ce->get(1);
-    IMatter * cons = ce->get(2);
-    IMatter * alt = ce->get(3);
-    IMatter * res = NULL;
-    if (!pred || !_force_eval(pred, scope, interpreter, &res)) {
+    CompositeExpr * ce = static_cast<CompositeExpr *>(expr.get());
+    MatterPtr pred = ce->get(1);
+    MatterPtr cons = ce->get(2);
+    MatterPtr alt = ce->get(3);
+    MatterPtr res = NULL;
+    if (!pred || !_force_eval(pred, scope, interpreter, res)) {
         return false;
     }
 
-    IMatter * final_form = alt;
+    MatterPtr final_form = alt;
     if (res) {
-        if (res->is_atom() && static_cast<Expr *>(res)->not_empty()) {
+        if (res->is_atom() && static_cast<Expr *>(res.get())->not_empty()) {
             final_form = cons;
         }
         else if (res->is_molecule()
-                && static_cast<CompositeExpr *>(res)->size()) {
+                && static_cast<CompositeExpr *>(res.get())->size()) {
             final_form = cons;
         }
         else if (res->is_prim_proc()) {
@@ -237,7 +232,7 @@ bool InterpreterIF::_eval_if(IMatter * expr, ScopedEnv * scope,
     }
 
     // result will be set by the following _eval()
-    *result = NULL;
+    result = NULL;
 
     // Notice:
     //   if final_form == null, we do not need to evaluate anything, just
@@ -247,39 +242,39 @@ bool InterpreterIF::_eval_if(IMatter * expr, ScopedEnv * scope,
             : true;
 }
 
-bool InterpreterIF::_eval_define(IMatter * expr, ScopedEnv * scope,
-        InterpreterIF * interpreter, IMatter ** result)
+bool InterpreterIF::_eval_define(const MatterPtr &expr, ScopedEnvPtr &scope,
+        InterpreterIF * interpreter, MatterPtr &result)
 {
-    CompositeExpr * ce = static_cast<CompositeExpr *>(expr);
+    CompositeExpr * ce = static_cast<CompositeExpr *>(expr.get());
     if (ce->size() != 3) {
         return false;
     }
 
-    IMatter * pos1 = ce->get(1);
-    IMatter * pos2 = ce->get(2);
+    MatterPtr pos1 = ce->get(1);
+    MatterPtr pos2 = ce->get(2);
     if (!pos1->is_atom()) {
         return false;
     }
 
-    Expr * name = static_cast<Expr *>(pos1);
+    Expr * name = static_cast<Expr *>(pos1.get());
     if (!name->is_cstr() || name->is_quoted_cstr()) {
         return false;
     }
 
-    IMatter * value = NULL;
+    MatterPtr value = NULL;
     // there is no return value from a define
-    *result = NULL;
-    return _eval(pos2, scope, interpreter, &value)
+    result = NULL;
+    return _eval(pos2, scope, interpreter, value)
             && scope->add(name->to_cstr(), value);
 }
 
-bool InterpreterIF::_eval_name(IMatter * expr, ScopedEnv * scope,
-        InterpreterIF * interpreter UNUSED, IMatter ** result)
+bool InterpreterIF::_eval_name(const MatterPtr &expr, ScopedEnvPtr &scope,
+        InterpreterIF * interpreter UNUSED, MatterPtr &result)
 {
     PRETTY_MESSAGE(stderr, "execute: `%s' ...",
             expr->debug_string(false).c_str());
     if (expr->is_atom()) {
-        Expr * e = static_cast<Expr *>(expr);
+        Expr * e = static_cast<Expr *>(expr.get());
         if (e->is_cstr() && scope->lookup(e->to_cstr(), result)) {
             return true;
         }
@@ -287,87 +282,87 @@ bool InterpreterIF::_eval_name(IMatter * expr, ScopedEnv * scope,
     return false;
 }
 
-bool InterpreterIF::_eval_time(IMatter * expr, ScopedEnv * scope,
-        InterpreterIF * interpreter, IMatter ** result)
+bool InterpreterIF::_eval_time(const MatterPtr &expr, ScopedEnvPtr &scope,
+        InterpreterIF * interpreter, MatterPtr &result)
 {
     PRETTY_MESSAGE(stderr, "not implemented");
     return false;
 }
 
-bool InterpreterIF::_eval_lambda(IMatter * expr, ScopedEnv * scope,
-        InterpreterIF * interpreter, IMatter ** result)
+bool InterpreterIF::_eval_lambda(const MatterPtr &expr, ScopedEnvPtr &scope,
+        InterpreterIF * interpreter, MatterPtr &result)
 {
-    CompositeExpr * ce = static_cast<CompositeExpr *>(expr);
-    IMatter * p1 = ce->get(1);
-    IMatter * p2 = ce->get(2);
+    CompositeExpr * ce = static_cast<CompositeExpr *>(expr.get());
+    MatterPtr p1 = ce->get(1);
+    MatterPtr p2 = ce->get(2);
     if (!p1 || !p1->is_molecule() || !p2) {
         return false;
     }
 
-    Proc * p = interpreter->factory()->create_proc(p1, p2, scope);
+    ProcPtr p = interpreter->factory()->create_proc(p1, p2, scope);
     if (!p) {
         return false;
     }
 
-    *result = p;
+    result = p;
     return true;
 }
 
-bool InterpreterIF::_eval_defn(IMatter * expr, ScopedEnv * scope,
-        InterpreterIF * interpreter UNUSED, IMatter ** result)
+bool InterpreterIF::_eval_defn(const MatterPtr &expr, ScopedEnvPtr &scope,
+        InterpreterIF * interpreter UNUSED, MatterPtr &result)
 {
     PRETTY_MESSAGE(stderr, "not implemented");
     return false;
 }
 
-bool InterpreterIF::_eval_cond(IMatter * expr, ScopedEnv * scope,
-        InterpreterIF * interpreter, IMatter ** result)
+bool InterpreterIF::_eval_cond(const MatterPtr &expr, ScopedEnvPtr &scope,
+        InterpreterIF * interpreter, MatterPtr &result)
 {
     PRETTY_MESSAGE(stderr, "not implemented");
     return false;
 }
 
-bool InterpreterIF::_eval_do(IMatter * expr, ScopedEnv * scope,
-        InterpreterIF * interpreter, IMatter ** result)
+bool InterpreterIF::_eval_do(const MatterPtr &expr, ScopedEnvPtr &scope,
+        InterpreterIF * interpreter, MatterPtr &result)
 {
     PRETTY_MESSAGE(stderr, "not implemented");
     return false;
 }
 
-bool InterpreterIF::_eval_when(IMatter * expr, ScopedEnv * scope,
-        InterpreterIF * interpreter, IMatter ** result)
+bool InterpreterIF::_eval_when(const MatterPtr &expr, ScopedEnvPtr &scope,
+        InterpreterIF * interpreter, MatterPtr &result)
 {
     PRETTY_MESSAGE(stderr, "not implemented");
     return false;
 }
 
-bool InterpreterIF::_eval_future(IMatter * expr, ScopedEnv * scope UNUSED,
-        InterpreterIF * interpreter UNUSED, IMatter ** result)
+bool InterpreterIF::_eval_future(const MatterPtr &expr, ScopedEnvPtr &scope UNUSED,
+        InterpreterIF * interpreter UNUSED, MatterPtr &result)
 {
-    *result = expr;
+    result = expr;
     return true;
 }
 
-bool InterpreterIF::_eval_app(IMatter * expr, ScopedEnv * scope,
-        InterpreterIF * interpreter, IMatter ** result)
+bool InterpreterIF::_eval_app(const MatterPtr &expr, ScopedEnvPtr &scope,
+        InterpreterIF * interpreter, MatterPtr &result)
 {
     PRETTY_MESSAGE(stderr, "executing `%s' ...",
             expr->debug_string(false).c_str());
-    CompositeExpr * ce = static_cast<CompositeExpr *>(expr);
+    CompositeExpr * ce = static_cast<CompositeExpr *>(expr.get());
     if (!ce->rewind() || !ce->has_next()) {
         return false;
     }
 
-    IMatter * first = ce->get_next();
-    CompositeExpr * args = interpreter->factory()->create_molecule();
+    MatterPtr first = ce->get_next();
+    CompositeExprPtr args = interpreter->factory()->create_molecule();
     if (!args) {
         return false;
     }
 
-    IMatter * ie = NULL;
+    MatterPtr ie = NULL;
     while (ce->has_next()) {
         ie = ce->get_next();
-        Future * f = interpreter->factory()->create_future(ie, scope,
+        FuturePtr f = interpreter->factory()->create_future(ie, scope,
                 interpreter);
         if (!f) {
             PRETTY_MESSAGE(stderr, "failed creating Future object");
@@ -376,66 +371,66 @@ bool InterpreterIF::_eval_app(IMatter * expr, ScopedEnv * scope,
         args->append_expr(f);
     }
 
-    IMatter * p = NULL;
-    return _force_eval(first, scope, interpreter, &p)
+    MatterPtr p = NULL;
+    return _force_eval(first, scope, interpreter, p)
         ?  _apply(p, args, interpreter, result)
         : false;
 }
 
-bool InterpreterIF::_realize(IMatter * expr, IMatter ** result)
+bool InterpreterIF::_realize(const MatterPtr &expr, MatterPtr &result)
 {
     if (expr->is_future()) {
-        Future * future = static_cast<Future *>(expr);
+        Future * future = static_cast<Future *>(expr.get());
         return future->value(result);
     }
     else {
-        *result = expr;
+        result = expr;
         return true;
     }
 }
 
-bool InterpreterIF::_apply(IMatter * proc_name, IMatter * proc_operands,
-        InterpreterIF * interpreter, IMatter ** result)
+bool InterpreterIF::_apply(const MatterPtr &proc_name, const MatterPtr &proc_operands,
+        InterpreterIF * interpreter, MatterPtr &result)
 {
     PRETTY_MESSAGE(stderr, "proc: `%s', operands: `%s'",
             proc_name->debug_string(false).c_str(),
             proc_operands->debug_string(false).c_str());
     if (proc_name->is_prim_proc()) {
-        IPrimProc * p = static_cast<IPrimProc *>(proc_name);
-        CompositeExpr * ce = interpreter->factory()->create_molecule();
+        IPrimProc * p = static_cast<IPrimProc *>(proc_name.get());
+        CompositeExprPtr ce = interpreter->factory()->create_molecule();
         if (!ce) {
             return false;
         }
 
-        CompositeExpr * operands = static_cast<CompositeExpr *>(proc_operands);
+        CompositeExpr * operands = static_cast<CompositeExpr *>(proc_operands.get());
         operands->rewind();
         while (operands->has_next()) {
-            IMatter * res = NULL;
-            if (!_realize(operands->get_next(), &res)) {
+            MatterPtr res = NULL;
+            if (!_realize(operands->get_next(), res)) {
                 return false;
             }
-            ce->append_expr(static_cast<IMatter *>(res));
+            ce->append_expr(res);
         }
         return p->check_operands(ce)
                 && p->run(ce, result, interpreter->factory());
     }
 
     if (proc_name->is_proc()) {
-        Proc * proc = static_cast<Proc *>(proc_name);
-        IMatter * temp = NULL;
-        ScopedEnv * env = NULL;
-        if (!proc->get_params(&temp) || !proc->get_env(&env)) {
+        Proc * proc = static_cast<Proc *>(proc_name.get());
+        MatterPtr temp = NULL;
+        ScopedEnvPtr env = NULL;
+        if (!proc->get_params(temp) || !proc->get_env(env)) {
             return false;
         }
 
-        IMatter * body = NULL;
-        if (!proc->get_body(&body)) {
+        MatterPtr body = NULL;
+        if (!proc->get_body(body)) {
             return false;
         }
 
-        CompositeExpr * params = static_cast<CompositeExpr *>(temp);
+        CompositeExpr * params = static_cast<CompositeExpr *>(temp.get());
         CompositeExpr * operands =
-                static_cast<CompositeExpr *>(proc_operands);
+                static_cast<CompositeExpr *>(proc_operands.get());
         if (params->size() != operands->size()) {
             return false;
         }
@@ -443,14 +438,14 @@ bool InterpreterIF::_apply(IMatter * proc_name, IMatter * proc_operands,
             return false;
         }
 
-        ScopedEnv * newenv = interpreter->factory()->create_env(env);
+        ScopedEnvPtr newenv = interpreter->factory()->create_env(env);
         if (!newenv) {
             return false;
         }
 
         Expr * param = NULL;
         while (params->has_next() /* && operands->has_next() */) {
-            param = static_cast<Expr*>(params->get_next());
+            param = static_cast<Expr*>(params->get_next().get());
             if (!param->is_cstr() || param->is_quoted_cstr()) {
                 return false;
             }
@@ -466,9 +461,9 @@ bool InterpreterIF::_apply(IMatter * proc_name, IMatter * proc_operands,
     return false;
 }
 
-bool InterpreterIF::execute(IMatter ** result, const char * str, ssize_t len)
+bool InterpreterIF::execute(MatterPtr &result, const char * str, ssize_t len)
 {
-    IMatter * forms = _parser->parse(str, len);
+    MatterPtr forms = _parser->parse(str, len);
     if (!forms) {
         PRETTY_MESSAGE(stderr, "failed parsing input string!");
         return false;
@@ -483,14 +478,14 @@ bool InterpreterIF::execute(IMatter ** result, const char * str, ssize_t len)
     return execute_multi_expr(result, forms);
 }
 
-bool InterpreterIF::execute_multi_expr(IMatter ** result, IMatter * expr)
+bool InterpreterIF::execute_multi_expr(MatterPtr &result, const MatterPtr &expr)
 {
     if (!expr->is_molecule()) {
         PRETTY_MESSAGE(stderr, "expr is not CompositeExpr!");
         return false;
     }
 
-    CompositeExpr * forms = static_cast<CompositeExpr *>(expr);
+    CompositeExpr * forms = static_cast<CompositeExpr *>(expr.get());
     if (!forms->rewind()) {
         PRETTY_MESSAGE(stderr, "rewind() failed!");
         return false;
@@ -506,7 +501,7 @@ bool InterpreterIF::execute_multi_expr(IMatter ** result, IMatter * expr)
     return true;
 }
 
-bool InterpreterIF::execute_expr(IMatter ** result, IMatter * expr)
+bool InterpreterIF::execute_expr(MatterPtr &result, const MatterPtr &expr)
 {
     PRETTY_MESSAGE(stderr, "executing expr `%s' ...",
             expr->debug_string(false).c_str());
@@ -527,7 +522,7 @@ void InterpreterIF::_repl(InterpreterIF * interpreter, bool continue_on_error)
         return;
     }
 
-    IMatter * ie = NULL;
+    MatterPtr ie = NULL;
     CompositeExpr * ce = NULL;
 
     size_t buffer_size = default_buf_length;
@@ -548,14 +543,14 @@ void InterpreterIF::_repl(InterpreterIF * interpreter, bool continue_on_error)
             break;
         }
 
-        ce = static_cast<CompositeExpr *>(ie);
+        ce = static_cast<CompositeExpr *>(ie.get());
         ce->rewind();
         while (ce->has_next()) {
-            IMatter * next = ce->get_next();
+            MatterPtr next = ce->get_next();
             PRETTY_MESSAGE(stderr, "executing expr `%s' ...",
                     next->debug_string(false).c_str());
-            IMatter * a_result = NULL;
-            if (!interpreter->execute_expr(&a_result, next)) {
+            MatterPtr a_result = NULL;
+            if (!interpreter->execute_expr(a_result, next)) {
                 PRETTY_MESSAGE(stderr, "oops, failed!");
             }
             else if (a_result) {

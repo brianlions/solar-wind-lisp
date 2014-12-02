@@ -50,6 +50,7 @@ int main(int argc, char ** argv)
     print_sizeof(SolarWindLisp::SimpleParser);
     print_sizeof(SolarWindLisp::InterpreterIF);
     print_sizeof(SolarWindLisp::SimpleInterpreter);
+    print_sizeof(SolarWindLisp::MatterPtr);
     printf("\n");
     print_release_info();
     return 0;

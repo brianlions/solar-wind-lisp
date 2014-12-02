@@ -83,7 +83,7 @@ bool IParser::tokenize(lexical_tokens * p_result, const char * input,
     return p_result->size() != 0;
 }
 
-IMatter * IParser::parse(const char * input, ssize_t input_length)
+MatterPtr IParser::parse(const char * input, ssize_t input_length)
 {
     // setup
     _form_str = input;
@@ -93,7 +93,7 @@ IMatter * IParser::parse(const char * input, ssize_t input_length)
         return NULL;
     }
 
-    IMatter * result = _parse_tokens(false);
+    MatterPtr result = _parse_tokens(false);
 
     // tear down
     _form_str = NULL;
@@ -102,20 +102,19 @@ IMatter * IParser::parse(const char * input, ssize_t input_length)
     return result;
 }
 
-IMatter * IParser::_parse_tokens(bool inner)
+MatterPtr IParser::_parse_tokens(bool inner)
 {
     std::string current;
 
-    CompositeExpr * result = CompositeExpr::create();
+    CompositeExprPtr result = CompositeExpr::create();
     while (_tokens.size() > 0) {
         current = _tokens.front();
         _tokens.pop_front();
 
         if (current == S_LP) {
-            IMatter * expr = _parse_tokens(true);
-            if (!expr) {
-                delete result;
-                return NULL;
+            MatterPtr expr = _parse_tokens(true);
+            if (!expr.get()) {
+                return MatterPtr(NULL);
             }
             else {
                 result->append_expr(expr);
@@ -126,16 +125,14 @@ IMatter * IParser::_parse_tokens(bool inner)
                 return result;
             }
             else {
-                delete result;
                 // unmatched close parenthesis in input
-                return NULL;
+                return MatterPtr(NULL);
             }
         }
         else {
-            Expr * expr = Expr::create(current.c_str(), current.length());
-            if (!expr) {
-                delete result;
-                return NULL;
+            ExprPtr expr = Expr::create(current.c_str(), current.length());
+            if (!expr.get()) {
+                return MatterPtr(NULL);
             }
             else {
                 result->append_expr(expr);
@@ -145,8 +142,7 @@ IMatter * IParser::_parse_tokens(bool inner)
 
     if (inner) {
         // parser is in an inner context when the input is finished.
-        delete result;
-        return NULL;
+        return MatterPtr(NULL);
     }
     else {
         return result;

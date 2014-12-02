@@ -20,40 +20,40 @@ public:
     {
     }
 
-    virtual Expr * create_atom() = 0;
-    virtual CompositeExpr * create_molecule() = 0;
-    virtual Future * create_future(IMatter * expr, ScopedEnv * env,
+    virtual ExprPtr create_atom() = 0;
+    virtual CompositeExprPtr create_molecule() = 0;
+    virtual FuturePtr create_future(MatterPtr expr, ScopedEnvPtr env,
             InterpreterIF * interpreter) = 0;
-    virtual Proc * create_proc(IMatter * params, IMatter * body,
-            ScopedEnv * env) = 0;
-    virtual ScopedEnv * create_env(ScopedEnv * ext = NULL) = 0;
+    virtual ProcPtr create_proc(MatterPtr params, MatterPtr body,
+            ScopedEnvPtr env) = 0;
+    virtual ScopedEnvPtr create_env(ScopedEnvPtr ext = NULL) = 0;
 };
 
 class SimpleMatterFactory: public IMatterFactory
 {
 public:
-    Expr * create_atom()
+    ExprPtr create_atom()
     {
         return Expr::create();
     }
 
-    CompositeExpr * create_molecule()
+    CompositeExprPtr create_molecule()
     {
         return CompositeExpr::create();
     }
 
-    Proc * create_proc(IMatter * params , IMatter * body, ScopedEnv * env)
+    ProcPtr create_proc(MatterPtr params , MatterPtr body, ScopedEnvPtr env)
     {
         return Proc::create(params, body, env);
     }
 
-    Future * create_future(IMatter * expr, ScopedEnv * env,
+    FuturePtr create_future(MatterPtr expr, ScopedEnvPtr env,
             InterpreterIF * interpreter)
     {
         return Future::create(expr, env, interpreter);
     }
 
-    ScopedEnv * create_env(ScopedEnv * ext = NULL)
+    ScopedEnvPtr create_env(ScopedEnvPtr ext = NULL)
     {
         return ScopedEnv::create(ext);
     }

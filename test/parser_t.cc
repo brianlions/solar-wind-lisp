@@ -9,6 +9,7 @@ using SolarWindLisp::Expr;
 using SolarWindLisp::CompositeExpr;
 using SolarWindLisp::IParser;
 using SolarWindLisp::SimpleParser;
+using SolarWindLisp::MatterPtr;
 
 class ParserTokenizeTS: public testing::Test
 {
@@ -121,16 +122,15 @@ TEST_F(ParserTokenizeTS, parseExpr)
 
     for (size_t i = 0; i < array_size(cases); ++i)
     {
-        IMatter * e = _parser.parse(cases[i].forms, strlen(cases[i].forms));
+        MatterPtr e = _parser.parse(cases[i].forms, strlen(cases[i].forms));
         EXPECT_TRUE(e != NULL);
         EXPECT_EQ(e->is_atom(), false);
         EXPECT_EQ(e->is_molecule(), true);
-        EXPECT_EQ((static_cast<CompositeExpr *>(e))->size(), cases[i].n_expr);
+        EXPECT_EQ((static_cast<CompositeExpr *>(e.get()))->size(), cases[i].n_expr);
         if (is_verbose()) {
             std::cout
                 << "form: `" << cases[i].forms << "'" << std::endl
                 << "IMatter: " << e->debug_string(is_compact()) << std::endl;
         }
-        delete e;
     }
 }
