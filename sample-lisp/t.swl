@@ -1,0 +1,9 @@
+(define pi 3.14159)
+(define circle-area
+  (lambda (r)
+    (* pi r r)))
+(circle-area 5)
+(circle-area 10)
+(* 365 20)
+pi
+circle-area

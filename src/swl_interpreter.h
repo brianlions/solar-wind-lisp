@@ -26,7 +26,9 @@ public:
 
     static const char * prompt(bool primary = true)
     {
-        return primary ? "SolarWindLisp> " : "    ";
+        return primary
+            ? "SolarWindLisp> "
+            : "               ";
     }
 
     IParser * parser()
@@ -198,10 +200,9 @@ public:
     static void banner();
     static void cmd_doc();
     static void cmd_names();
-    static void _repl(InterpreterIF * interpreter,
-            bool continue_on_error = true);
-    void interactive(bool continue_on_error = true);
-    static void repl(bool continue_on_error = true);
+    static void _repl(InterpreterIF * interpreter, const char * filename = NULL);
+    void interactive(const char * filename = NULL);
+    static void repl(const char * filename = NULL);
 
 private:
     bool _initialized;

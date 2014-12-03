@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "swl_interpreter.h"
+#include "swl_script_reader.h"
 
 namespace SolarWindLisp
 {
@@ -518,7 +519,7 @@ bool InterpreterIF::execute_expr(MatterPtr &result, const MatterPtr &expr)
     return true;
 }
 
-void InterpreterIF::_repl(InterpreterIF * interpreter, bool continue_on_error)
+void InterpreterIF::_repl(InterpreterIF * interpreter, const char * filename)
 {
     static const size_t default_buf_length = 4096;
     char * buffer = (char *) malloc(default_buf_length);
@@ -529,12 +530,21 @@ void InterpreterIF::_repl(InterpreterIF * interpreter, bool continue_on_error)
 
     MatterPtr ie = NULL;
     CompositeExpr * ce = NULL;
+    ScriptFileReader reader;
+    if (!reader.initialize(filename)) {
+        PRETTY_MESSAGE(stderr, "cannot initialize reader!");
+        return;
+    }
 
-    size_t buffer_size = default_buf_length;
+    ssize_t buffer_size = default_buf_length;
     ssize_t input_len = 0;
     while (true) {
-        printf("%s", prompt());
-        if ((input_len = getline(&buffer, &buffer_size, stdin)) == -1) {
+        //printf("%s", prompt());
+        if ((input_len = reader.get_next_statement(&buffer, &buffer_size)) == -1) {
+            if (!reader.eof()) {
+                fprintf(stderr, "found error: file `%s', line number `%ld'.\n",
+                        reader.filename(), reader.line_number());
+            }
             break;
         }
 
@@ -570,12 +580,12 @@ void InterpreterIF::_repl(InterpreterIF * interpreter, bool continue_on_error)
     free(buffer);
 }
 
-void InterpreterIF::interactive(bool continue_on_error)
+void InterpreterIF::interactive(const char * filename)
 {
-    InterpreterIF::_repl(this, continue_on_error);
+    InterpreterIF::_repl(this, filename);
 }
 
-void InterpreterIF::repl(bool continue_on_error)
+void InterpreterIF::repl(const char * filename)
 {
     InterpreterIF * interpreter = new SimpleInterpreter();
     if (!interpreter->initialize()) {
@@ -583,7 +593,7 @@ void InterpreterIF::repl(bool continue_on_error)
         delete interpreter;
     }
 
-    InterpreterIF::_repl(interpreter, continue_on_error);
+    InterpreterIF::_repl(interpreter, filename);
     delete interpreter;
 }
 
