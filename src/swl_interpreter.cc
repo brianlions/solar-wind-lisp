@@ -324,8 +324,27 @@ bool InterpreterIF::_eval_lambda(const MatterPtr &expr, ScopedEnvPtr &scope,
 bool InterpreterIF::_eval_defn(const MatterPtr &expr, ScopedEnvPtr &scope,
         InterpreterIF * interpreter UNUSED, MatterPtr &result)
 {
-    PRETTY_MESSAGE(stderr, "not implemented");
-    return false;
+    CompositeExpr * ce = static_cast<CompositeExpr *>(expr.get());
+    if (ce->size() != 4) {
+        return false;
+    }
+    MatterPtr n = ce->get(1);
+    if (!n->is_atom()) {
+        return false;
+    }
+    Expr * name = static_cast<Expr *>(n.get());
+    if (!name->is_cstr() || name->is_quoted_cstr()) {
+        return false;
+    }
+    MatterPtr args = ce->get(2);
+    MatterPtr body = ce->get(3);
+    ProcPtr p = interpreter->factory()->create_proc(args, body, scope);
+    if (!p) {
+        return false;
+    }
+
+    result = NULL;
+    return scope->add(name->to_cstr(), p);
 }
 
 bool InterpreterIF::_eval_cond(const MatterPtr &expr, ScopedEnvPtr &scope,
