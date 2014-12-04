@@ -177,7 +177,7 @@ int ScriptFileReader::get_next_char(bool skip_comment, int num_left_paren)
             }
         }
 
-        if (i == input_len - 1 || _line_buf[i] == '#' || _line_buf[i] == '\n') {
+        if (i == input_len - 1 || _line_buf[i] == ';' || _line_buf[i] == '\n') {
             continue;
         }
         else {

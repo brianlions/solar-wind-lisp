@@ -1,0 +1,18 @@
+; two very simple procedures
+(defn inc (x) (+ x 1))
+(defn square (x) (* x x))
+
+; these two are functionally identical, but defined in different ways
+; both f and g should accept one numeric value
+(defn fcompose (f g)
+    (lambda (x) (g (f x))))
+(define fcompose2
+    (lambda (f g)
+        (lambda (x) (g (f x)))))
+
+; first inc, then square, result is: (5 + 1)** 2 = 36
+((fcompose inc square) 5)
+; first square, then inc, result is: 5**2 + 1 = 26
+((fcompose square inc) 5)
+; result is: 5.5**2 + 1 = 30.25 + 1 = 31.25
+((fcompose square inc) 5.5)

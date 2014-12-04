@@ -1,0 +1,38 @@
+; define two math constants
+(define pi 3.141592653)
+(define e  2.718281828)
+
+; use define/lambda or defn to define new procedures
+; (inc 5) => 6
+; (dec 10) => 9
+; (abs (- 20)) => 20
+(define inc (lambda (v) (+ v 1)))
+(defn   dec (v) (- v 1))
+(defn   abs (v) (if (< v 0) (- v) v))
+
+; (square 10) => 10 * 10
+(defn   square (v) (* v v))
+(define cube (lambda (v) (* v v v)))
+
+; (author-name) => "zhang yi"
+; (authro-email) => "zhangyi21@baidu.com"
+(define author-name (lambda () 'zhang yi'))
+(defn   author-email () "zhangyi21@baidu.com")
+
+(define bigger
+    (lambda (a b)
+        (if (> a b) a b)))
+(defn   smaller (a b)
+    (if (< a b) a b))
+
+(inc 5)
+(inc (* 3 5))
+(dec 10)
+(dec (- 2))
+(square 5)
+(square (+ 3 2))
+(cube (- 2))
+(square (inc 7))
+(square (bigger 3 5))
+(square (smaller (inc 9) (dec 20)))
+(abs (- 10))

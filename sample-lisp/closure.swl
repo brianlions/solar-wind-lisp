@@ -1,0 +1,32 @@
+; first define a closure, then use it to define two procedure
+(define mul-by-n
+    (lambda (n)
+        (lambda (value) (* value n))))
+(define mul-by-2 (mul-by-n 2))
+(define mul-by-3 (mul-by-n 3))
+
+; similar, but used defn instead of define to define the closure
+(defn   add-by-n (n)
+    (lambda (value) (+ value n)))
+(define add-by-10 (add-by-n 10))
+(define add-by-20 (add-by-n 20))
+
+(defn fcompose (f g)
+    (lambda (x) (g (f x))))
+
+; => 100 * 2 = 200
+(mul-by-2 100)
+; create an anonymous procedure, the well-known inc
+; => (100 + 1) * 3 = 303
+(mul-by-3 ((lambda (v) (+ v 1)) 100))
+
+; => 100 + 20 = 120
+(add-by-20 100)
+
+; anonymous procedure
+; => 100 * 3 + 20 = 320
+((fcompose mul-by-3 add-by-20) 100)
+
+; named procedure
+(define x3p20 (fcompose mul-by-3 add-by-20))
+(x3p20 100)
