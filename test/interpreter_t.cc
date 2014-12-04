@@ -340,7 +340,7 @@ TEST_F(FunctionalProgrammingTS, case_find_max)
     run_lisp_test_cases(lisp_test_cases, array_size(lisp_test_cases));
 }
 
-TEST_F(FunctionalProgrammingTS, case_paris)
+TEST_F(FunctionalProgrammingTS, case_pairs)
 {
     const char * forms[] = {
         // pairs

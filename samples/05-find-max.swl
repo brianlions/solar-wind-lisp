@@ -1,0 +1,14 @@
+(defn bigger (a b) (if (> a b) a b))
+; apply f(v) for each v in [start,finish], return max of f(v)
+(defn find-max (f start finish)
+    (if (= start finish)
+        (f start)
+        (bigger (f start)
+                (find-max f (+ 1 start) finish))))
+
+; find max of x, for x in [20,30]
+(find-max (lambda (x) x) 20 30)
+; find max of (100 - x) for x in [20,30]
+(find-max (lambda (x) (- 100 x)) 20 30)
+; find max of (- x * x + 6 * x) for x in [0,5]
+(find-max (lambda (x) (* x (- 6 x))) 0 5)

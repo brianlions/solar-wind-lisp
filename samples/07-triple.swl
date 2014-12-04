@@ -1,0 +1,38 @@
+; creator
+(defn build-v1 (a b c)
+    (lambda (p)
+        (if (= p 0)
+            a
+            (if (= p 1) b c))))
+; accessor
+(defn first-v1  (t) (t 0))
+(defn second-v1 (t) (t 1))
+(defn third-v1  (t) (t 2))
+
+; helper funcs
+(defn slow-cons (a b)  (lambda (p) (if p a b)))
+(defn slow-car  (pair) (pair true))
+(defn slow-cdr  (pair) (pair false))
+; creator
+(defn build-v2 (a b c)
+    (slow-cons a (slow-cons b c)))
+; accessor
+(defn first-v2  (t) (slow-car t))
+(defn second-v2 (t) (slow-car (slow-cdr t)))
+(defn third-v2  (t) (slow-cdr (slow-cdr t)))
+
+(define t1 (build-v1 1 2 3))
+; => 1
+(first-v1 t1)
+; => 2
+(second-v1 t1)
+; => 3
+(third-v1 t1)
+
+(define t2 (build-v2 10 20 30))
+; => 10
+(first-v2 t2)
+; => 20
+(second-v2 t2)
+; => 30
+(third-v2 t2)

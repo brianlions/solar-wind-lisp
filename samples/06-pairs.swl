@@ -1,0 +1,17 @@
+; define the `cons', `car', and `cdr' operations
+(defn slow-cons (a b) (lambda (p) (if p a b)))
+(defn slow-car  (pair) (pair true))
+(defn slow-cdr  (pair) (pair false))
+
+; a cons contains values 1 to 5
+(define from1to5
+    (slow-cons 1
+        (slow-cons 2
+            (slow-cons 3 (slow-cons 4 5)))))
+
+; get 1st element => 1
+(slow-car from1to5)
+; get 2nd element => 2
+(slow-car (slow-cdr from1to5))
+; get 3rd element => 3
+(slow-car (slow-cdr (slow-cdr from1to5)))
