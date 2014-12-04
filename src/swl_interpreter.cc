@@ -70,10 +70,17 @@ ScopedEnvPtr InterpreterIF::create_minimum_env()
         const char * name;
         PrimProcPtr (*func_ptr)();
     } items[] = {
-        { "+", PrimProcAdd::create },
-        { "-", PrimProcSub::create },
-        { "*", PrimProcMul::create },
-        { "/", PrimProcDiv::create },
+        { "+",  PrimProcAdd::create },
+        { "-",  PrimProcSub::create },
+        { "*",  PrimProcMul::create },
+        { "/",  PrimProcDiv::create },
+
+        { "=",  PrimProcEq::create },
+        { "!=", PrimProcNe::create },
+        { "<",  PrimProcLt::create },
+        { "<=", PrimProcLe::create },
+        { ">",  PrimProcGt::create },
+        { ">=", PrimProcGe::create },
     };
 
     for (size_t i = 0; i < array_size(items); ++i) {

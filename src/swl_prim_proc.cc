@@ -87,7 +87,6 @@ bool PrimProcSub::run(const MatterPtr &ops, MatterPtr &result,
         first->to_long_double(result_ld);
     }
     else {
-        // FIXME delete res or else mem leak
         return false;
     }
 
@@ -120,7 +119,6 @@ bool PrimProcSub::run(const MatterPtr &ops, MatterPtr &result,
                 result_ld -= temp_ld;
             }
             else {
-                // FIXME delete res or else mem leak
                 return false;
             }
         }
@@ -212,7 +210,6 @@ bool PrimProcDiv::run(const MatterPtr &ops, MatterPtr &result,
     first->to_long_double(result_ld);
     if (ce->size() == 1) {
         if (result_ld == 0) {
-            // FIXME delete res or else mem leak
             return false;
         }
         result_ld = 1.0 / result_ld;
@@ -221,7 +218,6 @@ bool PrimProcDiv::run(const MatterPtr &ops, MatterPtr &result,
         while (ce->has_next()) {
             const Expr * e = static_cast<const Expr *>(ce->get_next().get());
             if (!e->to_long_double(temp_ld) || temp_ld == 0) {
-                // FIXME delete res or else mem leak
                 return false;
             }
             result_ld /= temp_ld;
@@ -233,5 +229,41 @@ bool PrimProcDiv::run(const MatterPtr &ops, MatterPtr &result,
 
     return true;
 }
+
+#define PRIM_PROC_RUN_IMPL_MACRO_BEGIN(name)                            \
+bool PrimProc##name::run(const MatterPtr &ops, MatterPtr &result,       \
+        IMatterFactory * factory)                                       \
+{                                                                       \
+    const CompositeExpr * ce =                                          \
+            static_cast<const CompositeExpr*>(ops.get());               \
+    if (!ce->rewind()) {                                                \
+        return false;                                                   \
+    }                                                                   \
+    ExprPtr res = factory->create_atom();                               \
+    if (!res.get()) {                                                   \
+        return false;                                                   \
+    }                                                                   \
+    long double first = 0;                                              \
+    long double second = 0;                                             \
+    const Expr * e = NULL;                                              \
+    e = static_cast<const Expr *>(ce->get(0).get());                    \
+    e->to_long_double(first);                                           \
+    e = static_cast<const Expr *>(ce->get(1).get());                    \
+    e->to_long_double(second);                                          \
+    res->set_bool(first 
+
+#define PRIM_PROC_RUN_IMPL_MACRO_END()                                  \
+            second);                                                    \
+    result = res;                                                       \
+    return true;                                                        \
+}
+PRIM_PROC_RUN_IMPL_MACRO_BEGIN(Eq) == PRIM_PROC_RUN_IMPL_MACRO_END()
+PRIM_PROC_RUN_IMPL_MACRO_BEGIN(Ne) != PRIM_PROC_RUN_IMPL_MACRO_END()
+PRIM_PROC_RUN_IMPL_MACRO_BEGIN(Lt) <  PRIM_PROC_RUN_IMPL_MACRO_END()
+PRIM_PROC_RUN_IMPL_MACRO_BEGIN(Le) <= PRIM_PROC_RUN_IMPL_MACRO_END()
+PRIM_PROC_RUN_IMPL_MACRO_BEGIN(Gt) >  PRIM_PROC_RUN_IMPL_MACRO_END()
+PRIM_PROC_RUN_IMPL_MACRO_BEGIN(Ge) >= PRIM_PROC_RUN_IMPL_MACRO_END()
+#undef PRIM_PROC_RUN_IMPL_MACRO_BEGIN
+#undef PRIM_PROC_RUN_IMPL_MACRO_END
 
 } // namespace SolarWindLisp
