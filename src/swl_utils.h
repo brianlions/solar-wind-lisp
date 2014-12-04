@@ -1,3 +1,11 @@
+/*
+ * file name:           src/swl_utils.h
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Sat Nov 22 01:49:21 2014 CST
+ */
+
 #ifndef _SOLAR_WIND_LIST_UTILS_H_
 #define _SOLAR_WIND_LIST_UTILS_H_
 

@@ -1,3 +1,11 @@
+/*
+ * file name:           src/swl_script_reader.h
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Wed Dec 03 22:12:29 2014 CST
+ */
+
 #ifndef _SOLAR_WIND_LISP_SCRIPT_READER_H_
 #define _SOLAR_WIND_LISP_SCRIPT_READER_H_
 

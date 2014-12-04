@@ -1,3 +1,11 @@
+/*
+ * file name:           test/script_reader_t.cc
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Wed Dec 03 22:12:29 2014 CST
+ */
+
 #include <stdio.h>
 #include <gtest/gtest.h>
 #include "swl_script_reader.h"

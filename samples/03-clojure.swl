@@ -1,3 +1,11 @@
+;
+; file name:           samples/03-clojure.swl
+;
+; author:              Brian Yi ZHANG
+; email:               brianlions@gmail.com
+; date created:        Thu Dec 04 22:36:38 2014 CST
+;
+
 ; first define a closure, then use it to define two procedure
 (define mul-by-n
     (lambda (n)

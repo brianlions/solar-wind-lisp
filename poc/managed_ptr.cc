@@ -1,3 +1,11 @@
+/*
+ * file name:           poc/managed_ptr.cc
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Mon Dec 01 15:30:15 2014 CST
+ */
+
 #include <iostream>
 
 class Foo

@@ -1,3 +1,11 @@
+/*
+ * file name:           src/swl_prim_proc.cc
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Wed Nov 26 16:41:51 2014 CST
+ */
+
 #include "swl_expr.h"
 #include "swl_prim_proc.h"
 #include "swl_matter_factory_if.h"

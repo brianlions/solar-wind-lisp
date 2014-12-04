@@ -21,5 +21,6 @@ do
  * author:              '"$author_name"'\
  * email:               '"$author_email"'\
  * date created:        '"$header_date"'\
- */' "$fn"
+ */\
+' "$fn"
 done

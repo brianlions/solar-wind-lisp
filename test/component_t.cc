@@ -1,3 +1,11 @@
+/*
+ * file name:           test/component_t.cc
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Thu Nov 20 16:00:20 2014 CST
+ */
+
 #include <gtest/gtest.h>
 #include "solarwindlisp.h"
 

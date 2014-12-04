@@ -1,3 +1,11 @@
+/*
+ * file name:           poc/strtol.cc
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Fri Nov 21 01:08:59 2014 CST
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>

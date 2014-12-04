@@ -1,3 +1,11 @@
+/*
+ * file name:           src/swl_types.h
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Mon Nov 24 23:22:04 2014 CST
+ */
+
 #ifndef _SOLAR_WIND_LISP_TYPES_H_
 #define _SOLAR_WIND_LISP_TYPES_H_
 

@@ -1,3 +1,11 @@
+/*
+ * file name:           src/sizeof_main.cc
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Thu Nov 20 16:00:20 2014 CST
+ */
+
 #include <stdio.h>
 #include <stdint.h>
 #include "release.h"

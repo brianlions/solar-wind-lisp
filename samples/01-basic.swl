@@ -1,3 +1,11 @@
+;
+; file name:           samples/01-basic.swl
+;
+; author:              Brian Yi ZHANG
+; email:               brianlions@gmail.com
+; date created:        Thu Dec 04 22:36:38 2014 CST
+;
+
 ; define two math constants
 (define pi 3.141592653)
 (define e  2.718281828)

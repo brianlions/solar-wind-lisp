@@ -1,3 +1,11 @@
+/*
+ * file name:           src/swl_future.h
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Sat Nov 22 23:15:18 2014 CST
+ */
+
 #ifndef _SOLAR_WIND_LISP_FUTURE_H_
 #define _SOLAR_WIND_LISP_FUTURE_H_
 

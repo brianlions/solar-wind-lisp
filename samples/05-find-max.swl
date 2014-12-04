@@ -1,3 +1,11 @@
+;
+; file name:           samples/05-find-max.swl
+;
+; author:              Brian Yi ZHANG
+; email:               brianlions@gmail.com
+; date created:        Thu Dec 04 22:36:38 2014 CST
+;
+
 (defn bigger (a b) (if (> a b) a b))
 ; apply f(v) for each v in [start,finish], return max of f(v)
 (defn find-max (f start finish)

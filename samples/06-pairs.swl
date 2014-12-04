@@ -1,3 +1,11 @@
+;
+; file name:           samples/06-pairs.swl
+;
+; author:              Brian Yi ZHANG
+; email:               brianlions@gmail.com
+; date created:        Thu Dec 04 22:36:38 2014 CST
+;
+
 ; define the `cons', `car', and `cdr' operations
 (defn slow-cons (a b) (lambda (p) (if p a b)))
 (defn slow-car  (pair) (pair true))

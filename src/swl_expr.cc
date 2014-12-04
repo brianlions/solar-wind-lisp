@@ -1,3 +1,11 @@
+/*
+ * file name:           src/swl_expr.cc
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Fri Nov 21 01:08:59 2014 CST
+ */
+
 #include <stdlib.h>
 #include <errno.h>
 #include <new>

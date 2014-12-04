@@ -1,3 +1,11 @@
+/*
+ * file name:           poc/strdup.cc
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Sat Nov 22 23:15:18 2014 CST
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -1,3 +1,11 @@
+;
+; file name:           samples/02-fcompose.swl
+;
+; author:              Brian Yi ZHANG
+; email:               brianlions@gmail.com
+; date created:        Thu Dec 04 22:36:38 2014 CST
+;
+
 ; two very simple procedures
 (defn inc (x) (+ x 1))
 (defn square (x) (* x x))

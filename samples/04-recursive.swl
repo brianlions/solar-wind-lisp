@@ -1,3 +1,11 @@
+;
+; file name:           samples/04-recursive.swl
+;
+; author:              Brian Yi ZHANG
+; email:               brianlions@gmail.com
+; date created:        Thu Dec 04 22:36:38 2014 CST
+;
+
 (defn dec (x) (- x 1))
 
 ;factorial, defined with define and lambda

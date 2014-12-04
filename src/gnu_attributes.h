@@ -1,3 +1,11 @@
+/*
+ * file name:           src/gnu_attributes.h
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Sat Nov 22 23:15:18 2014 CST
+ */
+
 #ifndef _GNU_ATTRIBUTES_H_
 #define _GNU_ATTRIBUTES_H_
 

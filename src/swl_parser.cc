@@ -1,3 +1,11 @@
+/*
+ * file name:           src/swl_parser.cc
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Sat Nov 22 01:49:21 2014 CST
+ */
+
 #include "swl_parser.h"
 
 namespace SolarWindLisp

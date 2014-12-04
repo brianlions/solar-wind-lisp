@@ -1,3 +1,11 @@
+/*
+ * file name:           test/parser_t.cc
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Sat Nov 22 01:49:21 2014 CST
+ */
+
 #include <iostream>
 #include <gtest/gtest.h>
 #include "swl_expr.h"

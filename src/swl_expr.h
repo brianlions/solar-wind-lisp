@@ -1,3 +1,11 @@
+/*
+ * file name:           src/swl_expr.h
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Thu Nov 20 16:00:20 2014 CST
+ */
+
 #ifndef _SOLAR_WIND_LISP_EXPR_H_
 #define _SOLAR_WIND_LISP_EXPR_H_
 

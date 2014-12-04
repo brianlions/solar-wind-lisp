@@ -1,3 +1,11 @@
+/*
+ * file name:           src/swl_parser.h
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Sat Nov 22 01:49:21 2014 CST
+ */
+
 #ifndef _SOLAR_WIND_LISP_PARSER_H_
 #define _SOLAR_WIND_LISP_PARSER_H_
 
