@@ -32,11 +32,11 @@ libraries       := gtest rt pthread
 static_lib      := libswl.a
 static_lib_dbg  := libswl_debug.a
 
-make_release_h  := $(shell ./makeReleaseInfo.sh $(src_dir))
-release_h       := $(src_dir)/release.h
+make_release_h  := $(shell ./makeReleaseInfo.sh $(inc_dir))
+release_h       := $(inc_dir)/release.h
 proj_name       := solarwind
 name_sep	:= -
-name_prefix     :=
+name_prefix     := $(proj_name)$(name_sep)
 
 ifndef NO_COLOR
 MY_DEP  =@printf '%b\t%b\n' $(DEP_COLOR_A)CPP$(END_COLOR) $(DEP_COLOR_B)$(1)$(END_COLOR) &&

@@ -1,5 +1,5 @@
 /*
- * file name:           src/swl_scoped_env.h
+ * file name:           include/scoped_env.h
  *
  * author:              Brian Yi ZHANG
  * email:               brianlions@gmail.com
@@ -11,7 +11,7 @@
 
 #include <new>
 #include <map>
-#include "swl_matter_if.h"
+#include "matter.h"
 
 namespace SolarWindLisp
 {

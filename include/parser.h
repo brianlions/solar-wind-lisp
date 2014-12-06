@@ -1,5 +1,5 @@
 /*
- * file name:           src/swl_parser.h
+ * file name:           include/parser.h
  *
  * author:              Brian Yi ZHANG
  * email:               brianlions@gmail.com
@@ -13,23 +13,23 @@
 #include <string>
 #include <queue>
 
-#include "swl_expr.h"
+#include "expr.h"
 
 namespace SolarWindLisp
 {
 
-class IParser
+class ParserIF
 {
 public:
 
     typedef std::deque<std::string> lexical_tokens;
 
-    IParser() :
+    ParserIF() :
             _form_str(NULL), _form_len(0)
     {
     }
 
-    virtual ~IParser()
+    virtual ~ParserIF()
     {
     }
 
@@ -61,7 +61,7 @@ private:
     lexical_tokens _tokens;
 };
 
-class SimpleParser: public IParser
+class SimpleParser: public ParserIF
 {
 public:
     SimpleParser()

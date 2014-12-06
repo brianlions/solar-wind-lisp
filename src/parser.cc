@@ -1,30 +1,30 @@
 /*
- * file name:           src/swl_parser.cc
+ * file name:           src/parser.cc
  *
  * author:              Brian Yi ZHANG
  * email:               brianlions@gmail.com
  * date created:        Sat Nov 22 01:49:21 2014 CST
  */
 
-#include "swl_parser.h"
+#include "parser.h"
 
 namespace SolarWindLisp
 {
-const char * IParser::S_TERM = "\0";
-const char * IParser::S_BS = "\\";
-const char * IParser::S_SQ = "\'";
-const char * IParser::S_DQ = "\"";
-const char * IParser::S_LP = "(";
-const char * IParser::S_RP = ")";
+const char * ParserIF::S_TERM = "\0";
+const char * ParserIF::S_BS = "\\";
+const char * ParserIF::S_SQ = "\'";
+const char * ParserIF::S_DQ = "\"";
+const char * ParserIF::S_LP = "(";
+const char * ParserIF::S_RP = ")";
 
-const char IParser::C_TERM;
-const char IParser::C_BS;
-const char IParser::C_SQ;
-const char IParser::C_DQ;
-const char IParser::C_LP;
-const char IParser::C_RP;
+const char ParserIF::C_TERM;
+const char ParserIF::C_BS;
+const char ParserIF::C_SQ;
+const char ParserIF::C_DQ;
+const char ParserIF::C_LP;
+const char ParserIF::C_RP;
 
-bool IParser::tokenize(lexical_tokens * p_result, const char * input,
+bool ParserIF::tokenize(lexical_tokens * p_result, const char * input,
         ssize_t input_length)
 {
     p_result->clear();
@@ -91,13 +91,13 @@ bool IParser::tokenize(lexical_tokens * p_result, const char * input,
     return p_result->size() != 0;
 }
 
-MatterPtr IParser::parse(const char * input, ssize_t input_length)
+MatterPtr ParserIF::parse(const char * input, ssize_t input_length)
 {
     // setup
     _form_str = input;
     _form_len = input_length;
 
-    if (!IParser::tokenize(&_tokens, _form_str, _form_len)) {
+    if (!ParserIF::tokenize(&_tokens, _form_str, _form_len)) {
         return NULL;
     }
 
@@ -110,7 +110,7 @@ MatterPtr IParser::parse(const char * input, ssize_t input_length)
     return result;
 }
 
-MatterPtr IParser::_parse_tokens(bool inner)
+MatterPtr ParserIF::_parse_tokens(bool inner)
 {
     std::string current;
 
@@ -138,7 +138,7 @@ MatterPtr IParser::_parse_tokens(bool inner)
             }
         }
         else {
-            ExprPtr expr = Expr::create(current.c_str(), current.length());
+            AtomPtr expr = Atom::create(current.c_str(), current.length());
             if (!expr.get()) {
                 return MatterPtr(NULL);
             }

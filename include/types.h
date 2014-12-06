@@ -1,5 +1,5 @@
 /*
- * file name:           src/swl_types.h
+ * file name:           include/types.h
  *
  * author:              Brian Yi ZHANG
  * email:               brianlions@gmail.com
@@ -14,20 +14,20 @@
 namespace SolarWindLisp
 {
 
-class IMatter;
-class Expr;
+class MatterIF;
+class Atom;
 class CompositeExpr;
-class IPrimProc;
+class PrimProcIF;
 class Proc;
 class Future;
 class ScopedEnv;
 
-typedef boost::shared_ptr<IMatter> MatterPtr;
-typedef boost::shared_ptr<Expr> ExprPtr;
+typedef boost::shared_ptr<MatterIF> MatterPtr;
+typedef boost::shared_ptr<Atom> AtomPtr;
 typedef boost::shared_ptr<CompositeExpr> CompositeExprPtr;
 typedef boost::shared_ptr<Proc> ProcPtr;
 typedef boost::shared_ptr<Future> FuturePtr;
-typedef boost::shared_ptr<IPrimProc> PrimProcPtr;
+typedef boost::shared_ptr<PrimProcIF> PrimProcPtr;
 typedef boost::shared_ptr<ScopedEnv> ScopedEnvPtr;
 
 } // namespace SolarWindLisp

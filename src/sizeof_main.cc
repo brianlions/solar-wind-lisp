@@ -9,13 +9,13 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "release.h"
-#include "swl_expr.h"
-#include "swl_parser.h"
-#include "swl_future.h"
-#include "swl_scoped_env.h"
-#include "swl_proc.h"
-#include "swl_prim_proc.h"
-#include "swl_interpreter.h"
+#include "expr.h"
+#include "parser.h"
+#include "future.h"
+#include "scoped_env.h"
+#include "proc.h"
+#include "prim_proc.h"
+#include "interpreter.h"
 
 void print_header()
 {
@@ -42,19 +42,19 @@ int main(int argc, char ** argv)
     print_sizeof(long double);
     print_sizeof(void *);
     printf("\n");
-    print_sizeof(SolarWindLisp::IMatter);
-    print_sizeof(SolarWindLisp::IMatter::matter_type_t);
-    print_sizeof(SolarWindLisp::Expr);
-    print_sizeof(SolarWindLisp::Expr::atom_type_t);
-    print_sizeof(SolarWindLisp::Expr::AtomData);
+    print_sizeof(SolarWindLisp::MatterIF);
+    print_sizeof(SolarWindLisp::MatterIF::matter_type_t);
+    print_sizeof(SolarWindLisp::Atom);
+    print_sizeof(SolarWindLisp::Atom::atom_type_t);
+    print_sizeof(SolarWindLisp::Atom::AtomData);
     print_sizeof(SolarWindLisp::CompositeExpr);
-    print_sizeof(SolarWindLisp::IPrimProc);
+    print_sizeof(SolarWindLisp::PrimProcIF);
     print_sizeof(SolarWindLisp::Proc);
     print_sizeof(SolarWindLisp::Future);
     print_sizeof(SolarWindLisp::ScopedEnv);
-    print_sizeof(SolarWindLisp::IMatterFactory);
+    print_sizeof(SolarWindLisp::MatterFactoryIF);
     print_sizeof(SolarWindLisp::SimpleMatterFactory);
-    print_sizeof(SolarWindLisp::IParser);
+    print_sizeof(SolarWindLisp::ParserIF);
     print_sizeof(SolarWindLisp::SimpleParser);
     print_sizeof(SolarWindLisp::InterpreterIF);
     print_sizeof(SolarWindLisp::SimpleInterpreter);

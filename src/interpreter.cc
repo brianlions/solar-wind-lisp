@@ -1,5 +1,5 @@
 /*
- * file name:           src/swl_interpreter.cc
+ * file name:           src/interpreter.cc
  *
  * author:              Brian Yi ZHANG
  * email:               brianlions@gmail.com
@@ -8,14 +8,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "swl_interpreter.h"
-#include "swl_script_reader.h"
+#include "interpreter.h"
+#include "script_reader.h"
 
 namespace SolarWindLisp
 {
 
-InterpreterIF::InterpreterIF(IParser * parser, ScopedEnvPtr env,
-        IMatterFactory * factory)
+InterpreterIF::InterpreterIF(ParserIF * parser, ScopedEnvPtr env,
+        MatterFactoryIF * factory)
 {
     _parser = parser;
     _env = env;
@@ -94,11 +94,6 @@ ScopedEnvPtr InterpreterIF::create_minimum_env()
     for (size_t i = 0; i < array_size(items); ++i) {
         PrimProcPtr pp = items[i].func_ptr();
         if (!pp) {
-            /*
-             * FIXME:
-             *   1. delete elements already added into `ret', or else mem leak!
-             *   2. or maybe do that in ScopedEnv's dtor?
-             */
             PRETTY_MESSAGE(stderr, "failed create instance of %s",
                     items[i].name);
             return NULL;
@@ -209,7 +204,7 @@ bool InterpreterIF::_eval_prim(const MatterPtr &expr, ScopedEnvPtr &scope,
 
 bool InterpreterIF::_is_special_form(const MatterPtr &expr, const char * keyword)
 {
-    if (!expr->is_molecule()) {
+    if (!expr->is_composite_expr()) {
         return false;
     }
 
@@ -218,7 +213,7 @@ bool InterpreterIF::_is_special_form(const MatterPtr &expr, const char * keyword
         return false;
     }
 
-    const Expr * first = static_cast<const Expr *>(ce->get(0).get());
+    const Atom * first = static_cast<const Atom *>(ce->get(0).get());
     if (!first->is_cstr()) {
         return false;
     }
@@ -240,10 +235,10 @@ bool InterpreterIF::_eval_if(const MatterPtr &expr, ScopedEnvPtr &scope,
 
     MatterPtr final_form = alt;
     if (res) {
-        if (res->is_atom() && static_cast<Expr *>(res.get())->not_empty()) {
+        if (res->is_atom() && static_cast<Atom *>(res.get())->not_empty()) {
             final_form = cons;
         }
-        else if (res->is_molecule()
+        else if (res->is_composite_expr()
                 && static_cast<CompositeExpr *>(res.get())->size()) {
             final_form = cons;
         }
@@ -277,7 +272,7 @@ bool InterpreterIF::_eval_define(const MatterPtr &expr, ScopedEnvPtr &scope,
         return false;
     }
 
-    Expr * name = static_cast<Expr *>(pos1.get());
+    Atom * name = static_cast<Atom *>(pos1.get());
     if (!name->is_cstr() || name->is_quoted_cstr()) {
         return false;
     }
@@ -295,7 +290,7 @@ bool InterpreterIF::_eval_name(const MatterPtr &expr, ScopedEnvPtr &scope,
     PRETTY_MESSAGE(stderr, "execute: `%s' ...",
             expr->debug_string(false).c_str());
     if (expr->is_atom()) {
-        Expr * e = static_cast<Expr *>(expr.get());
+        Atom * e = static_cast<Atom *>(expr.get());
         if (e->is_cstr() && scope->lookup(e->to_cstr(), result)) {
             return true;
         }
@@ -316,7 +311,7 @@ bool InterpreterIF::_eval_lambda(const MatterPtr &expr, ScopedEnvPtr &scope,
     CompositeExpr * ce = static_cast<CompositeExpr *>(expr.get());
     MatterPtr p1 = ce->get(1);
     MatterPtr p2 = ce->get(2);
-    if (!p1 || !p1->is_molecule() || !p2) {
+    if (!p1 || !p1->is_composite_expr() || !p2) {
         return false;
     }
 
@@ -340,7 +335,7 @@ bool InterpreterIF::_eval_defn(const MatterPtr &expr, ScopedEnvPtr &scope,
     if (!n->is_atom()) {
         return false;
     }
-    Expr * name = static_cast<Expr *>(n.get());
+    Atom * name = static_cast<Atom *>(n.get());
     if (!name->is_cstr() || name->is_quoted_cstr()) {
         return false;
     }
@@ -394,7 +389,7 @@ bool InterpreterIF::_eval_app(const MatterPtr &expr, ScopedEnvPtr &scope,
     }
 
     MatterPtr first = ce->get_next();
-    CompositeExprPtr args = interpreter->factory()->create_molecule();
+    CompositeExprPtr args = interpreter->factory()->create_composite_expr();
     if (!args) {
         return false;
     }
@@ -436,8 +431,8 @@ bool InterpreterIF::_apply(const MatterPtr &proc_name, const MatterPtr &proc_ope
             proc_name->debug_string(false).c_str(),
             proc_operands->debug_string(false).c_str());
     if (proc_name->is_prim_proc()) {
-        IPrimProc * p = static_cast<IPrimProc *>(proc_name.get());
-        CompositeExprPtr ce = interpreter->factory()->create_molecule();
+        PrimProcIF * p = static_cast<PrimProcIF *>(proc_name.get());
+        CompositeExprPtr ce = interpreter->factory()->create_composite_expr();
         if (!ce) {
             return false;
         }
@@ -483,9 +478,9 @@ bool InterpreterIF::_apply(const MatterPtr &proc_name, const MatterPtr &proc_ope
             return false;
         }
 
-        Expr * param = NULL;
+        Atom * param = NULL;
         while (params->has_next() /* && operands->has_next() */) {
-            param = static_cast<Expr*>(params->get_next().get());
+            param = static_cast<Atom*>(params->get_next().get());
             if (!param->is_cstr() || param->is_quoted_cstr()) {
                 return false;
             }
@@ -509,7 +504,7 @@ bool InterpreterIF::execute(MatterPtr &result, const char * str, ssize_t len)
         return false;
     }
 
-    if (!forms->is_molecule()) {
+    if (!forms->is_composite_expr()) {
         PRETTY_MESSAGE(stderr,
                 "return value of parser is not a CompositeExpr!");
         return false;
@@ -520,7 +515,7 @@ bool InterpreterIF::execute(MatterPtr &result, const char * str, ssize_t len)
 
 bool InterpreterIF::execute_multi_expr(MatterPtr &result, const MatterPtr &expr)
 {
-    if (!expr->is_molecule()) {
+    if (!expr->is_composite_expr()) {
         PRETTY_MESSAGE(stderr, "expr is not CompositeExpr!");
         return false;
     }
@@ -587,7 +582,7 @@ void InterpreterIF::_repl(InterpreterIF * interpreter, const char * filename)
             continue;
         }
 
-        if (!ie->is_molecule()) {
+        if (!ie->is_composite_expr()) {
             PRETTY_MESSAGE(stderr, "this shoud not happen");
             break;
         }
@@ -605,7 +600,7 @@ void InterpreterIF::_repl(InterpreterIF * interpreter, const char * filename)
             else if (a_result) {
                 PRETTY_MESSAGE(stderr, "result: `%s'",
                         a_result->debug_string().c_str());
-                printf("%s\n", a_result->debug_string().c_str());
+                printf("%s\n", a_result->to_string().c_str());
             }
             // some expr (e.g. define, defn) returns nothing
         }

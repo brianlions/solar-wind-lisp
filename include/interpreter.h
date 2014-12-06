@@ -1,5 +1,5 @@
 /*
- * file name:           src/swl_interpreter.h
+ * file name:           include/interpreter.h
  *
  * author:              Brian Yi ZHANG
  * email:               brianlions@gmail.com
@@ -10,14 +10,14 @@
 #define _SOLAR_WIND_LISP_INTERPRETER_H_
 
 #include "gnu_attributes.h"
-#include "swl_types.h"
-#include "swl_expr.h"
-#include "swl_parser.h"
-#include "swl_scoped_env.h"
-#include "swl_proc.h"
-#include "swl_future.h"
-#include "swl_utils.h"
-#include "swl_matter_factory_if.h"
+#include "types.h"
+#include "expr.h"
+#include "parser.h"
+#include "scoped_env.h"
+#include "proc.h"
+#include "future.h"
+#include "utils.h"
+#include "matter_factory.h"
 #include "pretty_message.h"
 
 namespace SolarWindLisp
@@ -27,8 +27,8 @@ class InterpreterIF
 {
     friend class Future;
 public:
-    InterpreterIF(IParser * parser = NULL, ScopedEnvPtr env = NULL,
-            IMatterFactory * factory = NULL);
+    InterpreterIF(ParserIF * parser = NULL, ScopedEnvPtr env = NULL,
+            MatterFactoryIF * factory = NULL);
     virtual ~InterpreterIF();
     bool initialize();
 
@@ -39,7 +39,7 @@ public:
             : "               ";
     }
 
-    IParser * parser()
+    ParserIF * parser()
     {
         return _parser;
     }
@@ -49,7 +49,7 @@ public:
         return _env;
     }
 
-    IMatterFactory * factory()
+    MatterFactoryIF * factory()
     {
         return _factory;
     }
@@ -78,7 +78,7 @@ protected:
     static bool _is_prim(const MatterPtr &expr)
     {
         if (expr->is_atom()) {
-            const Expr * e = static_cast<const Expr *>(expr.get());
+            const Atom * e = static_cast<const Atom *>(expr.get());
             if (e->is_numeric() || e->is_quoted_cstr()) {
                 return true;
             }
@@ -118,7 +118,7 @@ protected:
             return false;
         }
 
-        const Expr * e = static_cast<const Expr *>(expr.get());
+        const Atom * e = static_cast<const Atom *>(expr.get());
         return e->is_cstr() && !e->is_quoted_cstr();
     }
 
@@ -187,7 +187,7 @@ protected:
 
     static bool _is_app(const MatterPtr &expr)
     {
-        return expr->is_molecule();
+        return expr->is_composite_expr();
     }
 
     static bool _eval_app(const MatterPtr &expr, ScopedEnvPtr &scope,
@@ -214,9 +214,9 @@ public:
 
 private:
     bool _initialized;
-    IParser * _parser;
+    ParserIF * _parser;
     ScopedEnvPtr _env;
-    IMatterFactory * _factory;
+    MatterFactoryIF * _factory;
 };
 
 class SimpleInterpreter: public InterpreterIF

@@ -1,5 +1,5 @@
 /*
- * file name:           src/swl_matter_if.h
+ * file name:           include/matter.h
  *
  * author:              Brian Yi ZHANG
  * email:               brianlions@gmail.com
@@ -10,18 +10,18 @@
 #define _SOLAR_WIND_LISP_MATTER_IF_H_
 
 #include <string>
-#include "swl_types.h"
+#include "types.h"
 
 namespace SolarWindLisp
 {
 
-class IMatter
+class MatterIF
 {
 public:
     enum matter_type_t
     {
         matter_atom = 0,
-        matter_molecule,
+        matter_composite_expr,
         matter_prim_proc,
         matter_proc,
         matter_future,
@@ -33,8 +33,8 @@ public:
         switch (t) {
             case matter_atom:
                 return "atom";
-            case matter_molecule:
-                return "molecule";
+            case matter_composite_expr:
+                return "composite_expr";
             case matter_prim_proc:
                 return "prim_proc";
             case matter_proc:
@@ -53,9 +53,9 @@ public:
         return matter_atom == matter_type();
     }
 
-    bool is_molecule() const
+    bool is_composite_expr() const
     {
-        return matter_molecule == matter_type();
+        return matter_composite_expr == matter_type();
     }
 
     bool is_prim_proc() const
@@ -75,10 +75,10 @@ public:
 
     const char * matter_type_name() const
     {
-        return IMatter::matter_type_name(matter_type());
+        return MatterIF::matter_type_name(matter_type());
     }
 
-    virtual ~IMatter()
+    virtual ~MatterIF()
     {
     }
 
@@ -86,6 +86,7 @@ public:
 
     virtual std::string debug_string(bool compact = true, int level = 0,
             const char * indent_seq = DEFAULT_INDENT_SEQ) const = 0;
+    virtual std::string to_string() const =0;
 #if 0
     // TODO: implement!
     virtual std::string repr(bool compact = true, int level = 0) const = 0;

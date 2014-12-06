@@ -1,5 +1,5 @@
 /*
- * file name:           src/swl_future.h
+ * file name:           include/future.h
  *
  * author:              Brian Yi ZHANG
  * email:               brianlions@gmail.com
@@ -10,7 +10,7 @@
 #define _SOLAR_WIND_LISP_FUTURE_H_
 
 #include <new>
-#include "swl_matter_if.h"
+#include "matter.h"
 #include "pretty_message.h"
 
 namespace SolarWindLisp
@@ -18,7 +18,7 @@ namespace SolarWindLisp
 
 class InterpreterIF;
 
-class Future: public IMatter
+class Future: public MatterIF
 {
 public:
     matter_type_t matter_type() const
@@ -38,6 +38,11 @@ public:
             const char * indent_seq = DEFAULT_INDENT_SEQ) const
     {
         return "Future::debug_string()";
+    }
+
+    std::string to_string() const
+    {
+        return "instance of Future";
     }
 
     virtual ~Future()

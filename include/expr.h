@@ -1,5 +1,5 @@
 /*
- * file name:           src/swl_expr.h
+ * file name:           include/expr.h
  *
  * author:              Brian Yi ZHANG
  * email:               brianlions@gmail.com
@@ -14,13 +14,13 @@
 #include <sstream>
 #include <deque>
 
-#include "swl_matter_if.h"
-#include "swl_utils.h"
+#include "matter.h"
+#include "utils.h"
 
 namespace SolarWindLisp
 {
-// TODO: rename to Atom
-class Expr: public IMatter
+
+class Atom: public MatterIF
 {
 public:
     enum atom_type_t
@@ -89,11 +89,11 @@ bool is_##name() const {                \
         return _atom_type;
     }
 
-    virtual ~Expr()
+    virtual ~Atom()
     {
     }
 
-    static ExprPtr create(const char * buf = NULL, size_t length = 0);
+    static AtomPtr create(const char * buf = NULL, size_t length = 0);
 
     bool parse(const char * buf, size_t length);
     bool parse_bool(const char * buf, size_t length);
@@ -182,10 +182,11 @@ bool is_##name() const {                \
     };
 
     std::string debug_string(bool compact = true, int level = 0,
-            const char * indent_seq = IMatter::DEFAULT_INDENT_SEQ) const;
+            const char * indent_seq = MatterIF::DEFAULT_INDENT_SEQ) const;
+    std::string to_string() const;
 
 private:
-    Expr() :
+    Atom() :
             _atom_type(atom_bool)
     {
     }
@@ -194,7 +195,7 @@ private:
     AtomData _atom_data;
 };
 
-class CompositeExpr: public IMatter
+class CompositeExpr: public MatterIF
 {
 public:
     ~CompositeExpr()
@@ -204,7 +205,7 @@ public:
 
     matter_type_t matter_type() const
     {
-        return matter_molecule;
+        return matter_composite_expr;
     }
 
     static CompositeExprPtr create();
@@ -238,7 +239,8 @@ public:
     }
 
     std::string debug_string(bool compact = true, int level = 0,
-            const char * indent_seq = IMatter::DEFAULT_INDENT_SEQ) const;
+            const char * indent_seq = MatterIF::DEFAULT_INDENT_SEQ) const;
+    std::string to_string() const;
 
 private:
     static const size_t _INITIAL_CAPACITY = 10;
@@ -251,7 +253,6 @@ private:
 
     void _destroy()
     {
-        // FIXME delete element in `_items'
     }
 
     std::deque<MatterPtr> _items;

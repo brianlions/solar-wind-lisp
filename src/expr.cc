@@ -1,5 +1,5 @@
 /*
- * file name:           src/swl_expr.cc
+ * file name:           src/expr.cc
  *
  * author:              Brian Yi ZHANG
  * email:               brianlions@gmail.com
@@ -10,12 +10,12 @@
 #include <errno.h>
 #include <new>
 #include <limits>
-#include "swl_expr.h"
+#include "expr.h"
 
 namespace SolarWindLisp
 {
 
-const char * Expr::atom_type_name(Expr::atom_type_t t)
+const char * Atom::atom_type_name(Atom::atom_type_t t)
 {
     switch (t) {
         case atom_bool:
@@ -39,10 +39,10 @@ const char * Expr::atom_type_name(Expr::atom_type_t t)
     }
 }
 
-const char Expr::AtomData::C_SQ;
-const char Expr::AtomData::C_DQ;
+const char Atom::AtomData::C_SQ;
+const char Atom::AtomData::C_DQ;
 
-bool Expr::AtomData::set_string(const char * buf, size_t length)
+bool Atom::AtomData::set_string(const char * buf, size_t length)
 {
     size_t actual_length = length;
     const char * actual_pos = buf;
@@ -85,22 +85,22 @@ bool Expr::AtomData::set_string(const char * buf, size_t length)
     return true;
 }
 
-ExprPtr Expr::create(const char * buf, size_t length)
+AtomPtr Atom::create(const char * buf, size_t length)
 {
-    Expr * result = new (std::nothrow) Expr();
+    Atom * result = new (std::nothrow) Atom();
     if (result) {
         if (!buf || result->parse(buf, length)) {
-            return ExprPtr(result);
+            return AtomPtr(result);
         }
 
         delete result;
         result = NULL;
     }
 
-    return ExprPtr(result);
+    return AtomPtr(result);
 }
 
-bool Expr::parse(const char * buf, size_t length)
+bool Atom::parse(const char * buf, size_t length)
 {
     if (parse_bool(buf, length) || parse_integer(buf, length)
             || parse_real(buf, length) || parse_cstr(buf, length)) {
@@ -110,7 +110,7 @@ bool Expr::parse(const char * buf, size_t length)
     return false;
 }
 
-bool Expr::parse_bool(const char * buf, size_t length)
+bool Atom::parse_bool(const char * buf, size_t length)
 {
     if (length == 4 && !strcmp(buf, "true")) {
         _atom_type = atom_bool;
@@ -127,7 +127,7 @@ bool Expr::parse_bool(const char * buf, size_t length)
     return false;
 }
 
-bool Expr::parse_integer(const char * buf, size_t length)
+bool Atom::parse_integer(const char * buf, size_t length)
 {
     int base = 10;
     char * endptr = NULL;
@@ -192,7 +192,7 @@ bool Expr::parse_integer(const char * buf, size_t length)
     return false;
 }
 
-bool Expr::parse_real(const char * buf, size_t length)
+bool Atom::parse_real(const char * buf, size_t length)
 {
     char * endptr = NULL;
     int saved_errno = errno;
@@ -221,7 +221,7 @@ bool Expr::parse_real(const char * buf, size_t length)
     return false;
 }
 
-bool Expr::parse_cstr(const char * buf, size_t length)
+bool Atom::parse_cstr(const char * buf, size_t length)
 {
     if (_atom_data.set_string(buf, length)) {
         _atom_type = atom_cstr;
@@ -230,56 +230,56 @@ bool Expr::parse_cstr(const char * buf, size_t length)
     return false;
 }
 
-void Expr::set_bool(bool v)
+void Atom::set_bool(bool v)
 {
     _atom_type = atom_bool;
     _atom_data.reset();
     _atom_data.num.b = v;
 }
 
-void Expr::set_i32(int32_t v)
+void Atom::set_i32(int32_t v)
 {
     _atom_type = atom_i32;
     _atom_data.reset();
     _atom_data.num.i32 = v;
 }
 
-void Expr::set_u32(uint32_t v)
+void Atom::set_u32(uint32_t v)
 {
     _atom_type = atom_u32;
     _atom_data.reset();
     _atom_data.num.u32 = v;
 }
 
-void Expr::set_i64(int64_t v)
+void Atom::set_i64(int64_t v)
 {
     _atom_type = atom_i64;
     _atom_data.reset();
     _atom_data.num.i64 = v;
 }
 
-void Expr::set_u64(uint64_t v)
+void Atom::set_u64(uint64_t v)
 {
     _atom_type = atom_u64;
     _atom_data.reset();
     _atom_data.num.u64 = v;
 }
 
-void Expr::set_double(double v)
+void Atom::set_double(double v)
 {
     _atom_type = atom_double;
     _atom_data.reset();
     _atom_data.num.d = v;
 }
 
-void Expr::set_long_double(long double v)
+void Atom::set_long_double(long double v)
 {
     _atom_type = atom_long_double;
     _atom_data.reset();
     _atom_data.num.ld = v;
 }
 
-bool Expr::to_bool(bool & v) const
+bool Atom::to_bool(bool & v) const
 {
     switch (_atom_type) {
         case atom_bool:
@@ -312,7 +312,7 @@ bool Expr::to_bool(bool & v) const
 }
 
 #define macro_to_signed(name, T)                                        \
-bool Expr::to_##name(T &v) const                                        \
+bool Atom::to_##name(T &v) const                                        \
 {                                                                       \
     switch (_atom_type) {                                               \
         case atom_bool:                                                 \
@@ -368,7 +368,7 @@ macro_to_signed(i64, int64_t)
 #undef macro_to_signed
 
 #define macro_to_unsigned(name, T)                                      \
-bool Expr::to_##name(T &v) const                                        \
+bool Atom::to_##name(T &v) const                                        \
 {                                                                       \
     switch (_atom_type) {                                               \
         case atom_bool:                                                 \
@@ -422,7 +422,7 @@ macro_to_unsigned(u32, uint32_t)
 macro_to_unsigned(u64, uint64_t)
 #undef macro_to_unsigned
 
-bool Expr::to_double(double &v) const
+bool Atom::to_double(double &v) const
 {
     // FIXME:
     switch (_atom_type) {
@@ -454,7 +454,7 @@ bool Expr::to_double(double &v) const
     }
 }
 
-bool Expr::to_long_double(long double &v) const
+bool Atom::to_long_double(long double &v) const
 {
     // FIXME:
     switch (_atom_type) {
@@ -486,7 +486,7 @@ bool Expr::to_long_double(long double &v) const
     }
 }
 
-bool Expr::not_empty() const
+bool Atom::not_empty() const
 {
     switch (_atom_type) {
         case atom_bool:
@@ -510,7 +510,7 @@ bool Expr::not_empty() const
     }
 }
 
-std::string Expr::debug_string(bool compact, int level,
+std::string Atom::debug_string(bool compact, int level,
         const char * indent_seq) const
 {
     std::string indent = compact ? "" : Utils::Misc::repeat(indent_seq, level);
@@ -520,7 +520,7 @@ std::string Expr::debug_string(bool compact, int level,
             compact ? "," : (std::string(",\n") + indent + indent_seq);
 
     std::stringstream ss;
-    ss << indent << "Expr{" << first_sep //
+    ss << indent << "Atom{" << first_sep //
         << "type:" << (compact ? "" : " ") << atom_type_name(_atom_type) << sep //
         << "data:" << (compact ? "" : " ");
     if (is_bool()) {
@@ -545,6 +545,33 @@ std::string Expr::debug_string(bool compact, int level,
         ss << "`" << to_cstr() << "'";
     }
     ss << "}";
+    return ss.str();
+}
+
+std::string Atom::to_string() const
+{
+    std::stringstream ss;
+    if (is_bool()) {
+        ss << ((_atom_data.num.b) ? "true" : "false");
+    }
+    else if (is_i32() || is_i64()) {
+        int64_t v;
+        to_i64(v);
+        ss << v;
+    }
+    else if (is_u32() || is_u64()) {
+        uint64_t v;
+        to_u64(v);
+        ss << v;
+    }
+    else if (is_real()) {
+        long double ld;
+        to_long_double(ld);
+        ss << ld;
+    }
+    else if (is_cstr()) {
+        ss << "`" << to_cstr() << "'";
+    }
     return ss.str();
 }
 
@@ -589,6 +616,11 @@ std::string CompositeExpr::debug_string(bool compact, int level,
     }
     ss << "]}";
     return ss.str();
+}
+
+std::string CompositeExpr::to_string() const
+{
+    return "instance of CompositeExpr";
 }
 
 } // namespace SolarWindLisp

@@ -1,5 +1,5 @@
 /*
- * file name:           src/gnu_attributes.h
+ * file name:           include/gnu_attributes.h
  *
  * author:              Brian Yi ZHANG
  * email:               brianlions@gmail.com

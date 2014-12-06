@@ -1,5 +1,5 @@
 /*
- * file name:           src/swl_script_reader.cc
+ * file name:           src/script_reader.cc
  *
  * author:              Brian Yi ZHANG
  * email:               brianlions@gmail.com
@@ -7,8 +7,8 @@
  */
 
 #include <string.h>
-#include "swl_interpreter.h"
-#include "swl_script_reader.h"
+#include "interpreter.h"
+#include "script_reader.h"
 namespace SolarWindLisp {
 
 bool ScriptFileReader::initialize(const char * filename)

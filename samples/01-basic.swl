@@ -17,15 +17,16 @@
 (define inc (lambda (v) (+ v 1)))
 (defn   dec (v) (- v 1))
 (defn   abs (v) (if (< v 0) (- v) v))
+(defn   circle-area (r) (* pi r r))
 
 ; (square 10) => 10 * 10
 (defn   square (v) (* v v))
 (define cube (lambda (v) (* v v v)))
 
-; (author-name) => "zhang yi"
-; (authro-email) => "zhangyi21@baidu.com"
-(define author-name (lambda () 'zhang yi'))
-(defn   author-email () "zhangyi21@baidu.com")
+; (author-name) => "Brian Yi ZHANG"
+; (authro-email) => "brianlions@gmail.com"
+(define author-name (lambda () 'Brian Yi ZHANG'))
+(defn   author-email () "brianlions@gmail.com")
 
 (define bigger
     (lambda (a b)
@@ -33,6 +34,9 @@
 (defn   smaller (a b)
     (if (< a b) a b))
 
+(circle-area 1)
+(circle-area 2)
+(circle-area 3)
 (inc 5)
 (inc (* 3 5))
 (dec 10)
@@ -44,3 +48,5 @@
 (square (bigger 3 5))
 (square (smaller (inc 9) (dec 20)))
 (abs (- 10))
+(author-name)
+(author-email)

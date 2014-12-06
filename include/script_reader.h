@@ -1,5 +1,5 @@
 /*
- * file name:           src/swl_script_reader.h
+ * file name:           include/script_reader.h
  *
  * author:              Brian Yi ZHANG
  * email:               brianlions@gmail.com

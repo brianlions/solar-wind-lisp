@@ -9,24 +9,24 @@
 #include <gtest/gtest.h>
 #include "solarwindlisp.h"
 
-using SolarWindLisp::IMatter;
-using SolarWindLisp::Expr;
+using SolarWindLisp::MatterIF;
+using SolarWindLisp::Atom;
 using SolarWindLisp::SimpleMatterFactory;
 using SolarWindLisp::MatterPtr;
-using SolarWindLisp::ExprPtr;
+using SolarWindLisp::AtomPtr;
 using SolarWindLisp::CompositeExprPtr;
 
 class ExprTS: public testing::Test
 {
 protected:
     SimpleMatterFactory _matter_factory;
-    ExprPtr _expr;
+    AtomPtr _expr;
     CompositeExprPtr _composite_expr;
 
     virtual void SetUp()
     {
         _expr = _matter_factory.create_atom();
-        _composite_expr = _matter_factory.create_molecule();
+        _composite_expr = _matter_factory.create_composite_expr();
         EXPECT_TRUE(_expr != NULL);
         EXPECT_TRUE(_composite_expr != NULL);
     }
@@ -57,7 +57,7 @@ protected:
 
 TEST_F(ExprTS, types)
 {
-    EXPECT_EQ(_expr->atom_type(), Expr::atom_bool);
+    EXPECT_EQ(_expr->atom_type(), Atom::atom_bool);
     EXPECT_EQ(_expr->is_bool(), true);
 }
 
@@ -66,19 +66,19 @@ TEST_F(ExprTS, parseA)
     struct tuple
     {
         const char * input;
-        Expr::atom_type_t atom_type;
+        Atom::atom_type_t atom_type;
     };
 
     struct tuple good_cases[] = { //
-            { "true", Expr::atom_bool }, //
-            { "false", Expr::atom_bool }, //
-            { "12345", Expr::atom_i32 }, //
-            { "012345", Expr::atom_u32 }, //
-            { "0xabcdef", Expr::atom_u32 }, //
-            { "3.141592653", Expr::atom_double }, //
-            { "2.718281828", Expr::atom_double }, //
-            { "this is a string", Expr::atom_cstr }, //
-            { "", Expr::atom_cstr }, //
+            { "true", Atom::atom_bool }, //
+            { "false", Atom::atom_bool }, //
+            { "12345", Atom::atom_i32 }, //
+            { "012345", Atom::atom_u32 }, //
+            { "0xabcdef", Atom::atom_u32 }, //
+            { "3.141592653", Atom::atom_double }, //
+            { "2.718281828", Atom::atom_double }, //
+            { "this is a string", Atom::atom_cstr }, //
+            { "", Atom::atom_cstr }, //
             };
 
     for (size_t i = 0; i < array_size(good_cases); ++i) {
@@ -149,7 +149,7 @@ TEST_F(ExprTS, parseC)
             "\"double quote str\"",
             };
     for (size_t i = 0; i < array_size(expr_list); ++i) {
-        ExprPtr e = Expr::create(expr_list[i], strlen(expr_list[i]));
+        AtomPtr e = Atom::create(expr_list[i], strlen(expr_list[i]));
         EXPECT_TRUE(e != NULL);
         EXPECT_TRUE(_composite_expr->append_expr(e));
     }
@@ -167,9 +167,9 @@ TEST_F(ExprTS, parseC)
         MatterPtr temp = _composite_expr->get_next();
         EXPECT_TRUE(temp != NULL);
         EXPECT_TRUE(temp->is_atom());
-        EXPECT_FALSE(temp->is_molecule());
+        EXPECT_FALSE(temp->is_composite_expr());
 
-        const Expr * e = static_cast<const Expr *>(temp.get());
+        const Atom * e = static_cast<const Atom *>(temp.get());
         EXPECT_TRUE(e != NULL);
         switch (counter++) {
             case 0:

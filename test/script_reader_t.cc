@@ -6,10 +6,11 @@
  * date created:        Wed Dec 03 22:12:29 2014 CST
  */
 
+#include <unistd.h>
 #include <stdio.h>
 #include <gtest/gtest.h>
-#include "swl_script_reader.h"
-#include "swl_utils.h"
+#include "script_reader.h"
+#include "utils.h"
 
 using SolarWindLisp::ScriptFileReader;
 
@@ -33,6 +34,7 @@ protected:
         free(_stmt_buf);
         _stmt_buf = NULL;
         _stmt_buf_size = 0;
+        unlink(_script_file_name);
     }
 
     void save_to_file(const char * data)

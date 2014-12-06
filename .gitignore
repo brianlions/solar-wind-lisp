@@ -1,10 +1,9 @@
-.cproject
-.project
-.pydevproject
+.*
 bin/
 boost/
 gtest/
 gmock/
+local-files/
 py*/
 release.h
 tags

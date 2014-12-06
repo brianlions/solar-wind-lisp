@@ -1,5 +1,5 @@
 /*
- * file name:           src/swl_proc.h
+ * file name:           include/proc.h
  *
  * author:              Brian Yi ZHANG
  * email:               brianlions@gmail.com
@@ -9,15 +9,15 @@
 #ifndef _SOLAR_WIND_LISP_PROC_H_
 #define _SOLAR_WIND_LISP_PROC_H_
 
-#include "swl_matter_if.h"
-#include "swl_proc.h"
-#include "swl_scoped_env.h"
+#include "matter.h"
+#include "proc.h"
+#include "scoped_env.h"
 #include "pretty_message.h"
 
 namespace SolarWindLisp
 {
 
-class Proc: public IMatter
+class Proc: public MatterIF
 {
 public:
     matter_type_t matter_type() const
@@ -52,6 +52,11 @@ public:
             const char * indent_seq = DEFAULT_INDENT_SEQ) const
     {
         return "Proc::debug_string()";
+    }
+
+    std::string to_string() const
+    {
+        return "instance of Proc";
     }
 
     virtual ~Proc()

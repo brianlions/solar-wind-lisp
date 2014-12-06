@@ -10,8 +10,8 @@
 #include "solarwindlisp.h"
 
 using SolarWindLisp::SimpleInterpreter;
-using SolarWindLisp::IMatter;
-using SolarWindLisp::Expr;
+using SolarWindLisp::MatterIF;
+using SolarWindLisp::Atom;
 using SolarWindLisp::MatterPtr;
 
 #define verbose_print(fmt, ...)                                 \
@@ -76,24 +76,24 @@ TEST_F(InterpreterTS, caseResultDouble)
      */
     struct triplet_a {
         const char * str;
-        Expr::atom_type_t type;
+        Atom::atom_type_t type;
         long double value;
     } items[] = { //
-        { "12345",                    Expr::atom_i32,         12345 },
-        { "(+ 12 34)",                Expr::atom_i64,         46 },
-        { "(- 12 34)",                Expr::atom_i64,         -22 },
-        { "(* 5 12)",                 Expr::atom_i64,         60 },
-        { "pi",                       Expr::atom_double,      MATH_PI },
-        { "e",                        Expr::atom_double,      MATH_E },
-        { "(circle-area 3)",          Expr::atom_long_double, MATH_PI * 3 * 3 },
-        { "(circle-circumference 5)", Expr::atom_long_double, MATH_PI * 2 * 5 },
-        { "(inc e)",                  Expr::atom_long_double, MATH_E + 1 },
-        { "(silly-double e)",         Expr::atom_long_double, MATH_E + MATH_E },
-        { "(silly-triple pi)",        Expr::atom_long_double, MATH_PI + MATH_PI + MATH_PI },
-        { "(silly-x2p1 2.3)",         Expr::atom_long_double, 2.3 + 2.3 + 1 },
-        { "(/ 12 34)",                Expr::atom_long_double, 1.0 * 12 / 34 },
-        { "(/ 10)",                   Expr::atom_long_double, 0.1 },
-        { "(/ pi 5 6)",               Expr::atom_long_double, MATH_PI / (5 * 6) },
+        { "12345",                    Atom::atom_i32,         12345 },
+        { "(+ 12 34)",                Atom::atom_i64,         46 },
+        { "(- 12 34)",                Atom::atom_i64,         -22 },
+        { "(* 5 12)",                 Atom::atom_i64,         60 },
+        { "pi",                       Atom::atom_double,      MATH_PI },
+        { "e",                        Atom::atom_double,      MATH_E },
+        { "(circle-area 3)",          Atom::atom_long_double, MATH_PI * 3 * 3 },
+        { "(circle-circumference 5)", Atom::atom_long_double, MATH_PI * 2 * 5 },
+        { "(inc e)",                  Atom::atom_long_double, MATH_E + 1 },
+        { "(silly-double e)",         Atom::atom_long_double, MATH_E + MATH_E },
+        { "(silly-triple pi)",        Atom::atom_long_double, MATH_PI + MATH_PI + MATH_PI },
+        { "(silly-x2p1 2.3)",         Atom::atom_long_double, 2.3 + 2.3 + 1 },
+        { "(/ 12 34)",                Atom::atom_long_double, 1.0 * 12 / 34 },
+        { "(/ 10)",                   Atom::atom_long_double, 0.1 },
+        { "(/ pi 5 6)",               Atom::atom_long_double, MATH_PI / (5 * 6) },
     };
     for (size_t i = 0; i < array_size(items); ++i) {
         MatterPtr result = NULL;
@@ -103,8 +103,8 @@ TEST_F(InterpreterTS, caseResultDouble)
         }
         EXPECT_TRUE(_interpreter.execute(result, items[i].str, strlen(items[i].str)));
         EXPECT_TRUE(result != NULL);
-        EXPECT_TRUE(result->matter_type() == IMatter::matter_atom);
-        const Expr * expr = static_cast<const Expr *>(result.get());
+        EXPECT_TRUE(result->matter_type() == MatterIF::matter_atom);
+        const Atom * expr = static_cast<const Atom *>(result.get());
         EXPECT_EQ(expr->atom_type(), items[i].type);
         long double temp = 0;
         EXPECT_TRUE(expr->to_long_double(temp));
@@ -116,16 +116,16 @@ TEST_F(InterpreterTS, caseResultProc)
 {
     struct pairs {
         const char * str;
-        IMatter::matter_type_t type;
+        MatterIF::matter_type_t type;
     } items[] = { //
-        { "inc",          IMatter::matter_proc },
-        { "silly-double", IMatter::matter_proc },
-        { "silly-triple", IMatter::matter_proc },
-        { "silly-x2p1",   IMatter::matter_proc },
-        { "+",            IMatter::matter_prim_proc },
-        { "-",            IMatter::matter_prim_proc },
-        { "*",            IMatter::matter_prim_proc },
-        { "/",            IMatter::matter_prim_proc },
+        { "inc",          MatterIF::matter_proc },
+        { "silly-double", MatterIF::matter_proc },
+        { "silly-triple", MatterIF::matter_proc },
+        { "silly-x2p1",   MatterIF::matter_proc },
+        { "+",            MatterIF::matter_prim_proc },
+        { "-",            MatterIF::matter_prim_proc },
+        { "*",            MatterIF::matter_prim_proc },
+        { "/",            MatterIF::matter_prim_proc },
     };
     for (size_t i = 0; i < array_size(items); ++i) {
         MatterPtr result = NULL;
@@ -163,8 +163,8 @@ protected:
             "(defn   square (v) (* v v))",
             "(define cube (lambda (v) (* v v v)))",
 
-            "(define author-name (lambda () 'zhang yi'))",
-            "(defn   author-email () \"zhangyi21@baidu.com\")",
+            "(define author-name (lambda () 'Brian Yi ZHANG'))",
+            "(defn   author-email () \"brianlions@gmail.com\")",
 
             "(define bigger"
             "    (lambda (a b)"
@@ -201,7 +201,7 @@ protected:
             }
             EXPECT_TRUE(_interpreter.execute(result, one_case->str, strlen(one_case->str)));
             EXPECT_TRUE(result != NULL);
-            const Expr * expr = static_cast<const Expr *>(result.get());
+            const Atom * expr = static_cast<const Atom *>(result.get());
             long double temp = 0;
             EXPECT_TRUE(expr->to_long_double(temp));
             EXPECT_EQ(temp, one_case->value);

@@ -1,5 +1,5 @@
 /*
- * file name:           src/pretty_message.h
+ * file name:           include/pretty_message.h
  *
  * author:              Brian Yi ZHANG
  * email:               brianlions@gmail.com
@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "swl_utils.h"
+#include "utils.h"
 
 //#ifndef USE_PRETTY_MESSAGE
 //#define USE_PRETTY_MESSAGE

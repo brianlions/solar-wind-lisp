@@ -1,5 +1,5 @@
 /*
- * file name:           src/swl_prim_proc.h
+ * file name:           include/prim_proc.h
  *
  * author:              Brian Yi ZHANG
  * email:               brianlions@gmail.com
@@ -9,15 +9,15 @@
 #ifndef _SOLAR_WIND_LISTP_PRIM_PROC_H_
 #define _SOLAR_WIND_LISTP_PRIM_PROC_H_
 
-#include "swl_matter_if.h"
+#include "matter.h"
 #include "pretty_message.h"
 
 namespace SolarWindLisp
 {
 
-class IMatterFactory;
+class MatterFactoryIF;
 
-class IPrimProc: public IMatter
+class PrimProcIF: public MatterIF
 {
 public:
     matter_type_t matter_type() const
@@ -26,7 +26,7 @@ public:
     }
 
     virtual bool run(const MatterPtr &ops, MatterPtr &result,
-            IMatterFactory * factory) = 0;
+            MatterFactoryIF * factory) = 0;
     virtual bool check_operands(const MatterPtr &ops) const = 0;
     virtual const char * name() const = 0;
 };
@@ -47,15 +47,15 @@ public:
  *   2. does not handle overflow or underflow
  */
 #define PROC_DECLARATION_ONE_PLUS_MACRO(cls_name, cls_repr, cls_repr2)  \
-class PrimProc##cls_name: public IPrimProc                              \
+class PrimProc##cls_name: public PrimProcIF                             \
 {                                                                       \
 public:                                                                 \
     bool run(const MatterPtr &ops, MatterPtr &result,                   \
-            IMatterFactory * factory);                                  \
+            MatterFactoryIF * factory);                                 \
                                                                         \
     bool check_operands(const MatterPtr &ops) const                     \
     {                                                                   \
-        return ops->is_molecule() &&                                    \
+        return ops->is_composite_expr() &&                              \
             static_cast<const CompositeExpr *>(ops.get())->size();      \
     }                                                                   \
                                                                         \
@@ -68,6 +68,11 @@ public:                                                                 \
             const char * indent_seq = DEFAULT_INDENT_SEQ) const         \
     {                                                                   \
         return cls_repr2;                                               \
+    }                                                                   \
+                                                                        \
+    std::string to_string() const                                       \
+    {                                                                   \
+        return "instance of PrimProcIF";                                \
     }                                                                   \
                                                                         \
     static PrimProcPtr create()                                         \
@@ -92,15 +97,15 @@ PROC_DECLARATION_ONE_PLUS_MACRO(Div, "/", "PrimProcDiv{}")
  *   mod is not implemented
  */
 #define PROC_DECLARATION_EXACT_TWO_MACRO(cls_name, cls_repr, cls_repr2) \
-class PrimProc##cls_name: public IPrimProc                              \
+class PrimProc##cls_name: public PrimProcIF                             \
 {                                                                       \
 public:                                                                 \
     bool run(const MatterPtr &ops, MatterPtr &result,                   \
-            IMatterFactory * factory);                                  \
+            MatterFactoryIF * factory);                                 \
                                                                         \
     bool check_operands(const MatterPtr &ops) const                     \
     {                                                                   \
-        return ops->is_molecule() &&                                    \
+        return ops->is_composite_expr() &&                              \
             static_cast<const CompositeExpr *>(ops.get())->size() == 2; \
     }                                                                   \
                                                                         \
@@ -113,6 +118,11 @@ public:                                                                 \
             const char * indent_seq = DEFAULT_INDENT_SEQ) const         \
     {                                                                   \
         return cls_repr2;                                               \
+    }                                                                   \
+                                                                        \
+    std::string to_string() const                                       \
+    {                                                                   \
+        return "instance of PrimProcIF";                                \
     }                                                                   \
                                                                         \
     static PrimProcPtr create()                                         \
@@ -131,21 +141,21 @@ PROC_DECLARATION_EXACT_TWO_MACRO(Ge,  ">=",   "PrimProcGe{}")
 
 #if 0
 // not
-static bool _prim_not(const IMatter * operands, IMatter &result);
+static bool _prim_not(const MatterIF * operands, MatterIF &result);
 // bitwise ops
-static bool _prim_shift(const IMatter * operands, IMatter &result);
-static bool _prim_bitwise_and(const IMatter * operands, IMatter &result);
-static bool _prim_bitwise_or(const IMatter * operands, IMatter &result);
-static bool _prim_bitwise_xor(const IMatter * operands, IMatter &result);
-static bool _prim_bitwise_not(const IMatter * operands, IMatter &result);
+static bool _prim_shift(const MatterIF * operands, MatterIF &result);
+static bool _prim_bitwise_and(const MatterIF * operands, MatterIF &result);
+static bool _prim_bitwise_or(const MatterIF * operands, MatterIF &result);
+static bool _prim_bitwise_xor(const MatterIF * operands, MatterIF &result);
+static bool _prim_bitwise_not(const MatterIF * operands, MatterIF &result);
 // sleep
-static bool _prim_sleep(const IMatter * operands, IMatter &result);
+static bool _prim_sleep(const MatterIF * operands, MatterIF &result);
 // string ops
-static bool _prim_strlen(const IMatter * operands, IMatter &result);
-static bool _prim_format(const IMatter * operands, IMatter &result);
-static bool _prim_print(const IMatter * operands, IMatter &result);
-static bool _prim_println(const IMatter * operands, IMatter &result);
-static bool _prim_printf(const IMatter * operands, IMatter &result);
+static bool _prim_strlen(const MatterIF * operands, MatterIF &result);
+static bool _prim_format(const MatterIF * operands, MatterIF &result);
+static bool _prim_print(const MatterIF * operands, MatterIF &result);
+static bool _prim_println(const MatterIF * operands, MatterIF &result);
+static bool _prim_printf(const MatterIF * operands, MatterIF &result);
 #endif
 
 } // namespace SolarWindLisp

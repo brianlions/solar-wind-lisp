@@ -8,21 +8,21 @@
 
 #include <iostream>
 #include <gtest/gtest.h>
-#include "swl_expr.h"
-#include "swl_parser.h"
-#include "swl_utils.h"
+#include "expr.h"
+#include "parser.h"
+#include "utils.h"
 
-using SolarWindLisp::IMatter;
-using SolarWindLisp::Expr;
+using SolarWindLisp::MatterIF;
+using SolarWindLisp::Atom;
 using SolarWindLisp::CompositeExpr;
-using SolarWindLisp::IParser;
+using SolarWindLisp::ParserIF;
 using SolarWindLisp::SimpleParser;
 using SolarWindLisp::MatterPtr;
 
 class ParserTokenizeTS: public testing::Test
 {
 protected:
-    IParser::lexical_tokens _tokens;
+    ParserIF::lexical_tokens _tokens;
     SimpleParser _parser;
 
     virtual void SetUp()
@@ -96,9 +96,9 @@ TEST_F(ParserTokenizeTS, testA02)
 
 TEST_F(ParserTokenizeTS, testA03)
 {
-    const char * form_str = "(defn author-email () \"zhangyi21@baidu.com\")";
+    const char * form_str = "(defn author-email () \"brianlions@gmail.com\")";
     const char * cstr_tokens[] =
-    { "(", "defn", "author-email", "(", ")", "\"zhangyi21@baidu.com\"", ")"};
+    { "(", "defn", "author-email", "(", ")", "\"brianlions@gmail.com\"", ")"};
     parse_and_compare(__FILE__, __LINE__, form_str, cstr_tokens, array_size(cstr_tokens));
 }
 
@@ -122,7 +122,7 @@ TEST_F(ParserTokenizeTS, parseExpr)
     } cases[] = {
         { "(define sum (lambda (a b) (+ a b)))", 1 },
         { "(defn max (a b) (if (> a b) a b))", 1 },
-        { "(defn author-email () \"zhangyi21@baidu.com\")", 1 },
+        { "(defn author-email () \"brianlions@gmail.com\")", 1 },
         { "(println \"escaped quote \\\" and \\', bingo!\")", 1 },
         { "3.141592653", 1 },
         { "(define pi 3.141592653) (define two-pi (* 2 pi))", 2 },
@@ -133,12 +133,12 @@ TEST_F(ParserTokenizeTS, parseExpr)
         MatterPtr e = _parser.parse(cases[i].forms, strlen(cases[i].forms));
         EXPECT_TRUE(e != NULL);
         EXPECT_EQ(e->is_atom(), false);
-        EXPECT_EQ(e->is_molecule(), true);
+        EXPECT_EQ(e->is_composite_expr(), true);
         EXPECT_EQ((static_cast<CompositeExpr *>(e.get()))->size(), cases[i].n_expr);
         if (is_verbose()) {
             std::cout
                 << "form: `" << cases[i].forms << "'" << std::endl
-                << "IMatter: " << e->debug_string(is_compact()) << std::endl;
+                << "MatterIF: " << e->debug_string(is_compact()) << std::endl;
         }
     }
 }
