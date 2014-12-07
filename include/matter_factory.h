@@ -6,8 +6,8 @@
  * date created:        Sat Nov 22 23:15:18 2014 CST
  */
 
-#ifndef _SOLAR_WIND_LISP_MATTER_FACTORY_IF_H_
-#define _SOLAR_WIND_LISP_MATTER_FACTORY_IF_H_
+#ifndef _SOLAR_WIND_LISP_MATTER_FACTORY_H_
+#define _SOLAR_WIND_LISP_MATTER_FACTORY_H_
 
 #include "matter.h"
 #include "expr.h"
@@ -69,4 +69,4 @@ public:
 
 } // namespace SolarWindLisp
 
-#endif // _SOLAR_WIND_LISP_MATTER_FACTORY_IF_H_
+#endif // _SOLAR_WIND_LISP_MATTER_FACTORY_H_

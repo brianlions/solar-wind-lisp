@@ -6,8 +6,8 @@
  * date created:        Sat Nov 22 23:15:18 2014 CST
  */
 
-#ifndef _SOLAR_WIND_LISTP_PRIM_PROC_H_
-#define _SOLAR_WIND_LISTP_PRIM_PROC_H_
+#ifndef _SOLAR_WIND_LISP_PRIM_PROC_H_
+#define _SOLAR_WIND_LISP_PRIM_PROC_H_
 
 #include "matter.h"
 #include "pretty_message.h"
@@ -160,4 +160,4 @@ static bool _prim_printf(const MatterIF * operands, MatterIF &result);
 
 } // namespace SolarWindLisp
 
-#endif // _SOLAR_WIND_LISTP_PRIM_PROC_H_
+#endif // _SOLAR_WIND_LISP_PRIM_PROC_H_

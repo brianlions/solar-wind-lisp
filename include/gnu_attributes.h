@@ -6,8 +6,8 @@
  * date created:        Sat Nov 22 23:15:18 2014 CST
  */
 
-#ifndef _GNU_ATTRIBUTES_H_
-#define _GNU_ATTRIBUTES_H_
+#ifndef _SOLAR_WIND_LISP_GNU_ATTRIBUTES_H_
+#define _SOLAR_WIND_LISP_GNU_ATTRIBUTES_H_
 
 #ifdef __GNUC__
 #define likely(x)   __builtin_expect((x), 1)
@@ -43,4 +43,4 @@
 #define DEPRECATED
 #endif
 
-#endif // _GNU_ATTRIBUTES_H_
+#endif // _SOLAR_WIND_LISP_GNU_ATTRIBUTES_H_

@@ -6,8 +6,8 @@
  * date created:        Sat Nov 22 01:49:21 2014 CST
  */
 
-#ifndef _SOLAR_WIND_LIST_UTILS_H_
-#define _SOLAR_WIND_LIST_UTILS_H_
+#ifndef _SOLAR_WIND_LISP_UTILS_H_
+#define _SOLAR_WIND_LISP_UTILS_H_
 
 #include <stdio.h>
 #include <stdint.h>
@@ -142,4 +142,4 @@ public:
 } // namespace Utils
 } // namespace SolarWindLisp
 
-#endif // _SOLAR_WIND_LIST_UTILS_H_
+#endif // _SOLAR_WIND_LISP_UTILS_H_

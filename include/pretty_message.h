@@ -6,8 +6,8 @@
  * date created:        Sat Nov 22 23:15:18 2014 CST
  */
 
-#ifndef _SOLAR_WIND_LIST_PRETTY_MESSAGE_H_
-#define _SOLAR_WIND_LIST_PRETTY_MESSAGE_H_
+#ifndef _SOLAR_WIND_LISP_PRETTY_MESSAGE_H_
+#define _SOLAR_WIND_LISP_PRETTY_MESSAGE_H_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,4 +52,4 @@ do {                                                                            
 #define END_FUNC()
 #endif
 
-#endif // _SOLAR_WIND_LIST_PRETTY_MESSAGE_H_
+#endif // _SOLAR_WIND_LISP_PRETTY_MESSAGE_H_

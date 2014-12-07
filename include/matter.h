@@ -6,8 +6,8 @@
  * date created:        Sat Nov 22 23:15:18 2014 CST
  */
 
-#ifndef _SOLAR_WIND_LISP_MATTER_IF_H_
-#define _SOLAR_WIND_LISP_MATTER_IF_H_
+#ifndef _SOLAR_WIND_LISP_MATTER_H_
+#define _SOLAR_WIND_LISP_MATTER_H_
 
 #include <string>
 #include "types.h"
@@ -95,4 +95,4 @@ public:
 
 } // namespace SolarWindLisp
 
-#endif // _SOLAR_WIND_LISP_MATTER_IF_H_
+#endif // _SOLAR_WIND_LISP_MATTER_H_
