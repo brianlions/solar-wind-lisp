@@ -16,6 +16,7 @@
 #include "proc.h"
 #include "prim_proc.h"
 #include "interpreter.h"
+#include "random.h"
 
 void print_header()
 {
@@ -59,6 +60,7 @@ int main(int argc, char ** argv)
     print_sizeof(SolarWindLisp::InterpreterIF);
     print_sizeof(SolarWindLisp::SimpleInterpreter);
     print_sizeof(SolarWindLisp::MatterPtr);
+    print_sizeof(SolarWindLisp::Utils::Prng);
     printf("\n");
     print_release_info();
     return 0;

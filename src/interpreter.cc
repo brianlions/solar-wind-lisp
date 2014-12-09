@@ -63,6 +63,8 @@ bool InterpreterIF::initialize()
         }
     }
 
+    _expand();
+
     _initialized = true;
     return true;
 }
@@ -109,21 +111,28 @@ ScopedEnvPtr InterpreterIF::create_minimum_env()
 void InterpreterIF::_expand()
 {
     const char * forms[] = { //
-            "(define pi 3.141592653589793)", //
-            "(define e  2.718281828459045)", //
+            "(define math-pi 3.141592653589793)", //
+            "(define math-e  2.718281828459045)", //
             "(define inc (lambda (x) (+ x 1)))", //
             "(define dec (lambda (x) (- x 1)))", //
+
             "(define max2 (lambda (a b) (if (> a b) a b)))", //
             "(define max3 (lambda (a b c) (max2 a (max2 b c))))", //
             "(define max4 (lambda (a b c d) (max2 a (max3 b c d))))", //
             "(defn min2 (a b) (if (< a b) a b))", //
             "(defn min3 (a b c) (min2 a (min2 b c)))", //
             "(defn min4 (a b c d) (min2 a (min3 b c d)))", //
+
+            "(defn not (a) (if a false true))", //
+            "(defn and (a b) (if a (if b true false) false))", //
+            "(defn or  (a b) (if a true (if b true false)))", //
+            "(defn xor (a b) (if a (if b false true) (if b true false)))", //
             };
 
     MatterPtr result;
     for (size_t i = 0; i < array_size(forms); ++i) {
         if (!execute(result, forms[i], strlen(forms[i]))) {
+            PRETTY_MESSAGE(stderr, "failed executing `%s' ...", forms[i]);
         }
     }
 }
