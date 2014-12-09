@@ -36,7 +36,6 @@ protected:
         const char * forms[] = { //
             "(define pi 3.141592653)",
             "(define e  2.718281828)",
-            "(define inc (lambda (v) (+ v 1)))",
             "(define silly-double (lambda (v) (+ v v)))",
             "(define silly-triple (lambda (v) (+ v (+ v v))))",
             "(define silly-x2p1 (lambda (v) (+ v 1 v)))",
@@ -156,9 +155,6 @@ protected:
         const char * essential[] = { //
             "(define pi 3.141592653)",
             "(define e  2.718281828)",
-
-            "(define inc (lambda (v) (+ v 1)))",
-            "(defn   dec (v) (- v 1))",
 
             "(defn   square (v) (* v v))",
             "(define cube (lambda (v) (* v v v)))",
