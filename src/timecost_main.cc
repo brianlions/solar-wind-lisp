@@ -64,10 +64,20 @@ int main(int argc, char ** argv)
         { "(+ 123 456)",                N_TIMES }, //
         { "(* 3.141592653 25)",         N_TIMES }, //
         { "(/ 3.141592653 2.718281828)",N_TIMES }, //
+        { "(/ (* 3.14159 2.71828) 0.618)", N_TIMES }, //
         { "3.141592653",                N_TIMES }, //
         { "2.718281828",                N_TIMES }, //
+        { "(* 3.141592653 5 5)",        N_TIMES }, //
+        { "(lambda (r) (* 3.141592653 r r))", N_TIMES }, //
         { "((lambda (r) (* 3.141952653 r r)) 5)", N_TIMES }, //
         { "((lambda (v) (+ v 1)) 10)",  N_TIMES }, //
+        { "(lambda (a b) (+ a b))",     N_TIMES }, //
+        { "(lambda (delta) (lambda (v) (+ delta v)))", N_TIMES }, //
+        { "(((lambda (delta) (lambda (v) (+ delta v))) 1) 100)", N_TIMES }, //
+        { "(lambda (f g) (lambda (v) (g (f v))))", N_TIMES }, //
+        { "(((lambda (f g) (lambda (v) (g (f v)))) inc inc) 100)", N_TIMES }, //
+        { "(lambda (f g h) (lambda (v) (h (g (f v)))))", N_TIMES }, //
+        { "(((lambda (f g h) (lambda (v) (h (g (f v))))) inc inc inc) 100)", N_TIMES }, //
         { "(and true true)",            N_TIMES }, //
         { "(and true false)",           N_TIMES }, //
         { "(and false true)",           N_TIMES }, //
