@@ -1,3 +1,11 @@
+/*
+ * file name:           include/string_tokens.h
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Mon Jun 08 15:17:06 2015 CST
+ */
+
 #ifndef _SOLAR_WIND_LISP_STRING_TOKENS_H_
 #define _SOLAR_WIND_LISP_STRING_TOKENS_H_
 

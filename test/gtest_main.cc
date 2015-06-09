@@ -7,11 +7,14 @@
  */
 
 #include <gtest/gtest.h>
+#include <protobuf/stubs/common.h>
 
 int main(int argc, char ** argv)
 {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
   testing::InitGoogleTest(&argc, argv);
   int run_all_test_result = RUN_ALL_TESTS();
+  google::protobuf::ShutdownProtobufLibrary();
 
   return run_all_test_result;
 }

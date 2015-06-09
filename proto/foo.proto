@@ -1,0 +1,13 @@
+message Foo {
+    optional string text = 1;
+    optional int32 number = 2;
+    repeated int32 numbers = 3;
+}
+
+message Bar {
+    optional string bar_name = 1;
+    optional int32  bar_number = 2;
+    optional Foo bar_foo = 3;
+    repeated int32 bar_numbers = 4;
+    repeated Foo bar_foos = 5;
+}

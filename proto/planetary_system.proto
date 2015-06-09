@@ -1,0 +1,32 @@
+package pbperftest;
+
+message PlanetarySystem
+{
+    message Star
+    {
+        required string name      = 1;
+        optional double radius_km = 2;
+        optional double mass_kg   = 3;
+        optional double age_billion_years = 4;
+    }
+
+    message Planet
+    {
+        message Moon
+        {
+            required string name      = 1;
+            optional double radius_km = 2;
+        }
+
+        required string name               = 1;
+        optional double radius_km          = 2;
+        optional double mass_kg            = 3;
+        optional double semi_major_axis_au = 4;
+        optional double age_billion_years  = 5;
+        repeated Moon   moon               = 6;
+    }
+
+    required string name   = 1;
+    repeated Star   star   = 2;
+    repeated Planet planet = 3;
+}

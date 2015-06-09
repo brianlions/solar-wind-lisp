@@ -1,3 +1,11 @@
+/*
+ * file name:           src/timecost_main.cc
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Tue Dec 09 16:39:06 2014 CST
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include "solarwindlisp.h"

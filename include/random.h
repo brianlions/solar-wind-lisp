@@ -22,7 +22,9 @@ typedef class Prng
 {
 private:
     char statebuf_[64];
+#ifdef __linux__
     struct random_data databuf_;
+#endif
 
 public:
     Prng(unsigned int seed = 1)
@@ -33,10 +35,16 @@ public:
     void initialize(unsigned int seed = 1)
     {
         memset(&statebuf_, 0, sizeof(statebuf_));
+#ifdef __linux__
         memset(&databuf_, 0, sizeof(databuf_));
         initstate_r(seed, statebuf_, sizeof(statebuf_), &databuf_);
         setstate_r(statebuf_, &databuf_);
         srandom_r(seed, &databuf_);
+#else
+        initstate(seed, statebuf_, sizeof(statebuf_));
+        setstate(statebuf_);
+        srandom(seed);
+#endif
     }
 
     int32_t random_i32()
@@ -47,9 +55,14 @@ public:
     uint32_t random_u32()
     {
         uint32_t r, r2;
+#ifdef __linux__
         // XXX random_r generate 31 bits integer
         random_r(&databuf_, (int32_t *) &r);
         random_r(&databuf_, (int32_t *) &r2);
+#else
+        r = random();
+        r2 = random();
+#endif
         return ((r << 19) | (r2 >> 12));
     }
 
