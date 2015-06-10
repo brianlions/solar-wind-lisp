@@ -362,22 +362,80 @@ bool InterpreterIF::_eval_defn(const MatterPtr &expr, ScopedEnvPtr &scope,
 bool InterpreterIF::_eval_cond(const MatterPtr &expr, ScopedEnvPtr &scope,
         InterpreterIF * interpreter, MatterPtr &result)
 {
-    PRETTY_MESSAGE(stderr, "not implemented");
-    return false;
+    CompositeExpr * ce = static_cast<CompositeExpr *>(expr.get());
+    size_t sz = ce->size();
+    if (sz % 2 != 1) {
+        return false;
+    }
+
+    MatterPtr elem = NULL;
+    MatterPtr res = NULL;
+    for (size_t i = 1; i < sz; i += 2) {
+        if (!(elem = ce->get(i))
+                || !_force_eval(elem, scope, interpreter, res)) {
+            return false;
+        }
+
+        if (res && ((res->is_atom()
+                    && static_cast<Atom *>(res.get())->not_empty())
+                || (res->is_composite_expr()
+                    && static_cast<CompositeExpr *>(res.get())->size())
+            )) {
+            return (elem = ce->get(i + 1))
+                ? _eval(elem, scope, interpreter, result) : false;
+        }
+    } // for
+
+    result = NULL;
+    return true;
 }
 
 bool InterpreterIF::_eval_do(const MatterPtr &expr, ScopedEnvPtr &scope,
         InterpreterIF * interpreter, MatterPtr &result)
 {
-    PRETTY_MESSAGE(stderr, "not implemented");
-    return false;
+    MatterPtr res = NULL;
+    MatterPtr m = NULL;
+    CompositeExpr * ce = static_cast<CompositeExpr *>(expr.get());
+    size_t sz = ce->size();
+    for (size_t i = 1; i < sz; ++i) {
+        m = ce->get(i);
+        if (!_eval(m, scope, interpreter, res)) {
+            return false;
+        }
+    }
+
+    result = res;
+    return true;
 }
 
 bool InterpreterIF::_eval_when(const MatterPtr &expr, ScopedEnvPtr &scope,
         InterpreterIF * interpreter, MatterPtr &result)
 {
-    PRETTY_MESSAGE(stderr, "not implemented");
-    return false;
+    MatterPtr res = NULL;
+    CompositeExpr * ce = static_cast<CompositeExpr *>(expr.get());
+    size_t sz = ce->size();
+    result = NULL;
+    if (sz > 1) {
+        MatterPtr pred = ce->get(1);
+        if (!pred || !_force_eval(pred, scope, interpreter, res)) {
+            return false;
+        }
+
+        if (sz > 2 && res && ((res->is_atom()
+                && static_cast<Atom *>(res.get())->not_empty())
+            || (res->is_composite_expr()
+                && static_cast<CompositeExpr *>(res.get())->size())
+            )) {
+            for (size_t i = 2; i < sz; ++i) {
+                if (!_eval(ce->get(i), scope, interpreter, result)) {
+                    result = NULL;
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
 }
 
 bool InterpreterIF::_eval_future(const MatterPtr &expr, ScopedEnvPtr &scope UNUSED,

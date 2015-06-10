@@ -412,3 +412,37 @@ TEST_F(FunctionalProgrammingTS, case_triple)
     run_lisp_test_cases(lisp_test_cases, array_size(lisp_test_cases));
 }
 
+TEST_F(FunctionalProgrammingTS, case_conditional)
+{
+    LispTestCases lisp_test_cases[] = {
+        // note the conditional expr (do, cond, and when) will execute in the
+        // current (global) env, so beware of the side effect.
+        { "(do"
+          "    (defn de-eins (x) (+ x 1))"
+          "    (defn de-zwei (x) (* x x))"
+          "    (de-zwei (de-eins (+ 3 6))))", 100 },
+        { "(de-eins (* 2 3))", 7 },
+        { "(de-zwei (- 9 4))", 25 },
+        { "(when (> 5 (- 8 6))"
+          "    (defn de-drei (x y) (+ x y))"
+          "    (defn de-vier (x) (* x 9))"
+          "    (de-vier (de-drei 3 5)))", 72 },
+        { "(de-drei 3 9)", 12 },
+        { "(de-vier 5)", 45 },
+        { "(de-vier (de-eins 10))", 99 },
+        { "(cond"
+          "    (= 3 4) 111"
+          "    (> 4 5) 222"
+          "    (< 5 6) 333)", 333 },
+        { "(cond"
+          "    (= 3 4) 111"
+          "    (> 4 5) 222"
+          "    true    333)", 333 },
+        { "(cond"
+          "    0 111"
+          "    false 222"
+          "    \"default\" 333)", 333 },
+    };
+
+    run_lisp_test_cases(lisp_test_cases, array_size(lisp_test_cases));
+}
