@@ -446,3 +446,26 @@ TEST_F(FunctionalProgrammingTS, case_conditional)
 
     run_lisp_test_cases(lisp_test_cases, array_size(lisp_test_cases));
 }
+
+TEST_F(FunctionalProgrammingTS, case_let)
+{
+    const char * forms[] = {
+        "(defn min-add-product (x y)"
+        "    (let"
+        "        (min-of-two (lambda (a b) (if (< a b) a b))"
+        "         min (min-of-two x y)"
+        "         product (* x y))"
+        "        (+ min product)))",
+    };
+
+    LispTestCases lisp_test_cases[] = {
+        { "(let"
+          "    (a 3 b (+ 4 5))"
+          "    (* a b))", 27 },
+        { "(min-add-product 3 5)", 18 },
+        { "(min-add-product (+ 3 7) (* 2 6))", 130 },
+    };
+
+    run_user_forms(forms, array_size(forms));
+    run_lisp_test_cases(lisp_test_cases, array_size(lisp_test_cases));
+}

@@ -155,6 +155,7 @@ bool InterpreterIF::_eval(const MatterPtr &expr, ScopedEnvPtr &scope,
             { _is_cond, _eval_cond, "cond" }, //
             { _is_do, _eval_do, "do" }, //
             { _is_when, _eval_when, "when" }, //
+            { _is_let, _eval_let, "let" }, //
             { _is_time, _eval_time, "time" }, //
             { _is_name, _eval_name, "name" }, //
             { _is_lambda, _eval_lambda, "lambda" }, //
@@ -357,6 +358,69 @@ bool InterpreterIF::_eval_defn(const MatterPtr &expr, ScopedEnvPtr &scope,
 
     result = NULL;
     return scope->add(name->to_cstr(), p);
+}
+
+bool InterpreterIF::_eval_let(const MatterPtr &expr, ScopedEnvPtr &scope,
+        InterpreterIF * interpreter, MatterPtr &result)
+{
+    result = NULL;
+
+    CompositeExpr * ce = static_cast<CompositeExpr *>(expr.get());
+    size_t sz = ce->size();
+    // syntax error
+    if (sz == 1) {
+        return false;
+    }
+
+    // assignments only, not other statements
+    if (sz == 2) {
+        return true;
+    }
+
+    MatterPtr mp = ce->get(1);
+    if (!mp->is_composite_expr()) {
+        // syntax error
+        return false;
+    }
+    CompositeExpr * defs = static_cast<CompositeExpr *>(mp.get());
+    size_t sz2 = defs->size();
+    if (sz2 % 2) {
+        return false;
+    }
+
+#define ENFORCE_ENV_CLEANUP() do { newenv->clear(); } while (0)
+    // NOTE: the newly created env should be clear() manually, in case
+    // functions are created in the `let' expr.
+    ScopedEnvPtr newenv = interpreter->factory()->create_env(scope);
+    Atom * name = NULL;
+    MatterPtr value = NULL;
+    for (size_t i = 0; i < sz2; i += 2) {
+        if (!(mp = defs->get(i)) || !mp->is_atom()) {
+            ENFORCE_ENV_CLEANUP();
+            return false;
+        }
+
+        name = static_cast<Atom *>(mp.get());
+        if (!name->is_cstr()
+                || name->is_quoted_cstr()
+                || !_eval(defs->get(i + 1), newenv, interpreter, value)
+                || !newenv->add(name->to_cstr(), value)) {
+            ENFORCE_ENV_CLEANUP();
+            return false;
+        }
+    }
+
+    for (size_t i = 2; i < sz; ++i) {
+        if (!_eval(ce->get(i), newenv, interpreter, value)) {
+            return false;
+        }
+    }
+
+    ENFORCE_ENV_CLEANUP();
+#undef ENFORCE_ENV_CLEANUP
+
+    result = value;
+    return true;
 }
 
 bool InterpreterIF::_eval_cond(const MatterPtr &expr, ScopedEnvPtr &scope,

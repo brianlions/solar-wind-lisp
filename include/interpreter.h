@@ -151,6 +151,15 @@ protected:
     static bool _eval_defn(const MatterPtr &expr, ScopedEnvPtr &scope,
             InterpreterIF * interpreter UNUSED, MatterPtr &result);
 
+    // let
+    static bool _is_let(const MatterPtr &expr)
+    {
+        return _is_special_form(expr, "let");
+    }
+
+    static bool _eval_let(const MatterPtr &expr, ScopedEnvPtr &scope,
+            InterpreterIF * interpreter UNUSED, MatterPtr &result);
+
     // cond, do, when
     static bool _is_cond(const MatterPtr &expr)
     {
