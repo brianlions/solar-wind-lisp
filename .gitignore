@@ -4,7 +4,7 @@ gen/
 boost/
 gtest/
 gmock/
-local-files/
+local-*/
 py*/
 release.h
 tags

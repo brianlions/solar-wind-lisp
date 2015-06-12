@@ -18,6 +18,7 @@
 #include "interpreter.h"
 #include "random.h"
 #include "string_tokens.h"
+#include "protobuf_utils.h"
 
 void print_header()
 {
@@ -63,6 +64,8 @@ int main(int argc, char ** argv)
     print_sizeof(SolarWindLisp::MatterPtr);
     print_sizeof(SolarWindLisp::Utils::Prng);
     print_sizeof(SolarWindLisp::StringTokens);
+    print_sizeof(SolarWindLisp::ProtobufUtils::ReflectionMessageFactory);
+    print_sizeof(SolarWindLisp::ProtobufUtils::Dissector);
     printf("\n");
     print_release_info();
     return 0;
