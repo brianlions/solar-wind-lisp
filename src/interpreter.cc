@@ -58,7 +58,7 @@ bool InterpreterIF::initialize()
     }
 
     if (!_env) {
-        if (!(_env = create_minimum_env())) {
+        if (!(_env = _create_minimum_env())) {
             return false;
         }
     }
@@ -71,7 +71,7 @@ bool InterpreterIF::initialize()
     return true;
 }
 
-ScopedEnvPtr InterpreterIF::create_minimum_env()
+ScopedEnvPtr InterpreterIF::_create_minimum_env()
 {
     ScopedEnvPtr ret = _factory->create_env();
     if (!ret.get()) {

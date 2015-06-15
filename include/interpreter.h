@@ -47,6 +47,7 @@ public:
     static void cmd_names();
     void interactive(const char * filename = NULL);
     static void repl(const char * filename = NULL);
+    virtual int customize();
 
 protected:
     ParserIF * parser()
@@ -72,8 +73,7 @@ private:
     typedef bool (*eval_func_t)(const MatterPtr &exrp, ScopedEnvPtr &env,
             InterpreterIF * interpreter, MatterPtr &result);
 
-    ScopedEnvPtr create_minimum_env();
-    virtual int customize();
+    ScopedEnvPtr _create_minimum_env();
 
     /*
      * Description:
