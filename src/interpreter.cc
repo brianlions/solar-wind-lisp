@@ -63,7 +63,9 @@ bool InterpreterIF::initialize()
         }
     }
 
-    _expand();
+    if (customize() != 0) {
+        return false;
+    }
 
     _initialized = true;
     return true;
@@ -108,7 +110,7 @@ ScopedEnvPtr InterpreterIF::create_minimum_env()
     return ret;
 }
 
-void InterpreterIF::_expand()
+int InterpreterIF::customize()
 {
     const char * forms[] = { //
             "(define math-pi 3.141592653589793)", //
@@ -135,6 +137,8 @@ void InterpreterIF::_expand()
             PRETTY_MESSAGE(stderr, "failed executing `%s' ...", forms[i]);
         }
     }
+
+    return 0;
 }
 
 bool InterpreterIF::_eval(const MatterPtr &expr, ScopedEnvPtr &scope,

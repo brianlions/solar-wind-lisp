@@ -39,6 +39,16 @@ public:
             : "               ";
     }
 
+    bool execute(MatterPtr &result, const char * str, ssize_t len = -1);
+    // REPL
+    void cmd_help() const;
+    static void banner();
+    static void cmd_doc();
+    static void cmd_names();
+    void interactive(const char * filename = NULL);
+    static void repl(const char * filename = NULL);
+
+protected:
     ParserIF * parser()
     {
         return _parser;
@@ -54,13 +64,16 @@ public:
         return _factory;
     }
 
-protected:
+    bool execute_expr(MatterPtr &result, const MatterPtr &expr);
+    bool execute_multi_expr(MatterPtr &result, const MatterPtr &expr);
+
+private:
     typedef bool (*pred_func_t)(const MatterPtr &expr);
     typedef bool (*eval_func_t)(const MatterPtr &exrp, ScopedEnvPtr &env,
             InterpreterIF * interpreter, MatterPtr &result);
 
     ScopedEnvPtr create_minimum_env();
-    void _expand();
+    virtual int customize();
 
     /*
      * Description:
@@ -208,18 +221,7 @@ protected:
             const MatterPtr &proc_operands,
             InterpreterIF * interpreter, MatterPtr &result);
 
-public:
-    bool execute(MatterPtr &result, const char * str, ssize_t len = -1);
-    bool execute_multi_expr(MatterPtr &result, const MatterPtr &expr);
-    bool execute_expr(MatterPtr &result, const MatterPtr &expr);
-    // REPL
-    void cmd_help() const;
-    static void banner();
-    static void cmd_doc();
-    static void cmd_names();
     static void _repl(InterpreterIF * interpreter, const char * filename = NULL);
-    void interactive(const char * filename = NULL);
-    static void repl(const char * filename = NULL);
 
 private:
     bool _initialized;
