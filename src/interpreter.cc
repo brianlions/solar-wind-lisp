@@ -80,7 +80,7 @@ ScopedEnvPtr InterpreterIF::_create_minimum_env()
 
     struct PrimProcCreator {
         const char * name;
-        PrimProcPtr (*func_ptr)();
+        prim_proc_ptr_creator_func_t func_ptr;
     } items[] = {
         { "+",  PrimProcAdd::create },
         { "-",  PrimProcSub::create },

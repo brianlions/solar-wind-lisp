@@ -6,6 +6,7 @@
  * date created:        Sun Jun 14 12:16:27 2015 CST
  */
 
+#include "types.h"
 #include "protobuf_heavy_interp.h"
 #include "convertor.h"
 
@@ -52,8 +53,7 @@ int ProtobufHeavyInterpreter::customize()
         return ReturnCode::ERROR;
     }
 
-    typedef PrimProcPtr (*func_ptr)();
-    func_ptr items[] = { //
+    prim_proc_ptr_creator_func_t items[] = { //
             PrimProcProtobufReader::create, //
             };
     for (size_t i = 0; i < array_size(items); ++i) {
@@ -67,12 +67,29 @@ int ProtobufHeavyInterpreter::customize()
         }
     }
 
+    typedef std::vector<prim_proc_ptr_creator_func_t>::const_iterator CI;
+    if (_creator_funcs) {
+        for (CI iter = _creator_funcs->begin(); iter != _creator_funcs->end();
+                ++iter) {
+            PrimProcPtr ptr = (*iter)();
+            if (!ptr) {
+                return ReturnCode::ERROR;
+            }
+
+            if (!env->add(ptr->name(), ptr)) {
+                return ReturnCode::ERROR;
+            }
+        }
+    }
+
     return ReturnCode::SUCCESS;
 }
 
 int ProtobufHeavyInterpreter::pre_initialization(const void * data, int size,
-        const char * proto_filename, const char * name)
+        const char * proto_filename, const char * name,
+        const std::vector<prim_proc_ptr_creator_func_t> * funcs)
 {
+    _creator_funcs = funcs;
     return (reflection_initialize(proto_filename) == ReturnCode::SUCCESS
             && set_message(data, size, name) == ReturnCode::SUCCESS) ?
             ReturnCode::SUCCESS : ReturnCode::ERROR;

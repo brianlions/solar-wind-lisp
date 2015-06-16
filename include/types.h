@@ -29,6 +29,7 @@ typedef boost::shared_ptr<Proc> ProcPtr;
 typedef boost::shared_ptr<Future> FuturePtr;
 typedef boost::shared_ptr<PrimProcIF> PrimProcPtr;
 typedef boost::shared_ptr<ScopedEnv> ScopedEnvPtr;
+typedef PrimProcPtr (*prim_proc_ptr_creator_func_t)();
 
 } // namespace SolarWindLisp
 

@@ -9,10 +9,12 @@
 #ifndef _SOLAR_WIND_LISP_PROTOBUF_HEAVY_INTERP_H_
 #define _SOLAR_WIND_LISP_PROTOBUF_HEAVY_INTERP_H_
 
+#include <vector>
 #include "convertor.h"
 #include "interpreter.h"
 #include "protobuf_utils.h"
 #include "prim_proc.h"
+#include "types.h"
 
 namespace SolarWindLisp
 {
@@ -23,6 +25,7 @@ public:
     ProtobufHeavyInterpreter(ParserIF * parser = NULL, ScopedEnvPtr env = NULL,
             MatterFactoryIF * factory = NULL) :
             InterpreterIF(parser, env, factory), //
+            _creator_funcs(NULL), //
             _message(NULL), //
             _initialized(false)
     {
@@ -42,12 +45,14 @@ public:
 
     virtual int customize();
     int pre_initialization(const void * data, int size,
-            const char * proto_filename, const char * name);
+            const char * proto_filename, const char * name,
+            const std::vector<prim_proc_ptr_creator_func_t> * funcs = NULL);
 
 private:
     int reflection_initialize(const char * proto_filename);
     int set_message(const void * data, int size, const char * name);
 
+    const std::vector<prim_proc_ptr_creator_func_t> * _creator_funcs;
     Message * _message;
     ProtobufUtils::ReflectionMessageFactory _rmf;
     bool _initialized;
