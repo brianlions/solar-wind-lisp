@@ -5,6 +5,7 @@ boost/
 gtest/
 gmock/
 local-*/
+wtf-codedByIdiots/
 py*/
 release.h
 tags
