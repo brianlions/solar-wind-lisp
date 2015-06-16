@@ -1,3 +1,11 @@
+/*
+ * file name:           test/protobuf_utils_t.cc
+ *
+ * author:              Brian Yi ZHANG
+ * email:               brianlions@gmail.com
+ * date created:        Fri Jun 12 15:10:49 2015 CST
+ */
+
 #include <stdio.h>
 #include <string>
 #include <gtest/gtest.h>

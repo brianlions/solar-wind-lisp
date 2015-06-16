@@ -34,6 +34,8 @@ const char * Atom::atom_type_name(Atom::atom_type_t t)
             return "ld";
         case atom_cstr:
             return "cstr";
+        case atom_pointer:
+            return "pointer";
         default:
             return "ANTIMATTER";
     }
@@ -95,6 +97,16 @@ AtomPtr Atom::create(const char * buf, size_t length)
 
         delete result;
         result = NULL;
+    }
+
+    return AtomPtr(result);
+}
+
+AtomPtr Atom::create_from_pointer(const void * ptr)
+{
+    Atom * result = new (std::nothrow) Atom();
+    if (result) {
+        result->set_pointer(ptr);
     }
 
     return AtomPtr(result);
@@ -279,6 +291,13 @@ void Atom::set_long_double(long double v)
     _atom_data.num.ld = v;
 }
 
+void Atom::set_pointer(const void * v)
+{
+    _atom_type = atom_pointer;
+    _atom_data.reset();
+    _atom_data.num.ptr = v;
+}
+
 bool Atom::to_bool(bool & v) const
 {
     switch (_atom_type) {
@@ -305,6 +324,9 @@ bool Atom::to_bool(bool & v) const
             return true;
         case atom_cstr:
             v = _atom_data.str.length != 0;
+            return true;
+        case atom_pointer:
+            v = _atom_data.num.ptr != NULL;
             return true;
         default:
             return false;
@@ -486,6 +508,16 @@ bool Atom::to_long_double(long double &v) const
     }
 }
 
+bool Atom::to_pointer(const void * &v) const
+{
+    if (_atom_type == atom_pointer) {
+        v = _atom_data.num.ptr;
+        return true;
+    }
+
+    return false;
+}
+
 bool Atom::not_empty() const
 {
     switch (_atom_type) {
@@ -505,6 +537,8 @@ bool Atom::not_empty() const
             return _atom_data.num.ld != 0;
         case atom_cstr:
             return _atom_data.str.length != 0;
+        case atom_pointer:
+            return _atom_data.num.ptr != NULL;
         default:
             return false;
     }
@@ -544,6 +578,9 @@ std::string Atom::debug_string(bool compact, int level,
     else if (is_cstr()) {
         ss << "`" << to_cstr() << "'";
     }
+    else if (is_pointer()) {
+        ss << "object " << (_atom_data.num.ptr);
+    }
     ss << "}";
     return ss.str();
 }
@@ -571,6 +608,9 @@ std::string Atom::to_string() const
     }
     else if (is_cstr()) {
         ss << "`" << to_cstr() << "'";
+    }
+    else if (is_pointer()) {
+        ss << "object " << (_atom_data.num.ptr);
     }
     return ss.str();
 }

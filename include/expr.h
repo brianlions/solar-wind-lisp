@@ -33,6 +33,7 @@ public:
         atom_double,
         atom_long_double,
         atom_cstr,
+        atom_pointer,
         NUM_OF_ATOM_TYPES
     };
 
@@ -55,6 +56,7 @@ bool is_##name() const {                \
     atom_type_test_macro(double) //
     atom_type_test_macro(long_double) //
     atom_type_test_macro(cstr) //
+    atom_type_test_macro(pointer) //
 #undef atom_type_test_macro
 
     bool is_quoted_cstr() const
@@ -94,6 +96,7 @@ bool is_##name() const {                \
     }
 
     static AtomPtr create(const char * buf = NULL, size_t length = 0);
+    static AtomPtr create_from_pointer(const void * ptr);
 
     bool parse(const char * buf, size_t length);
     bool parse_bool(const char * buf, size_t length);
@@ -108,6 +111,7 @@ bool is_##name() const {                \
     void set_u64(uint64_t v);
     void set_double(double v);
     void set_long_double(long double v);
+    void set_pointer(const void * v);
 
     bool to_bool(bool &v) const;
     bool to_i32(int32_t &v) const;
@@ -116,6 +120,7 @@ bool is_##name() const {                \
     bool to_u64(uint64_t &v) const;
     bool to_double(double &v) const;
     bool to_long_double(long double &v) const;
+    bool to_pointer(const void * &v) const;
 
     const char * to_cstr() const
     {
@@ -170,6 +175,7 @@ bool is_##name() const {                \
             uint64_t u64;
             double d;
             long double ld;
+            const void * ptr;
         } num;
 
         struct
