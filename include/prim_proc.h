@@ -10,6 +10,7 @@
 #define _SOLAR_WIND_LISP_PRIM_PROC_H_
 
 #include "matter.h"
+#include "expr.h"
 #include "pretty_message.h"
 
 namespace SolarWindLisp
