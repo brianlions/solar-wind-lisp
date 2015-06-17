@@ -127,6 +127,17 @@ bool is_##name() const {                \
         return is_cstr() ? _atom_data.str.buffer : NULL;
     }
 
+    bool to_cstr(const char * &buffer, size_t &length) const
+    {
+        if (is_cstr()) {
+            buffer = _atom_data.str.buffer;
+            length = _atom_data.str.length;
+            return true;
+        }
+
+        return false;
+    }
+
 #if 0
     // TODO: unsafe (overflow or underflow) but faster
     bool to_i32_unsafe(int32_t &v) const;
