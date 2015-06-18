@@ -141,6 +141,44 @@ int InterpreterIF::customize()
     return 0;
 }
 
+InterpreterIF::profiling_result_t InterpreterIF::profiling_execution(
+        const char * str, uint32_t n_times)
+{
+    profiling_result_t ret_val;
+    MatterPtr expr;
+    MatterPtr res;
+    int64_t start_time = 0;
+    int64_t finish_time = 0;
+    ssize_t len = strlen(str);
+    CompositeExpr * ce = NULL;
+
+    start_time = Utils::Time::timestamp_usec();
+    for (size_t i = 0; i < n_times; ++i) {
+        expr = _parser->parse(str, len);
+        if (!expr || expr->matter_type() != MatterIF::matter_composite_expr) {
+            // error
+            ret_val.avg_parse = -1;
+            break;
+        }
+    }
+    finish_time = Utils::Time::timestamp_usec();
+    ret_val.avg_parse = 1.0 * (finish_time - start_time) / n_times;
+
+    start_time = Utils::Time::timestamp_usec();
+    for (size_t i = 0; i < n_times; ++i) {
+        expr = _parser->parse(str, len);
+        ce = static_cast<CompositeExpr *>(expr.get());
+        if (!execute_expr(res, ce->get(0))) {
+            // error
+            ret_val.avg_parse_n_exec = -1;
+        }
+    }
+    finish_time = Utils::Time::timestamp_usec();
+    ret_val.avg_parse_n_exec = 1.0 * (finish_time - start_time) / n_times;
+
+    return ret_val;
+}
+
 bool InterpreterIF::_eval(const MatterPtr &expr, ScopedEnvPtr &scope,
         InterpreterIF * interpreter, MatterPtr &result)
 {

@@ -9,6 +9,7 @@
 #ifndef _SOLAR_WIND_LISP_INTERPRETER_H_
 #define _SOLAR_WIND_LISP_INTERPRETER_H_
 
+#include <stdint.h>
 #include "gnu_attributes.h"
 #include "types.h"
 #include "expr.h"
@@ -48,6 +49,18 @@ public:
     void interactive(const char * filename = NULL);
     static void repl(const char * filename = NULL);
     virtual int customize();
+
+    typedef struct ProfilingResult
+    {
+        double avg_parse;
+        double avg_parse_n_exec;
+        ProfilingResult() :
+                avg_parse(0), avg_parse_n_exec(0)
+        {
+        }
+    } profiling_result_t;
+
+    profiling_result_t profiling_execution(const char * str, uint32_t n_times);
 
 protected:
     ParserIF * parser()
