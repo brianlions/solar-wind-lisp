@@ -13,7 +13,7 @@
 #include "protobuf_heavy_interp.h"
 #include "foo.pb.h"
 
-extern int foo_build_and_serialize(void * buf, int size);
+extern int foo_build_and_serialize(void * buf, int size, Bar ** ptr_msg = NULL);
 
 int main(int argc, char ** argv)
 {

@@ -10,7 +10,7 @@
 #include "foo.pb.h"
 
 // Creates and serializes a Bar message, return byte size, or -1 on error.
-int foo_build_and_serialize(void * buf, int size)
+int foo_build_and_serialize(void * buf, int size, Bar ** ptr_msg = NULL)
 {
     Bar * a_message = new Bar();
     a_message->set_bar_name("sie");
@@ -52,6 +52,12 @@ int foo_build_and_serialize(void * buf, int size)
             << "protobuf message is: " << std::endl //
             << a_message->DebugString() << std::endl //
             << "----------------------------------------" << std::endl;
+    if (ptr_msg) {
+        *ptr_msg = a_message;
+    }
+    else {
+        delete a_message;
+    }
 
     return len;
 }
