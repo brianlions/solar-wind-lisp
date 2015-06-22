@@ -19,9 +19,17 @@ int main(int argc, char ** argv)
 {
     char buffer[1024 * 16];
     int len = 0;
-    if ((len = foo_build_and_serialize(buffer, sizeof(buffer))) < 0) {
+    Bar * message = NULL;
+    if ((len = foo_build_and_serialize(buffer, sizeof(buffer), &message)) < 0) {
         exit(EXIT_FAILURE);
     }
+
+    std::cout
+            << std::endl //
+            << "----------------------------------------" << std::endl
+            << "protobuf message is: " << std::endl //
+            << message->DebugString() << std::endl //
+            << "----------------------------------------" << std::endl;
 
     SolarWindLisp::ProtobufHeavyInterpreter pbh_inter;
     if (pbh_inter.pre_initialization(buffer, len, "./proto/foo.proto", "Bar")
@@ -33,5 +41,8 @@ int main(int argc, char ** argv)
         exit(EXIT_FAILURE);
     }
     pbh_inter.interactive(argc > 1 ? argv[1] : NULL);
+    if (message) {
+        delete message;
+    }
     exit(EXIT_SUCCESS);
 }

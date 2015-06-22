@@ -11,3 +11,49 @@ message Bar {
     repeated int32 bar_numbers = 4;
     repeated Foo bar_foos = 5;
 }
+
+enum Gender {
+    FEMALE = 0;
+    MALE   = 1;
+}
+
+enum DayOfWeek {
+    SUN = 0;
+    MON = 1;
+    TUE = 2;
+    WED = 3;
+    THU = 4;
+    FRI = 5;
+    SAT = 6;
+}
+
+message Person {
+    optional string name = 1;
+    optional Gender gender = 2;
+    optional int32  age = 3;
+    optional int32  height = 4;
+    optional int32  weight = 5;
+    optional string address = 6;
+    optional string seat = 7;
+    repeated int32     lucky_numbers = 8;
+    repeated DayOfWeek lucky_day_of_weeks = 9;
+}
+
+message Department {
+    optional string name = 1;
+    optional string description = 2;
+    optional int32  department_id = 3;
+    optional Person manager = 4;
+    repeated Person deputy_managers = 5;
+    repeated Person workers = 6;
+}
+
+message Company {
+    optional string name = 1;
+    optional string description = 2;
+    optional int32  company_id = 3;
+    optional Person president = 4;
+    repeated Person vice_presidents = 5;
+    optional Department headquarter = 6;
+    repeated Department departments = 7;
+}
